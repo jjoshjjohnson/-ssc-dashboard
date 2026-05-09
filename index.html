@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSC Dashboard — Something Social Club</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080b12;--surface:#0e1220;--surface2:#131927;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:#e8edf5;--muted:#64748b;--faint:#1e2a3a;
+  --indigo:#6366f1;--cyan:#06b6d4;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--pink:#ec4899;--purple:#8b5cf6;
+  --font:'Sora',sans-serif;--mono:'IBM Plex Mono',monospace;--r:12px;--r-sm:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;direction:rtl}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(99,102,241,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.shell{position:relative;z-index:1;display:flex;min-height:100vh}
+/* SIDEBAR */
+.sidebar{width:210px;min-height:100vh;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.logo-area{padding:22px 18px 18px;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--indigo),var(--purple));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.logo-text{font-size:14px;font-weight:700;color:#fff}
+.logo-sub{font-size:9px;color:var(--muted);margin-top:3px;font-family:var(--mono);letter-spacing:.5px}
+.nav{padding:14px 10px;flex:1}
+.nav-label{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:0 8px;margin-bottom:5px;margin-top:14px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:var(--r-sm);cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);transition:all .15s;margin-bottom:2px;border:1px solid transparent;background:none;width:100%;text-align:right}
+.nav-item:hover{background:rgba(99,102,241,.08);color:var(--text);border-color:rgba(99,102,241,.2)}
+.nav-item.active{background:rgba(99,102,241,.15);color:#fff;border-color:rgba(99,102,241,.3)}
+.nav-dot{width:5px;height:5px;border-radius:50%;background:var(--faint);flex-shrink:0}
+.nav-item.active .nav-dot{background:var(--indigo);box-shadow:0 0 6px var(--indigo)}
+.sb-footer{padding:14px;border-top:1px solid var(--border)}
+.live{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--green);font-family:var(--mono)}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+/* MAIN */
+.main{flex:1;overflow-x:hidden;min-width:0}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(8,11,18,.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between}
+.tb-title{font-size:15px;font-weight:700;color:#fff}
+.tb-meta{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+.tf{display:flex;gap:3px;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:3px}
+.tf-btn{padding:4px 12px;border-radius:999px;font-size:10px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .15s;font-family:var(--font)}
+.tf-btn.active{background:var(--indigo);color:#fff}
+/* PAGES */
+.page{padding:20px 24px;display:none}
+.page.active{display:block}
+/* SECTION TITLE */
+.sec{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+/* KPI GRID */
+.kg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.kg3{grid-template-columns:repeat(3,1fr)}
+.kg2{grid-template-columns:repeat(2,1fr)}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;animation:fadeUp .4s ease both}
+.kpi:nth-child(2){animation-delay:.05s}.kpi:nth-child(3){animation-delay:.1s}.kpi:nth-child(4){animation-delay:.15s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.kpi:hover{border-color:var(--border2);transform:translateY(-1px)}
+.kpi::before{content:'';position:absolute;top:0;right:0;left:0;height:2px;border-radius:var(--r) var(--r) 0 0}
+.kpi.i::before{background:linear-gradient(90deg,transparent,var(--indigo))}
+.kpi.c::before{background:linear-gradient(90deg,transparent,var(--cyan))}
+.kpi.g::before{background:linear-gradient(90deg,transparent,var(--green))}
+.kpi.y::before{background:linear-gradient(90deg,transparent,var(--yellow))}
+.kpi.r::before{background:linear-gradient(90deg,transparent,var(--red))}
+.kpi.p::before{background:linear-gradient(90deg,transparent,var(--purple))}
+.kpi.pk::before{background:linear-gradient(90deg,transparent,var(--pink))}
+.kpi-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:12px}
+.ico-i{background:rgba(99,102,241,.15)}.ico-c{background:rgba(6,182,212,.15)}.ico-g{background:rgba(16,185,129,.15)}
+.ico-y{background:rgba(245,158,11,.15)}.ico-r{background:rgba(239,68,68,.15)}.ico-p{background:rgba(139,92,246,.15)}.ico-pk{background:rgba(236,72,153,.15)}
+.kpi-lbl{font-size:10px;color:var(--muted);font-weight:500;margin-bottom:5px;letter-spacing:.2px}
+.kpi-val{font-size:24px;font-weight:800;color:#fff;line-height:1;margin-bottom:6px;font-family:var(--mono);letter-spacing:-1px}
+.kpi-val.lg{font-size:28px}.kpi-val.sm{font-size:19px}
+.kpi-sub{font-size:10px;color:var(--muted)}
+.up{color:var(--green)}.dn{color:var(--red)}
+/* CHART CARD */
+.cc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
+.cc-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.cc-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px}
+.cc-sub{font-size:10px;color:var(--muted)}
+.cc-legend{display:flex;gap:12px;font-size:10px;color:var(--muted)}
+.ld{width:7px;height:7px;border-radius:50%;display:inline-block;margin-left:4px}
+.cw{position:relative;height:200px}
+.cw.tall{height:260px}.cw.sh{height:150px}
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+/* TABLE */
+table.dt{width:100%;border-collapse:collapse;font-size:11px}
+table.dt th{text-align:right;padding:7px 9px;font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
+table.dt td{padding:9px 9px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+table.dt tr:last-child td{border-bottom:none}
+table.dt tr:hover td{background:rgba(255,255,255,.02)}
+.pill{display:inline-block;padding:2px 7px;border-radius:999px;font-size:9px;font-weight:600;font-family:var(--mono)}
+.pg{background:rgba(16,185,129,.15);color:var(--green)}
+.pr{background:rgba(239,68,68,.15);color:var(--red)}
+.py{background:rgba(245,158,11,.15);color:var(--yellow)}
+.pb{background:rgba(99,102,241,.15);color:var(--indigo)}
+.pc{background:rgba(6,182,212,.15);color:var(--cyan)}
+.pp{background:rgba(139,92,246,.15);color:var(--purple)}
+/* GOAL BAR */
+.goal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
+.gb-bg{height:8px;background:var(--faint);border-radius:99px;overflow:hidden;margin:10px 0 6px}
+.gb-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--indigo),var(--cyan));position:relative}
+.gb-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:2px;background:#fff;border-radius:99px;box-shadow:0 0 6px #fff}
+.sp{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+/* DONUT WRAP */
+.dw{display:flex;align-items:center;gap:18px}
+.dl{flex:1}
+.dli{display:flex;align-items:center;gap:7px;margin-bottom:9px;font-size:11px}
+.dld{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.dll{color:var(--muted);flex:1}
+.dlv{font-weight:700;color:#fff;font-family:var(--mono);font-size:11px}
+/* HEATMAP */
+.hm{display:grid;grid-template-columns:70px repeat(7,1fr);gap:3px;font-size:10px}
+.hm-hdr{text-align:center;color:var(--muted);font-weight:600;font-size:9px;padding-bottom:5px;letter-spacing:.3px}
+.hm-lbl{color:var(--muted);display:flex;align-items:center;font-size:9px;padding-right:4px}
+.hm-cell{height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;font-family:var(--mono);transition:transform .15s;cursor:default}
+.hm-cell:hover{transform:scale(1.15);z-index:2;position:relative}
+/* INSIGHT BOX */
+.insight{border-radius:var(--r-sm);padding:11px 13px;font-size:11px;line-height:1.6;margin-bottom:8px}
+.ins-r{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)}
+.ins-y{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2)}
+.ins-g{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2)}
+.ins-b{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2)}
+/* INNER GRID */
+.inner3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.inner-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:13px}
+.dvd{height:1px;background:var(--border);margin:16px 0}
+/* RESPONSIVE */
+@media(max-width:1100px){.kg{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:800px){.sidebar{display:none}.g2{grid-template-columns:1fr}.page{padding:14px}}
+@media(max-width:500px){.kg{grid-template-columns:1fr}.topbar{padding:10px 14px}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-area">
+    <div class="logo">
+      <div class="logo-icon">💫</div>
+      <div>
+        <div class="logo-text">SSC</div>
+      </div>
+    </div>
+    <div class="logo-sub">Something Social Club</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-label">ניווט</div>
+    <button class="nav-item active" onclick="go('overview',this)"><span class="nav-dot"></span>סקירה כללית</button>
+    <button class="nav-item" onclick="go('members',this)"><span class="nav-dot"></span>חברים ושחיקה</button>
+    <button class="nav-item" onclick="go('revenue',this)"><span class="nav-dot"></span>הכנסות ו-MRR</button>
+    <button class="nav-item" onclick="go('products',this)"><span class="nav-dot"></span>מוצרים ומכירות</button>
+    <button class="nav-item" onclick="go('acquisition',this)"><span class="nav-dot"></span>גיוס ו-CAC</button>
+    <button class="nav-item" onclick="go('members-list',this)"><span class="nav-dot"></span>רשימת חברים</button>
+  </nav>
+  <div class="sb-footer">
+    <div class="live"><div class="live-dot"></div>Live · Cardcom 09/05/26</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+<div class="topbar">
+  <div>
+    <div class="tb-title" id="pg-title">סקירה כללית</div>
+    <div class="tb-meta">שבת 09 מאי 2026 · יום 9/31 · <span id="last-refresh" style="color:var(--green)">טוען נתונים חיים...</span></div>
+  </div>
+  <div class="tf">
+    <button class="tf-btn active" onclick="setTF('m',this)">חודשי</button>
+    <button class="tf-btn" onclick="setTF('w',this)">שבועי</button>
+    <button class="tf-btn" onclick="setTF('a',this)">שנתי</button>
+  </div>
+</div>
+
+<!-- ════ OVERVIEW ════ -->
+<div class="page active" id="pg-overview">
+
+  <div class="kg" style="margin-top:4px;">
+    <div class="kpi i"><div class="kpi-ico ico-i">💰</div><div class="kpi-lbl">הכנסות החודש (מאי)</div><div class="kpi-val" id="k-rev"" id="k-rev">₪16,617</div><div class="kpi-sub up">↑ קצב ₪1,846/יום</div></div>
+    <div class="kpi g"><div class="kpi-ico ico-g">👥</div><div class="kpi-lbl">חברים פעילים</div><div class="kpi-val" id="k-act"" id="k-act">285</div><div class="kpi-sub up">+17 חדשים החודש</div></div>
+    <div class="kpi c"><div class="kpi-ico ico-c">📈</div><div class="kpi-lbl">MRR קארדקום</div><div class="kpi-val" id="k-mrr"" id="k-mrr">₪11,565</div><div class="kpi-sub">281 מנויים חוזרים</div></div>
+    <div class="kpi y"><div class="kpi-ico ico-y">🎯</div><div class="kpi-lbl">תחזית EOM</div><div class="kpi-val" id="k-eom"">₪57,236</div><div class="kpi-sub up">115% מיעד ₪50K ✅</div></div>
+  </div>
+
+  <div class="kg">
+    <div class="kpi r"><div class="kpi-ico ico-r">📉</div><div class="kpi-lbl">שחיקה (Churn)</div><div class="kpi-val" id="k-churn" sm">157 חברים</div><div class="kpi-sub dn">35.5% מסה"כ</div></div>
+    <div class="kpi p"><div class="kpi-ico ico-p">🔄</div><div class="kpi-lbl">חידושים החודש</div><div class="kpi-val" id="k-renew" sm">78</div><div class="kpi-sub">₪3,666 מ-₪47</div></div>
+    <div class="kpi pk"><div class="kpi-ico ico-pk">🌟</div><div class="kpi-lbl">YTD הכנסות</div><div class="kpi-val" id="k-ytd" sm">₪141,094</div><div class="kpi-sub">קארדקום + יופי</div></div>
+    <div class="kpi i"><div class="kpi-ico ico-c">💡</div><div class="kpi-lbl">LTV ממוצע (קארדקום)</div><div class="kpi-val" id="k-ltv" sm">₪91</div><div class="kpi-sub">442 חברים ייחודיים</div></div>
+  </div>
+
+  <div class="goal">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;">יעד חודשי — מאי 2026</div><div style="font-size:10px;color:var(--muted)">יום 9/31 · 29% מהחודש חלף</div></div>
+      <div style="text-align:left;"><div style="font-family:var(--mono);font-size:22px;font-weight:800;color:#fff;">33.2%</div><div style="font-size:10px;color:var(--green)">₪16,617 / ₪50,000</div></div>
+    </div>
+    <div class="gb-bg"><div class="gb-fill" id="goal-bar-fill" style="width:33.2%"></div></div>
+    <div class="sp"><span>נדרש: ₪33,383</span><span style="color:var(--green)">תחזית: ₪57,236 ✅</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <div class="cc-hd">
+        <div><div class="cc-title">הכנסות חודשיות</div><div class="cc-sub">ינואר–מאי 2026</div></div>
+        <div class="cc-legend"><span><span class="ld" style="background:var(--indigo)"></span>קארדקום</span><span><span class="ld" style="background:var(--cyan)"></span>יופי</span></div>
+      </div>
+      <div class="cw"><canvas id="ch-monthly"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="cc-hd"><div><div class="cc-title">חדשים vs שחיקה</div><div class="cc-sub">קארדקום לפי חודש</div></div></div>
+      <div class="cw"><canvas id="ch-churn"></canvas></div>
+    </div>
+  </div>
+
+  <div class="cc">
+    <div class="cc-hd"><div><div class="cc-title">הצטרפויות לפי יום — מפת חום</div><div class="cc-sub">כמות חברים חדשים (₪10) לפי שבוע ויום</div></div></div>
+    <div class="hm" id="hm"></div>
+  </div>
+
+</div><!-- /overview -->
+
+
+<!-- ════ MEMBERS ════ -->
+<div class="page" id="pg-members">
+
+  <div class="kg kg3">
+    <div class="kpi g"><div class="kpi-ico ico-g">✅</div><div class="kpi-lbl">חברים פעילים</div><div class="kpi-val">285</div><div class="kpi-sub">תשלום ב-35 יום האחרונים</div></div>
+    <div class="kpi r"><div class="kpi-ico ico-r">❌</div><div class="kpi-lbl">עזבו (Churned)</div><div class="kpi-val">157</div><div class="kpi-sub dn">35.5% מסה"כ 442 חברים</div></div>
+    <div class="kpi y"><div class="kpi-ico ico-y">⏳</div><div class="kpi-lbl">ממוצע חיי חבר שעזב</div><div class="kpi-val">10 יום</div><div class="kpi-sub">הכנסה ממוצעת: ₪84.6</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <div class="cc-hd"><div><div class="cc-title">פילוח מצב חברות</div><div class="cc-sub">פעילים vs עזבו</div></div></div>
+      <div class="dw" style="height:180px;align-items:center;">
+        <div style="width:150px;height:150px;flex-shrink:0;"><canvas id="ch-status"></canvas></div>
+        <div class="dl">
+          <div class="dli"><div class="dld" style="background:var(--green)"></div><div class="dll">פעילים</div><div class="dlv">285</div></div>
+          <div class="dli"><div class="dld" style="background:var(--red)"></div><div class="dll">עזבו</div><div class="dlv">157</div></div>
+          <div class="dli"><div class="dld" style="background:var(--faint)"></div><div class="dll">שיעור שימור</div><div class="dlv">64.5%</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="cc">
+      <div class="cc-hd"><div><div class="cc-title">חברים חדשים לפי חודש</div><div class="cc-sub">כניסות ₪10 חדשות</div></div></div>
+      <div class="cw"><canvas id="ch-newmo"></canvas></div>
+    </div>
+  </div>
+
+  <div class="cc">
+    <div class="cc-title" style="margin-bottom:14px;">🔍 ניתוח שחיקה</div>
+    <div class="inner3">
+      <div class="inner-box"><div class="kpi-lbl">הכנסה מחברים שעזבו</div><div id="churn-rev" style="font-size:20px;font-weight:800;color:var(--red);font-family:var(--mono);margin-top:6px;">₪13,275</div><div class="kpi-sub">לפני עזיבה</div></div>
+      <div class="inner-box"><div class="kpi-lbl">ממוצע per churned member</div><div id="churn-avg" style="font-size:20px;font-weight:800;color:var(--yellow);font-family:var(--mono);margin-top:6px;">₪84.6</div><div class="kpi-sub dn">vs ₪100 CAC = הפסד ₪15.4</div></div>
+      <div class="inner-box"><div class="kpi-lbl">Churn Rate חודשי (משוער)</div><div style="font-size:20px;font-weight:800;color:var(--red);font-family:var(--mono);margin-top:6px;">~8.8%</div><div class="kpi-sub">שוק SaaS ממוצע: 5-7%</div></div>
+    </div>
+    <div class="dvd"></div>
+    <div class="insight ins-r">⚠️ <strong>ממוצע 10 ימים בלבד</strong> — רוב השחיקה קורית לפני החידוש הראשון ב-₪47. ה-Trial לא מחזיק.</div>
+    <div class="insight ins-y">💸 <strong>הפסד CAC</strong> — 157 חברים שעזבו × ₪15.4 = <strong>₪2,418 הפסד נקי</strong> על גיוס לשווא.</div>
+    <div class="insight ins-g">✅ <strong>64.5% שימור</strong> — חזק לשוק ישראלי. המטרה: להגיע ל-75%+ עם onboarding משופר.</div>
+  </div>
+
+</div><!-- /members -->
+
+
+<!-- ════ REVENUE ════ -->
+<div class="page" id="pg-revenue">
+
+  <div class="kg">
+    <div class="kpi i"><div class="kpi-ico ico-i">📊</div><div class="kpi-lbl">YTD הכנסות 2026</div><div class="kpi-val" id="mrr-ytd" sm">₪141,094</div><div class="kpi-sub">קארדקום + יופי</div></div>
+    <div class="kpi c"><div class="kpi-ico ico-c">🔵</div><div class="kpi-lbl">MRR קארדקום</div><div class="kpi-val sm">₪11,565</div><div class="kpi-sub">281 מנויים פעילים</div></div>
+    <div class="kpi g"><div class="kpi-ico ico-g">🟢</div><div class="kpi-lbl">ARR משוער</div><div class="kpi-val" id="mrr-arr" sm">₪138,780</div><div class="kpi-sub">MRR × 12</div></div>
+    <div class="kpi y"><div class="kpi-ico ico-y">📅</div><div class="kpi-lbl">חודש הכי חזק</div><div class="kpi-val sm">מרץ</div><div class="kpi-sub">₪41,295 סה"כ</div></div>
+  </div>
+
+  <div class="cc">
+    <div class="cc-hd">
+      <div><div class="cc-title">הכנסות חודשיות — 2026</div><div class="cc-sub">קארדקום + יופי + סה"כ</div></div>
+      <div class="cc-legend"><span><span class="ld" style="background:var(--indigo)"></span>קארדקום</span><span><span class="ld" style="background:var(--cyan)"></span>יופי</span><span><span class="ld" style="background:var(--yellow)"></span>סה"כ</span></div>
+    </div>
+    <div class="cw tall"><canvas id="ch-rev-stack"></canvas></div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <div class="cc-hd"><div><div class="cc-title">פילוח YTD</div><div class="cc-sub">קארדקום vs יופי</div></div></div>
+      <div class="dw" style="height:180px;align-items:center;">
+        <div style="width:150px;height:150px;flex-shrink:0;"><canvas id="ch-split"></canvas></div>
+        <div class="dl">
+          <div class="dli"><div class="dld" style="background:var(--indigo)"></div><div class="dll">קארדקום</div><div class="dlv">₪41,833</div></div>
+          <div class="dli"><div class="dld" style="background:var(--cyan)"></div><div class="dll">יופי</div><div class="dlv">₪99,261</div></div>
+          <div class="dli"><div class="dld" style="background:var(--faint)"></div><div class="dll">יופי %</div><div class="dlv">70.4%</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="cc">
+      <div class="cc-title" style="margin-bottom:12px;">טבלת הכנסות חודשית</div>
+      <table class="dt">
+        <thead><tr><th>חודש</th><th>קארדקום</th><th>יופי</th><th>סה"כ</th></tr></thead>
+        <tbody>
+          <tr><td>ינואר</td><td>—</td><td>₪23,650</td><td style="font-weight:700;color:#fff;">₪23,650</td></tr>
+          <tr><td>פברואר</td><td>₪8,487</td><td>₪23,400</td><td style="font-weight:700;color:#fff;">₪31,887</td></tr>
+          <tr><td>מרץ</td><td>₪15,534</td><td>₪25,761</td><td style="font-weight:700;color:var(--green);">₪41,295 🏆</td></tr>
+          <tr><td>אפריל</td><td>₪12,375</td><td>₪15,270</td><td style="font-weight:700;color:#fff;">₪27,645</td></tr>
+          <tr style="background:rgba(99,102,241,.08)"><td><strong>מאי ◄</strong></td><td>₪5,437</td><td>₪11,180</td><td style="font-weight:700;color:var(--indigo);">₪16,617</td></tr>
+          <tr><td style="color:var(--yellow);font-weight:700;">סה"כ</td><td style="color:var(--indigo);font-weight:700;">₪41,833</td><td style="color:var(--cyan);font-weight:700;">₪99,261</td><td style="color:var(--yellow);font-weight:800;">₪141,094</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="cc">
+    <div class="cc-hd"><div><div class="cc-title">הכנסות שבועיות — קארדקום</div><div class="cc-sub">8 שבועות אחרונים</div></div></div>
+    <div class="cw"><canvas id="ch-weekly-rev"></canvas></div>
+  </div>
+
+</div><!-- /revenue -->
+
+
+<!-- ════ PRODUCTS ════ -->
+<div class="page" id="pg-products">
+
+  <div class="sec">מוצרים מתחילת החודש — מאי 2026</div>
+
+  <div class="g2">
+    <div class="cc">
+      <div class="cc-title" style="margin-bottom:3px;">קארדקום — מאי</div><div class="cc-sub" style="margin-bottom:14px;">לפי מחיר מוצר</div>
+      <table class="dt">
+        <thead><tr><th>מוצר</th><th>כמות</th><th>הכנסה</th><th>%</th></tr></thead>
+        <tbody>
+          <tr><td>מנוי ₪47</td><td>78</td><td>₪3,666</td><td><span class="pill pb">67.4%</span></td></tr>
+          <tr><td>מנוי חדש ₪10</td><td>17</td><td>₪170</td><td><span class="pill pc">3.1%</span></td></tr>
+          <tr><td>חבילה ₪987</td><td>1</td><td>₪987</td><td><span class="pill pp">18.2%</span></td></tr>
+          <tr><td>חבילה ₪282</td><td>1</td><td>₪282</td><td><span class="pill py">5.2%</span></td></tr>
+          <tr><td>₪39 מבצע</td><td>6</td><td>₪234</td><td></td></tr>
+          <tr><td>₪98</td><td>1</td><td>₪98</td><td></td></tr>
+          <tr><td style="font-weight:700;color:#fff;">סה"כ</td><td style="font-weight:700;">104</td><td style="font-weight:700;color:var(--indigo);">₪5,437</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cc">
+      <div class="cc-title" style="margin-bottom:3px;">יופי — מאי</div><div class="cc-sub" style="margin-bottom:14px;">לפי מוצר</div>
+      <table class="dt">
+        <thead><tr><th>מוצר</th><th>כמות</th><th>הכנסה</th><th>%</th></tr></thead>
+        <tbody>
+          <tr><td>חבילה גדולה ₪6,500</td><td>1</td><td>₪6,500</td><td><span class="pill pp">58.1%</span></td></tr>
+          <tr><td>מנוי ₪850</td><td>4</td><td>₪3,400</td><td><span class="pill pb">30.4%</span></td></tr>
+          <tr><td>מנוי ₪1,250</td><td>1</td><td>₪1,250</td><td><span class="pill pc">11.2%</span></td></tr>
+          <tr><td>דמי חבר ₪30</td><td>1</td><td>₪30</td><td></td></tr>
+          <tr><td style="font-weight:700;color:#fff;">סה"כ</td><td style="font-weight:700;">7</td><td style="font-weight:700;color:var(--cyan);">₪11,180</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec">מוצרים שנתי — 2026</div>
+
+  <div class="g2">
+    <div class="cc">
+      <div class="cc-title" style="margin-bottom:3px;">קארדקום — YTD</div><div class="cc-sub" style="margin-bottom:14px;">פברואר–מאי · 906 עסקאות</div>
+      <table class="dt">
+        <thead><tr><th>מוצר</th><th>כמות</th><th>הכנסה</th></tr></thead>
+        <tbody>
+          <tr><td>מנוי ₪47</td><td><span class="pill pb">505</span></td><td style="color:var(--indigo);font-weight:700;">₪23,735</td></tr>
+          <tr><td>מנוי חדש ₪10</td><td>258</td><td>₪2,580</td></tr>
+          <tr><td>מנוי ₪69</td><td>43</td><td>₪2,967</td></tr>
+          <tr><td>מנוי ₪297</td><td>10</td><td>₪2,970</td></tr>
+          <tr><td>מנוי ₪247</td><td>7</td><td>₪1,729</td></tr>
+          <tr><td>מנוי ₪174</td><td>8</td><td>₪1,392</td></tr>
+          <tr><td>מנוי ₪89</td><td>14</td><td>₪1,246</td></tr>
+          <tr><td>מנוי ₪39 מבצע</td><td>30</td><td>₪1,170</td></tr>
+          <tr><td>חבילה ₪987</td><td>1</td><td>₪987</td></tr>
+          <tr><td style="font-weight:700;color:#fff;">סה"כ</td><td style="font-weight:700;">906</td><td style="font-weight:700;color:var(--yellow);">₪41,833</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cc">
+      <div class="cc-title" style="margin-bottom:3px;">יופי — YTD</div><div class="cc-sub" style="margin-bottom:14px;">ינואר–מאי · 51 עסקאות</div>
+      <table class="dt">
+        <thead><tr><th>מוצר</th><th>כמות</th><th>הכנסה</th></tr></thead>
+        <tbody>
+          <tr><td>חבילות גדולות</td><td><span class="pill pp">3</span></td><td style="color:var(--purple);font-weight:700;">₪18,500</td></tr>
+          <tr><td>חבילת אימונים ₪7,670</td><td>2</td><td>₪15,340</td></tr>
+          <tr><td>חבילה מתקדמת ₪10,030</td><td>1</td><td>₪10,030</td></tr>
+          <tr><td>מנוי שנתי VIP ₪2,850</td><td>5</td><td>₪14,250</td></tr>
+          <tr><td>מנוי שנתי ₪2,350</td><td>4</td><td>₪9,400</td></tr>
+          <tr><td>מנוי ₪997</td><td>14</td><td>₪13,958</td></tr>
+          <tr><td>מנוי ₪850</td><td>14</td><td>₪11,900</td></tr>
+          <tr><td>מנוי ₪1,200</td><td>5</td><td>₪6,000</td></tr>
+          <tr><td>מנוי ₪1,250</td><td>2</td><td>₪2,500</td></tr>
+          <tr><td style="font-weight:700;color:#fff;">סה"כ</td><td style="font-weight:700;">51</td><td style="font-weight:700;color:var(--yellow);">₪99,261</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="cc">
+    <div class="cc-hd"><div><div class="cc-title">מיקס מוצרים קארדקום — כמות עסקאות</div><div class="cc-sub">YTD כל הסוגים</div></div></div>
+    <div class="cw"><canvas id="ch-prods"></canvas></div>
+  </div>
+
+</div><!-- /products -->
+
+
+<!-- ════ ACQUISITION ════ -->
+<div class="page" id="pg-acquisition">
+
+  <div class="kg kg3">
+    <div class="kpi i"><div class="kpi-ico ico-i">🎯</div><div class="kpi-lbl">חברים חדשים YTD</div><div class="kpi-val">258</div><div class="kpi-sub">₪10 Trial · קארדקום</div></div>
+    <div class="kpi r"><div class="kpi-ico ico-r">💸</div><div class="kpi-lbl">CAC מניח</div><div class="kpi-val">₪100</div><div class="kpi-sub">תקציב כולל: ₪25,800</div></div>
+    <div class="kpi y"><div class="kpi-ico ico-y">⚖️</div><div class="kpi-lbl">LTV:CAC</div><div class="kpi-val">0.9x</div><div class="kpi-sub dn">יעד: 3x+</div></div>
+  </div>
+
+  <div class="cc" style="margin-bottom:12px;">
+    <div class="cc-title" style="margin-bottom:14px;">📊 ניתוח CAC ו-LTV</div>
+    <div class="inner3">
+      <div class="inner-box"><div class="kpi-lbl">LTV ממוצע קארדקום</div><div style="font-size:20px;font-weight:800;color:#fff;font-family:var(--mono);margin-top:6px;">₪91</div><div class="kpi-sub">₪41,833 / 462 עסקאות</div></div>
+      <div class="inner-box" style="border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.06)"><div class="kpi-lbl">הפסד CAC שחיקה</div><div style="font-size:20px;font-weight:800;color:var(--red);font-family:var(--mono);margin-top:6px;">₪2,418</div><div class="kpi-sub">157 × ₪15.4</div></div>
+      <div class="inner-box" style="border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.06)"><div class="kpi-lbl">ROI חברים פעילים</div><div style="font-size:20px;font-weight:800;color:var(--green);font-family:var(--mono);margin-top:6px;">2.8x</div><div class="kpi-sub">₪28,558 / ₪10,200</div></div>
+    </div>
+    <div class="dvd"></div>
+    <div class="insight ins-b">🎯 <strong>יעד 3x LTV:CAC</strong> — צריך LTV ₪300. עם ₪47/חודש זה 6.4 חודשים ממוצע חיים. פוקוס על שימור חודש ראשון.</div>
+    <div class="insight ins-y">💡 אם הצלחת להעלות אחוז ממשיכים לחידוש ₪47 ראשון מ-64.5% ל-80%, ה-LTV קופץ ל-₪140 — LTV:CAC מגיע ל-1.4x.</div>
+    <div class="insight ins-g">✅ <strong>מרץ = הקמפיין הכי טוב</strong> — 108 חברים חדשים. כדאי לנתח מה עבד ולשחזר.</div>
+  </div>
+
+  <div class="g2">
+    <div class="cc">
+      <div class="cc-hd"><div><div class="cc-title">חברים חדשים לפי יום בשבוע</div><div class="cc-sub">YTD — ימים חזקים</div></div></div>
+      <div class="cw"><canvas id="ch-dow-new"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="cc-hd"><div><div class="cc-title">הכנסות לפי יום בשבוע</div><div class="cc-sub">קארדקום YTD</div></div></div>
+      <div class="cw"><canvas id="ch-dow-rev"></canvas></div>
+    </div>
+  </div>
+
+  <div class="cc">
+    <div class="cc-hd"><div><div class="cc-title">חברים חדשים + חידושים לפי שבוע</div><div class="cc-sub">8 שבועות אחרונים</div></div></div>
+    <div class="cw"><canvas id="ch-wk-new"></canvas></div>
+  </div>
+
+</div><!-- /acquisition -->
+
+<!-- ════ MEMBERS LIST ════ -->
+<div class="page" id="pg-members-list">
+
+  <div class="kg kg3" style="margin-top:4px;">
+    <div class="kpi g"><div class="kpi-ico ico-g">✅</div><div class="kpi-lbl">פעילים</div><div class="kpi-val" id="ml-active-count">—</div><div class="kpi-sub">תשלום ב-35 יום אחרונים</div></div>
+    <div class="kpi r"><div class="kpi-ico ico-r">❌</div><div class="kpi-lbl">עזבו</div><div class="kpi-val" id="ml-churned-count">—</div><div class="kpi-sub">לא שילמו 35+ יום</div></div>
+    <div class="kpi y"><div class="kpi-ico ico-y">💰</div><div class="kpi-lbl">הכנסה מהרשימה</div><div class="kpi-val" id="ml-rev-total">—</div><div class="kpi-sub">סה"כ קארדקום</div></div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="cc" style="margin-bottom:12px;padding:14px 18px;">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div style="display:flex;gap:4px;">
+        <button class="tf-btn active" id="mf-all" onclick="filterMembers('all',this)">הכל (441)</button>
+        <button class="tf-btn" id="mf-active" onclick="filterMembers('active',this)">פעילים</button>
+        <button class="tf-btn" id="mf-churned" onclick="filterMembers('churned',this)">עזבו</button>
+      </div>
+      <input id="ml-search" type="text" placeholder="🔍 חיפוש שם / אימייל / טלפון..." 
+        style="flex:1;min-width:200px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;color:var(--text);font-size:12px;font-family:var(--font);outline:none;"
+        oninput="renderMembers()">
+      <select id="ml-sort" onchange="renderMembers()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;color:var(--text);font-size:12px;font-family:var(--font);outline:none;">
+        <option value="last-desc">תאריך אחרון ↓</option>
+        <option value="last-asc">תאריך אחרון ↑</option>
+        <option value="rev-desc">הכנסה ↓</option>
+        <option value="lt-desc">חיים ↓</option>
+        <option value="pay-desc">תשלומים ↓</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="cc" style="padding:0;overflow:hidden;">
+    <div style="overflow-x:auto;">
+      <table class="dt" id="ml-table">
+        <thead>
+          <tr>
+            <th style="padding-right:16px;">#</th>
+            <th>שם</th>
+            <th>סטטוס</th>
+            <th>הצטרף</th>
+            <th>תשלום אחרון</th>
+            <th>ימי חיים</th>
+            <th>תשלומים</th>
+            <th>הכנסה כוללת</th>
+            <th>ימים מאז</th>
+            <th>טלפון</th>
+          </tr>
+        </thead>
+        <tbody id="ml-tbody"></tbody>
+      </table>
+    </div>
+    <div id="ml-pagination" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);">
+      <span id="ml-count-label"></span>
+      <div style="display:flex;gap:6px;">
+        <button onclick="mlPage(-1)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 12px;color:var(--text);cursor:pointer;font-size:11px;">◄ הקודם</button>
+        <span id="ml-page-info" style="padding:4px 10px;"></span>
+        <button onclick="mlPage(1)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 12px;color:var(--text);cursor:pointer;font-size:11px;">הבא ►</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /members-list -->
+
+
+</main>
+</div>
+
+<script>
+// ── DATA ──
+const D = {
+  months:['ינואר','פברואר','מרץ','אפריל','מאי'],
+  cardcom:[0,8487,15534,12375,5437],
+  yofi:[23650,23400,25761,15270,11180],
+  combined:[23650,31887,41295,27645,16617],
+  newM:[0,87,108,46,17],
+  churned:[0,12,45,72,28],
+  recurring:[0,52,162,213,78],
+  weekly:{
+    labels:['W11','W12','W13','W14','W15','W16','W17','W18'],
+    rev:[4413,2754,4079,2700,2474,1997,5119,1541],
+    newM:[18,3,12,7,15,7,13,12],
+    rec:[39,38,79,52,25,36,75,24]
+  },
+  dow:{
+    labels:['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'],
+    new:[34,45,39,47,31,31,31],
+    rev:[6976,5361,4604,6176,4833,4873,9010]
+  },
+  prods:{
+    labels:['₪47','₪10','₪69','₪297','₪89','₪39','₪247','₪174','₪197'],
+    counts:[505,258,43,10,14,30,7,8,6]
+  },
+  hm:{
+    weeks:['W06','W07','W08','W09','W10','W11','W12','W13'],
+    days:['א','ב','ג','ד','ה','ו','ש'],
+    data:[[5,3,4,6,2,3,4],[7,5,6,7,3,4,5],[4,7,5,4,5,6,7],[3,5,8,9,7,5,6],[6,4,3,5,4,3,4],[4,5,3,4,3,2,3],[5,4,6,5,4,3,4],[3,3,2,4,3,2,3]]
+  }
+};
+
+// ── CHART DEFAULTS ──
+const C={indigo:'#6366f1',cyan:'#06b6d4',green:'#10b981',yellow:'#f59e0b',red:'#ef4444',pink:'#ec4899',purple:'#8b5cf6',muted:'#64748b',border:'rgba(255,255,255,0.06)'};
+Chart.defaults.color=C.muted;Chart.defaults.borderColor=C.border;Chart.defaults.font.family="'IBM Plex Mono',monospace";Chart.defaults.font.size=10;
+const tt={backgroundColor:'#131927',borderColor:'rgba(255,255,255,0.12)',borderWidth:1,titleColor:'#e8edf5',bodyColor:'#94a3b8',padding:9,cornerRadius:7};
+const ttILS={...tt,callbacks:{label:c=>` ${c.dataset.label}: ₪${(c.parsed.y??c.parsed).toLocaleString()}`}};
+const ttN={...tt,callbacks:{label:c=>` ${c.dataset.label}: ${(c.parsed.y??c.parsed).toLocaleString()}`}};
+const gr={color:'rgba(255,255,255,0.04)',drawBorder:false};
+const chs={};
+
+function initCharts(){
+  // Monthly stacked
+  chs.monthly=new Chart(document.getElementById('ch-monthly'),{type:'bar',data:{labels:D.months,datasets:[
+    {label:'קארדקום',data:D.cardcom,backgroundColor:C.indigo+'cc',borderRadius:5,borderSkipped:false},
+    {label:'יופי',data:D.yofi,backgroundColor:C.cyan+'cc',borderRadius:5,borderSkipped:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttILS},scales:{x:{stacked:true,grid:gr},y:{stacked:true,grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
+
+  // Churn vs New
+  chs.churn=new Chart(document.getElementById('ch-churn'),{type:'bar',data:{labels:D.months.slice(1),datasets:[
+    {label:'חדשים',data:D.newM.slice(1),backgroundColor:C.green+'bb',borderRadius:4},
+    {label:'שחיקה',data:D.churned.slice(1),backgroundColor:C.red+'bb',borderRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:8,padding:10}},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
+
+  // Member status donut
+  chs.status=new Chart(document.getElementById('ch-status'),{type:'doughnut',data:{labels:['פעילים','עזבו'],datasets:[{data:[285,157],backgroundColor:[C.green+'dd',C.red+'dd'],borderWidth:0,hoverOffset:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
+
+  // New monthly
+  chs.newmo=new Chart(document.getElementById('ch-newmo'),{type:'line',data:{labels:D.months.slice(1),datasets:[{label:'חברים חדשים',data:D.newM.slice(1),borderColor:C.green,backgroundColor:C.green+'22',tension:0.4,fill:true,pointBackgroundColor:C.green,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
+
+  // Revenue stacked page
+  chs.revStack=new Chart(document.getElementById('ch-rev-stack'),{type:'bar',data:{labels:D.months,datasets:[
+    {label:'קארדקום',data:D.cardcom,backgroundColor:C.indigo+'cc',borderRadius:4},
+    {label:'יופי',data:D.yofi,backgroundColor:C.cyan+'cc',borderRadius:4},
+    {label:'סה"כ',data:D.combined,type:'line',borderColor:C.yellow,backgroundColor:'transparent',tension:0.4,pointBackgroundColor:C.yellow,pointRadius:4,borderWidth:2}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:8,padding:12}},tooltip:ttILS},scales:{x:{stacked:true,grid:gr},y:{stacked:false,grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
+
+  // Revenue split donut
+  chs.split=new Chart(document.getElementById('ch-split'),{type:'doughnut',data:{labels:['קארדקום','יופי'],datasets:[{data:[41833,99261],backgroundColor:[C.indigo+'dd',C.cyan+'dd'],borderWidth:0,hoverOffset:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>` ${c.label}: ₪${c.parsed.toLocaleString()}`}}}}});
+
+  // Weekly revenue
+  chs.weeklyRev=new Chart(document.getElementById('ch-weekly-rev'),{type:'line',data:{labels:D.weekly.labels,datasets:[{label:'הכנסות',data:D.weekly.rev,borderColor:C.indigo,backgroundColor:C.indigo+'22',tension:0.4,fill:true,pointBackgroundColor:C.indigo,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttILS},scales:{x:{grid:gr},y:{grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(1)+'K'}}}}});
+
+  // Products bar
+  const pColors=[C.indigo,C.cyan,C.green,C.purple,C.yellow,C.pink,C.red,C.indigo+'99',C.cyan+'99'];
+  chs.prods=new Chart(document.getElementById('ch-prods'),{type:'bar',data:{labels:D.prods.labels,datasets:[{label:'כמות עסקאות',data:D.prods.counts,backgroundColor:pColors.map(c=>c+'dd'),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
+
+  // DOW new members
+  chs.dowNew=new Chart(document.getElementById('ch-dow-new'),{type:'bar',data:{labels:D.dow.labels,datasets:[{label:'חברים חדשים',data:D.dow.new,backgroundColor:D.dow.new.map(v=>`rgba(99,102,241,${.25+v/Math.max(...D.dow.new)*.75})`),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
+
+  // DOW revenue
+  chs.dowRev=new Chart(document.getElementById('ch-dow-rev'),{type:'bar',data:{labels:D.dow.labels,datasets:[{label:'הכנסות',data:D.dow.rev,backgroundColor:D.dow.rev.map(v=>`rgba(6,182,212,${.25+v/Math.max(...D.dow.rev)*.75})`),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttILS},scales:{x:{grid:gr},y:{grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
+
+  // Weekly new
+  chs.wkNew=new Chart(document.getElementById('ch-wk-new'),{type:'bar',data:{labels:D.weekly.labels,datasets:[
+    {label:'חדשים',data:D.weekly.newM,backgroundColor:C.green+'cc',borderRadius:4},
+    {label:'חידושים',data:D.weekly.rec,backgroundColor:C.indigo+'cc',borderRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:8,padding:10}},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
+}
+
+// ── HEATMAP ──
+function buildHeatmap(){
+  const el=document.getElementById('hm');
+  const {weeks,days,data}=D.hm;
+  const maxV=Math.max(...data.flat());
+  el.innerHTML='<div></div>'+days.map(d=>`<div class="hm-hdr">${d}</div>`).join('');
+  weeks.forEach((w,wi)=>{
+    el.innerHTML+=`<div class="hm-lbl">${w}</div>`;
+    days.forEach((_,di)=>{
+      const v=data[wi][di];
+      const r=v/maxV;
+      const bg=`rgba(99,102,241,${.12+r*.88})`;
+      const fc=r>.5?'#fff':'#94a3b8';
+      el.innerHTML+=`<div class="hm-cell" style="background:${bg};color:${fc}" title="${w} ${days[di]}: ${v}">${v}</div>`;
+    });
+  });
+}
+
+// ── NAVIGATION ──
+const TITLES={overview:'סקירה כללית',members:'חברים ושחיקה',revenue:'הכנסות ו-MRR',products:'מוצרים ומכירות',acquisition:'גיוס ו-CAC','members-list':'רשימת חברים'};
+function go(id,btn){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('pg-title').textContent=TITLES[id];
+  setTimeout(()=>Object.values(chs).forEach(c=>c?.resize()),50);
+}
+
+// ── TIMEFRAME ──
+function setTF(tf,btn){
+  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const map={m:{rev:'₪16,617',act:'285',mrr:'₪11,565'},w:{rev:'₪1,541',act:'285',mrr:'₪11,565'},a:{rev:'₪141,094',act:'285',mrr:'₪138,780'}};
+  const v=map[tf];
+  document.getElementById('k-rev').textContent=v.rev;
+  document.getElementById('k-act').textContent=v.act;
+  document.getElementById('k-mrr').textContent=v.mrr;
+}
+
+
+// ── MEMBER LIST DATA ──
+const MEMBERS = [{"n":"נאוה חביב","e":"navnuv1997@gmail.com","ph":"0536221967","f":"2026-03-04","l":"2026-04-04","lt":31,"rev":57,"pay":2,"s":"active","ds":35,"ea":10,"la":47},
+{"n":"דותן אלינור","e":"elinor.dotan@gmail.com","ph":"0522212116","f":"2026-03-04","l":"2026-04-04","lt":31,"rev":57,"pay":2,"s":"active","ds":35,"ea":10,"la":47},
+{"n":"אתי לזרי","e":"ettyln@gmail.com","ph":"0503939773","f":"2026-04-04","l":"2026-04-04","lt":1,"rev":69,"pay":1,"s":"active","ds":35,"ea":69,"la":69},
+{"n":"אלישבע","e":"elishevameyer@gmail.com","ph":"0542686387","f":"2026-04-04","l":"2026-04-04","lt":1,"rev":39,"pay":1,"s":"active","ds":34,"ea":39,"la":39},
+{"n":"‪Iris Maayan‬‏","e":"Irisms12@walla.com","ph":"0549869882","f":"2026-04-04","l":"2026-04-04","lt":1,"rev":10,"pay":1,"s":"active","ds":34,"ea":10,"la":10},
+{"n":"ענבר ארד","e":"B.office.nlp@gmail.com","ph":"0503230980","f":"2026-02-05","l":"2026-04-05","lt":59,"rev":351,"pay":4,"s":"active","ds":34,"ea":247,"la":47},
+{"n":"יסמין","e":"yasminabid6@gmail.com","ph":"0502955519","f":"2026-03-05","l":"2026-04-05","lt":32,"rev":57,"pay":2,"s":"active","ds":34,"ea":10,"la":47},
+{"n":"ענת הודסמן","e":"anathud@gmail.com","ph":"0523371065","f":"2026-03-05","l":"2026-04-05","lt":31,"rev":57,"pay":2,"s":"active","ds":34,"ea":10,"la":47},
+{"n":"רויטל בכר","e":"rave.tr4@gmail.com","ph":"0509224578","f":"2026-03-05","l":"2026-04-05","lt":31,"rev":126,"pay":3,"s":"active","ds":34,"ea":10,"la":47},
+{"n":"מיכל מימון","e":"Mail4rdcd@gmail.com","ph":"0506309109","f":"2026-03-05","l":"2026-04-05","lt":31,"rev":57,"pay":2,"s":"active","ds":34,"ea":10,"la":47},
+{"n":"אריאלה","e":"ariela.zion@gmail.com","ph":"0526477739","f":"2026-03-05","l":"2026-04-05","lt":31,"rev":57,"pay":2,"s":"active","ds":34,"ea":10,"la":47},
+{"n":"אריקה ווסט","e":"Kindhands111@gmail.com","ph":"0544723305","f":"2026-03-06","l":"2026-04-06","lt":31,"rev":57,"pay":2,"s":"active","ds":33,"ea":10,"la":47},
+{"n":"ליאורה אושרי","e":"li.or.acneclinic@gmail.com","ph":"0544216980","f":"2026-03-06","l":"2026-04-06","lt":31,"rev":57,"pay":2,"s":"active","ds":33,"ea":10,"la":47},
+{"n":"IDIT SHLINGBAUM","e":"Iditart@gmail.com","ph":"0502104484","f":"2026-03-06","l":"2026-04-06","lt":31,"rev":126,"pay":3,"s":"active","ds":33,"ea":10,"la":47},
+{"n":"דבורה רובין","e":"debyrubin28@gmail.com","ph":"0547980626","f":"2026-03-06","l":"2026-04-06","lt":31,"rev":57,"pay":2,"s":"active","ds":33,"ea":10,"la":47},
+{"n":"רחל מנור","e":"ravizar@gmail.com","ph":"0526834470","f":"2026-03-06","l":"2026-04-06","lt":31,"rev":57,"pay":2,"s":"active","ds":33,"ea":10,"la":47},
+{"n":"דניאלה דפיגלר","e":"4winner_life@walla.co.il","ph":"0525954445","f":"2026-03-06","l":"2026-04-06","lt":31,"rev":354,"pay":3,"s":"active","ds":33,"ea":10,"la":47},
+{"n":"אורלי סלע בסודו","e":"Orlybessudo@gmail.com","ph":"0542422832","f":"2026-03-06","l":"2026-04-06","lt":31,"rev":57,"pay":2,"s":"active","ds":33,"ea":10,"la":47},
+{"n":"Yiffat Kedar","e":"yifatkedar@gmail.com","ph":"0544780526","f":"2026-04-06","l":"2026-04-06","lt":1,"rev":10,"pay":1,"s":"active","ds":33,"ea":10,"la":10},
+{"n":"שלי","e":"shgugi@gmail.com","ph":"0507962904","f":"2026-04-06","l":"2026-04-06","lt":1,"rev":79,"pay":2,"s":"active","ds":33,"ea":10,"la":69},
+{"n":"עדי ששון","e":"","ph":"","f":"2026-02-07","l":"2026-04-07","lt":60,"rev":141,"pay":3,"s":"active","ds":32,"ea":47,"la":47},
+{"n":"דנית קמחי","e":"danit.ker@gmail.com","ph":"0544324498","f":"2026-03-07","l":"2026-04-07","lt":31,"rev":57,"pay":2,"s":"active","ds":32,"ea":10,"la":47},
+{"n":"חנה סהר נחמן","e":"hanna.sahar1@gmail.com","ph":"0506136682","f":"2026-03-07","l":"2026-04-07","lt":31,"rev":57,"pay":2,"s":"active","ds":32,"ea":10,"la":47},
+{"n":"שירן חיים","e":"shiranhaim860@gmail.com","ph":"0548035520","f":"2026-02-08","l":"2026-04-08","lt":59,"rev":193,"pay":4,"s":"active","ds":31,"ea":89,"la":47},
+{"n":"LIZA AMOUYAL","e":"vegantourism@gmail.com","ph":"0507329519","f":"2026-03-09","l":"2026-04-09","lt":31,"rev":57,"pay":2,"s":"active","ds":30,"ea":10,"la":47},
+{"n":"אורנה הראל","e":"orna@studio16.co.il","ph":"0544256477","f":"2026-03-09","l":"2026-04-09","lt":31,"rev":57,"pay":2,"s":"active","ds":30,"ea":10,"la":47},
+{"n":"יובל כשר","e":"lironmarmar@gmail.com","ph":"0505283115","f":"2026-03-09","l":"2026-04-09","lt":31,"rev":57,"pay":2,"s":"active","ds":30,"ea":10,"la":47},
+{"n":"מיכל ארד","e":"michalarad25@gmail.com","ph":"0528329840","f":"2026-03-09","l":"2026-04-09","lt":31,"rev":57,"pay":2,"s":"active","ds":30,"ea":10,"la":47},
+{"n":"אביבית פורמן","e":"furmanavivit@gmail.com","ph":"0502377559","f":"2026-03-10","l":"2026-04-10","lt":32,"rev":57,"pay":2,"s":"active","ds":29,"ea":10,"la":47},
+{"n":"מיכל קרבצ'נקו","e":"Michalkr456@gmail.com","ph":"0523376839","f":"2026-03-10","l":"2026-04-10","lt":31,"rev":57,"pay":2,"s":"active","ds":29,"ea":10,"la":47},
+{"n":"סיון הבלר","e":"Sivan.habler@icloud.com","ph":"0535440450","f":"2026-03-10","l":"2026-04-10","lt":31,"rev":57,"pay":2,"s":"active","ds":29,"ea":10,"la":47},
+{"n":"יעל קפלן","e":"noyakap@gmail.com","ph":"0502665849","f":"2026-03-10","l":"2026-04-10","lt":31,"rev":57,"pay":2,"s":"active","ds":29,"ea":10,"la":47},
+{"n":"נירית שוך","e":"niri8899@gmail.com","ph":"0546904940","f":"2026-04-10","l":"2026-04-10","lt":1,"rev":10,"pay":1,"s":"active","ds":29,"ea":10,"la":10},
+{"n":"מיכל שני נדלר","e":"michal.shaninadler@gmail.com","ph":"0523397513","f":"2026-02-11","l":"2026-04-11","lt":59,"rev":543,"pay":7,"s":"active","ds":28,"ea":10,"la":47},
+{"n":"טל בן חמו","e":"talbh.pilates@gmail.com","ph":"0547656642","f":"2026-02-11","l":"2026-04-11","lt":59,"rev":104,"pay":3,"s":"active","ds":28,"ea":10,"la":47},
+{"n":"סאלי טלבי","e":"sali652002@gmail.com","ph":"0509040092","f":"2026-02-11","l":"2026-04-11","lt":59,"rev":183,"pay":3,"s":"active","ds":28,"ea":89,"la":47},
+{"n":"חנה קופר","e":"hannacoop57@gmail.com","ph":"0523263474","f":"2026-03-11","l":"2026-04-11","lt":32,"rev":57,"pay":2,"s":"active","ds":28,"ea":10,"la":47},
+{"n":"תקוה אליאנורה צרפתי","e":"patynir@walla.com","ph":"0507253045","f":"2026-03-11","l":"2026-04-11","lt":31,"rev":57,"pay":2,"s":"active","ds":28,"ea":10,"la":47},
+{"n":"הגר אלון","e":"alon102000@GMAIL.COM","ph":"0545606759","f":"2026-03-11","l":"2026-04-11","lt":31,"rev":57,"pay":2,"s":"active","ds":28,"ea":10,"la":47},
+{"n":"אהובה מורטוב","e":"ahuva.mortov@gmail.com","ph":"0547585833","f":"2026-03-11","l":"2026-04-11","lt":31,"rev":57,"pay":2,"s":"active","ds":28,"ea":10,"la":47},
+{"n":"ענבר הוכברג","e":"Inbar.hochberg@gmail.com","ph":"0507447672","f":"2026-03-11","l":"2026-04-11","lt":31,"rev":57,"pay":2,"s":"active","ds":28,"ea":10,"la":47},
+{"n":"נעמה שקד לוי","e":"shava.lanu@gmail.com","ph":"0509751610","f":"2026-03-11","l":"2026-04-11","lt":31,"rev":57,"pay":2,"s":"active","ds":28,"ea":10,"la":47},
+{"n":"מאיה גליקמן","e":"mayaglikman11@gmail.com","ph":"0523428929","f":"2026-03-11","l":"2026-04-11","lt":31,"rev":57,"pay":2,"s":"active","ds":28,"ea":10,"la":47},
+{"n":"דרורית לטם ניצן","e":"drorite13@gmail.com","ph":"0503100129","f":"2026-04-11","l":"2026-04-11","lt":1,"rev":10,"pay":1,"s":"active","ds":28,"ea":10,"la":10},
+{"n":"עדי אידל","e":"dafnaidel@gmail.com","ph":"0526366425","f":"2026-04-11","l":"2026-04-11","lt":1,"rev":10,"pay":1,"s":"active","ds":28,"ea":10,"la":10},
+{"n":"שירה ברנדס","e":"shirusbrandes@gmail.com","ph":"0524623959","f":"2026-04-11","l":"2026-04-11","lt":1,"rev":10,"pay":1,"s":"active","ds":27,"ea":10,"la":10},
+{"n":"טלי אלעזרה","e":"","ph":"","f":"2026-02-12","l":"2026-04-12","lt":60,"rev":141,"pay":3,"s":"active","ds":27,"ea":47,"la":47},
+{"n":"תמר שייביץ בן אבי","e":"tamarsh73@gmail.com","ph":"0546442661","f":"2026-02-12","l":"2026-04-12","lt":59,"rev":104,"pay":3,"s":"active","ds":27,"ea":10,"la":47},
+{"n":"רונית מנשורי","e":"ronitman3@gmail.com","ph":"0525582358","f":"2026-02-12","l":"2026-04-12","lt":59,"rev":104,"pay":3,"s":"active","ds":27,"ea":10,"la":47},
+{"n":"אביה הרנוי","e":"Aviavizen@gmail.com","ph":"0524353398","f":"2026-02-12","l":"2026-04-12","lt":59,"rev":183,"pay":3,"s":"active","ds":27,"ea":89,"la":47},
+{"n":"ניצן רחמים","e":"N.nitzancakes@gmail.com","ph":"0543555564","f":"2026-03-12","l":"2026-04-12","lt":31,"rev":57,"pay":2,"s":"active","ds":27,"ea":10,"la":47},
+{"n":"יעל קלירס","e":"yaelkliers@gmail.com","ph":"0544916757","f":"2026-03-12","l":"2026-04-12","lt":31,"rev":57,"pay":2,"s":"active","ds":27,"ea":10,"la":47},
+{"n":"אלעד שליו","e":"Hofit602@gmail.com","ph":"0546278146","f":"2026-03-12","l":"2026-04-12","lt":31,"rev":57,"pay":2,"s":"active","ds":27,"ea":10,"la":47},
+{"n":"Dafna Numa Rosenzwaig","e":"dafinuma@gmail.com","ph":"0524624024","f":"2026-04-12","l":"2026-04-12","lt":1,"rev":39,"pay":1,"s":"active","ds":27,"ea":39,"la":39},
+{"n":"רותם רובינשטיין","e":"Rotemrub@gmail.com","ph":"0528642070","f":"2026-04-12","l":"2026-04-12","lt":1,"rev":39,"pay":1,"s":"active","ds":27,"ea":39,"la":39},
+{"n":"Eran","e":"Ilanit@arttech.co.il","ph":"0522951177","f":"2026-04-12","l":"2026-04-12","lt":1,"rev":39,"pay":1,"s":"active","ds":27,"ea":39,"la":39},
+{"n":"הילה ברוך","e":"Hkk5@walla.co.il","ph":"0528398816","f":"2026-03-13","l":"2026-04-13","lt":31,"rev":57,"pay":2,"s":"active","ds":26,"ea":10,"la":47},
+{"n":"בלה טל","e":"bella@tal-cpa.com","ph":"0543056759","f":"2026-04-02","l":"2026-04-13","lt":11,"rev":108,"pay":2,"s":"active","ds":26,"ea":69,"la":39},
+{"n":"anna botner mironov","e":"annabotner88@gmail.com","ph":"0544988118","f":"2026-04-13","l":"2026-04-13","lt":1,"rev":10,"pay":1,"s":"active","ds":26,"ea":10,"la":10},
+{"n":"יניב אסולין","e":"reutlevi021@gmail.com","ph":"0529562196","f":"2026-02-14","l":"2026-04-14","lt":60,"rev":104,"pay":3,"s":"active","ds":25,"ea":10,"la":47},
+{"n":"שחף רוזן","e":"shahaf.rosen@gmail.com","ph":"0522328385","f":"2026-04-14","l":"2026-04-14","lt":1,"rev":10,"pay":1,"s":"active","ds":25,"ea":10,"la":10},
+{"n":"רחלי כהן","e":"rachelicohen.design@gmail.com","ph":"0525778090","f":"2026-04-14","l":"2026-04-14","lt":1,"rev":10,"pay":1,"s":"active","ds":25,"ea":10,"la":10},
+{"n":"ליאת ברנשטיין","e":"liatbern@gmail.com","ph":"0544242659","f":"2026-04-14","l":"2026-04-14","lt":1,"rev":297,"pay":1,"s":"active","ds":24,"ea":297,"la":297},
+{"n":"חופית סיבוני וולף","e":"hofsib26@gmail.com","ph":"0526469649","f":"2026-04-14","l":"2026-04-14","lt":1,"rev":39,"pay":1,"s":"active","ds":24,"ea":39,"la":39},
+{"n":"שוש אבן","e":"","ph":"","f":"2026-02-15","l":"2026-04-15","lt":60,"rev":141,"pay":3,"s":"active","ds":24,"ea":47,"la":47},
+{"n":"אודליה שרגא","e":"odelia00@gmail.com","ph":"0523879895","f":"2026-02-15","l":"2026-04-15","lt":59,"rev":104,"pay":3,"s":"active","ds":24,"ea":10,"la":47},
+{"n":"קרינה חברה","e":"karin2024@gmail.com","ph":"0522230344","f":"2026-02-15","l":"2026-04-15","lt":59,"rev":104,"pay":3,"s":"active","ds":24,"ea":10,"la":47},
+{"n":"Masha Bar Borchenko","e":"mashakandler@gmail.com","ph":"0547576156","f":"2026-03-15","l":"2026-04-15","lt":31,"rev":57,"pay":2,"s":"active","ds":24,"ea":10,"la":47},
+{"n":"רותם רובינשטיין","e":"Rotemrub@gmail.com","ph":"0528642070","f":"2026-03-25","l":"2026-04-15","lt":21,"rev":128,"pay":2,"s":"active","ds":24,"ea":89,"la":39},
+{"n":"ליאן אורבך","e":"lianorbach@gmail.com","ph":"0522791724","f":"2026-04-13","l":"2026-04-15","lt":2,"rev":49,"pay":2,"s":"active","ds":24,"ea":10,"la":39},
+{"n":"לימור פינק מהדיטש","e":"lim2fink@gmail.com","ph":"0546759590","f":"2026-04-15","l":"2026-04-15","lt":1,"rev":39,"pay":1,"s":"active","ds":24,"ea":39,"la":39},
+{"n":"שוש אבן","e":"evenshosh5@gmail.com","ph":"0508800426","f":"2026-04-15","l":"2026-04-15","lt":1,"rev":39,"pay":1,"s":"active","ds":24,"ea":39,"la":39},
+{"n":"חני הרמן","e":"H2design.3d@gmail.com","ph":"0509170140","f":"2026-04-15","l":"2026-04-15","lt":1,"rev":39,"pay":1,"s":"active","ds":24,"ea":39,"la":39},
+{"n":"דקלה שלום","e":"babysmiles.info@gmail.com","ph":"0545950373","f":"2026-04-15","l":"2026-04-15","lt":1,"rev":39,"pay":1,"s":"active","ds":24,"ea":39,"la":39},
+{"n":"שרון שגיא","e":"Sharonsagie76@gmail.com","ph":"0523724032","f":"2026-04-15","l":"2026-04-15","lt":1,"rev":39,"pay":1,"s":"active","ds":24,"ea":39,"la":39},
+{"n":"דפנה נומה רוזנצויג","e":"dafinuma@gmail.com","ph":"0524624024","f":"2026-04-15","l":"2026-04-15","lt":1,"rev":69,"pay":1,"s":"active","ds":24,"ea":69,"la":69},
+{"n":"מתילדה כהן","e":"matycohen18@gmail.com","ph":"0522543185","f":"2026-04-15","l":"2026-04-15","lt":1,"rev":79,"pay":2,"s":"active","ds":23,"ea":10,"la":69},
+{"n":"חן מקייטן","e":"chenmekaiten.studio@gmail.com","ph":"0549987816","f":"2026-02-16","l":"2026-04-16","lt":59,"rev":104,"pay":3,"s":"active","ds":23,"ea":10,"la":47},
+{"n":"אנה לימאי כץ","e":"alk.intdesign@gmail.com","ph":"0524448794","f":"2026-03-16","l":"2026-04-16","lt":32,"rev":57,"pay":2,"s":"active","ds":23,"ea":10,"la":47},
+{"n":"ענבל רוזנצויג","e":"Inbal@teig.co.il","ph":"0523403595","f":"2026-03-16","l":"2026-04-16","lt":31,"rev":57,"pay":2,"s":"active","ds":23,"ea":10,"la":47},
+{"n":"יעל אורלינסקי","e":"Yaelp07@gmail.com","ph":"0546664460","f":"2026-03-16","l":"2026-04-16","lt":31,"rev":94,"pay":2,"s":"active","ds":23,"ea":47,"la":47},
+{"n":"חן לוי","e":"chenoz192@gmail.com","ph":"0526655817","f":"2026-03-16","l":"2026-04-16","lt":31,"rev":57,"pay":2,"s":"active","ds":23,"ea":10,"la":47},
+{"n":"נופר סימפסון","e":"nofar.simpson@gmail.com","ph":"0549732083","f":"2026-04-16","l":"2026-04-16","lt":1,"rev":69,"pay":1,"s":"active","ds":23,"ea":69,"la":69},
+{"n":"אביטל","e":"avitalaaa@gmail.com","ph":"0542280003","f":"2026-04-16","l":"2026-04-16","lt":1,"rev":69,"pay":1,"s":"active","ds":23,"ea":69,"la":69},
+{"n":"Noga Maaravi Roth","e":"hi@homebynoga.com","ph":"0509277977","f":"2026-04-16","l":"2026-04-16","lt":1,"rev":10,"pay":1,"s":"active","ds":23,"ea":10,"la":10},
+{"n":"טל אבן חן","e":"","ph":"","f":"2026-02-17","l":"2026-04-17","lt":60,"rev":141,"pay":3,"s":"active","ds":22,"ea":47,"la":47},
+{"n":"רינת חלבי עוז","e":"","ph":"","f":"2026-02-17","l":"2026-04-17","lt":60,"rev":141,"pay":3,"s":"active","ds":22,"ea":47,"la":47},
+{"n":"טל בלכר","e":"","ph":"","f":"2026-02-17","l":"2026-04-17","lt":60,"rev":141,"pay":3,"s":"active","ds":22,"ea":47,"la":47},
+{"n":"אסתר עבו","e":"eticosmetics75@gmail.con","ph":"0506580832","f":"2026-02-17","l":"2026-04-17","lt":59,"rev":104,"pay":3,"s":"active","ds":22,"ea":10,"la":47},
+{"n":"נועה ממן","e":"noamaman@gmail.com","ph":"0523604508","f":"2026-02-17","l":"2026-04-17","lt":59,"rev":173,"pay":4,"s":"active","ds":22,"ea":10,"la":47},
+{"n":"קרן חן","e":"keren.chen@gmail.com","ph":"0542402128","f":"2026-03-17","l":"2026-04-17","lt":31,"rev":96,"pay":3,"s":"active","ds":22,"ea":10,"la":47},
+{"n":"יפעת שבת","e":"yifatkatiei@gmail.com","ph":"0542470988","f":"2026-03-17","l":"2026-04-17","lt":31,"rev":57,"pay":2,"s":"active","ds":22,"ea":10,"la":47},
+{"n":"קארין אינס","e":"Eineskarin1@gmail.com","ph":"0528321322","f":"2026-04-17","l":"2026-04-17","lt":1,"rev":10,"pay":1,"s":"active","ds":22,"ea":10,"la":10},
+{"n":"מזרחי רמה","e":"rama44204@gmail.com","ph":"0502427314","f":"2026-04-17","l":"2026-04-17","lt":1,"rev":10,"pay":1,"s":"active","ds":22,"ea":10,"la":10},
+{"n":"שיר מזוז","e":"Shirmazuz181@gmail.com","ph":"0504474405","f":"2026-04-17","l":"2026-04-17","lt":1,"rev":10,"pay":1,"s":"active","ds":22,"ea":10,"la":10},
+{"n":"אתי רפאלי","e":"","ph":"","f":"2026-02-18","l":"2026-04-18","lt":60,"rev":235,"pay":5,"s":"active","ds":21,"ea":47,"la":47},
+{"n":"קרן חמו","e":"Keren180579@gmail.com","ph":"0542333538","f":"2026-02-18","l":"2026-04-18","lt":59,"rev":104,"pay":3,"s":"active","ds":21,"ea":10,"la":47},
+{"n":"שאטל לוי חנה","e":"hanasl1@walla.co.il","ph":"0505273664","f":"2026-03-16","l":"2026-04-18","lt":33,"rev":151,"pay":4,"s":"active","ds":21,"ea":10,"la":47},
+{"n":"ברוני חירמן","e":"khirmanb@gmail.com","ph":"0506212628","f":"2026-04-18","l":"2026-04-18","lt":1,"rev":69,"pay":1,"s":"active","ds":20,"ea":69,"la":69},
+{"n":"Aliza Culang‬‏","e":"Aliza.clinic@gmail.com","ph":"0544987922","f":"2026-04-18","l":"2026-04-18","lt":1,"rev":10,"pay":1,"s":"active","ds":20,"ea":10,"la":10},
+{"n":"גליה גביש","e":"galiagavish11@gmail.com","ph":"0504333007","f":"2026-04-18","l":"2026-04-18","lt":1,"rev":10,"pay":1,"s":"active","ds":20,"ea":10,"la":10},
+{"n":"גליה גביש","e":"galiagavish11@gmail.com","ph":"0504333007","f":"2026-04-18","l":"2026-04-18","lt":1,"rev":39,"pay":1,"s":"active","ds":20,"ea":39,"la":39},
+{"n":"Moran Dayagi","e":"morandayagi@gmail.com","ph":"0522675188","f":"2026-04-18","l":"2026-04-18","lt":1,"rev":10,"pay":1,"s":"active","ds":20,"ea":10,"la":10},
+{"n":"איה אהרמן","e":"ayapiti@gmail.com","ph":"0534289768","f":"2026-04-18","l":"2026-04-18","lt":1,"rev":10,"pay":1,"s":"active","ds":20,"ea":10,"la":10},
+{"n":"לימור אפורי","e":"Limorafo@gmail.com","ph":"0504321288","f":"2026-03-19","l":"2026-04-19","lt":32,"rev":57,"pay":2,"s":"active","ds":20,"ea":10,"la":47},
+{"n":"שירה תמרי","e":"","ph":"","f":"2026-03-19","l":"2026-04-19","lt":32,"rev":20,"pay":2,"s":"active","ds":20,"ea":10,"la":10},
+{"n":"ליאור אביסדריס","e":"Liormalka135@gmail.com","ph":"0528682110","f":"2026-03-19","l":"2026-04-19","lt":31,"rev":57,"pay":2,"s":"active","ds":20,"ea":10,"la":47},
+{"n":"Sarit Ron","e":"sron.mtb@gmail.com","ph":"0549075669","f":"2026-03-19","l":"2026-04-19","lt":31,"rev":57,"pay":2,"s":"active","ds":20,"ea":10,"la":47},
+{"n":"שלומית קרם ליקה","e":"shlolica@gmail.com","ph":"0509481305","f":"2026-04-19","l":"2026-04-19","lt":1,"rev":10,"pay":1,"s":"active","ds":20,"ea":10,"la":10},
+{"n":"מירב אשל עבדה","e":"","ph":"","f":"2026-02-20","l":"2026-04-20","lt":60,"rev":141,"pay":3,"s":"active","ds":19,"ea":47,"la":47},
+{"n":"עדן עמר","e":"Eden.amar048@gmail.com","ph":"0545285747","f":"2026-02-20","l":"2026-04-20","lt":59,"rev":104,"pay":3,"s":"active","ds":19,"ea":10,"la":47},
+{"n":"תמנע פרנקל","e":"Timnafster@gmail.com","ph":"0543257308","f":"2026-02-20","l":"2026-04-20","lt":59,"rev":104,"pay":3,"s":"active","ds":19,"ea":10,"la":47},
+{"n":"רותי סספורטס","e":"rutisaspi@gmail.com","ph":"0545323111","f":"2026-03-20","l":"2026-04-20","lt":31,"rev":57,"pay":2,"s":"active","ds":19,"ea":10,"la":47},
+{"n":"ליקה אנקונינה","e":"lika.milman@gmail.com","ph":"0506572127","f":"2026-04-20","l":"2026-04-20","lt":1,"rev":10,"pay":1,"s":"active","ds":19,"ea":10,"la":10},
+{"n":"דידי","e":"didi.m3i@gmail.com","ph":"585350033","f":"2026-04-20","l":"2026-04-20","lt":1,"rev":118,"pay":2,"s":"active","ds":19,"ea":59,"la":59},
+{"n":"הגר כהן","e":"beyou.hc@gmail.com","ph":"0548163306","f":"2026-04-20","l":"2026-04-20","lt":1,"rev":10,"pay":1,"s":"active","ds":19,"ea":10,"la":10},
+{"n":"שירה אילן","e":"far@zahav.net.il","ph":"0506481364","f":"2026-04-20","l":"2026-04-20","lt":1,"rev":86,"pay":2,"s":"active","ds":19,"ea":47,"la":39},
+{"n":"מיקי מנור","e":"","ph":"","f":"2026-02-21","l":"2026-04-21","lt":60,"rev":141,"pay":3,"s":"active","ds":18,"ea":47,"la":47},
+{"n":"הילה בת ציון מור זהבי","e":"hila.morzehavi@gmail.com","ph":"0524453348","f":"2026-02-21","l":"2026-04-21","lt":59,"rev":104,"pay":3,"s":"active","ds":18,"ea":10,"la":47},
+{"n":"Shelly williams","e":"Pagesofusil@gmail.com","ph":"0586666511","f":"2026-02-21","l":"2026-04-21","lt":59,"rev":104,"pay":3,"s":"active","ds":18,"ea":10,"la":47},
+{"n":"אורלי אלמוג","e":"Orly@bait-sagol.co.il","ph":"0544422472","f":"2026-03-21","l":"2026-04-21","lt":31,"rev":57,"pay":2,"s":"active","ds":18,"ea":10,"la":47},
+{"n":"רותם רובינשטיין","e":"rotemrub@gmail.com","ph":"0528642070","f":"2026-03-21","l":"2026-04-21","lt":31,"rev":57,"pay":2,"s":"active","ds":18,"ea":10,"la":47},
+{"n":"Lilia Porat","e":"lilaporat75@gmail.com","ph":"0545723181","f":"2026-03-21","l":"2026-04-21","lt":31,"rev":57,"pay":2,"s":"active","ds":18,"ea":10,"la":47},
+{"n":"אסתי מנחם","e":"","ph":"","f":"2026-02-22","l":"2026-04-22","lt":60,"rev":141,"pay":3,"s":"active","ds":17,"ea":47,"la":47},
+{"n":"יעל יוסף","e":"","ph":"","f":"2026-02-22","l":"2026-04-22","lt":60,"rev":141,"pay":3,"s":"active","ds":17,"ea":47,"la":47},
+{"n":"אשרת סולומון","e":"","ph":"","f":"2026-02-22","l":"2026-04-22","lt":60,"rev":141,"pay":3,"s":"active","ds":17,"ea":47,"la":47},
+{"n":"ג'ני שמעון ויסברג","e":"","ph":"","f":"2026-02-22","l":"2026-04-22","lt":60,"rev":141,"pay":3,"s":"active","ds":17,"ea":47,"la":47},
+{"n":"Lilac fuchs","e":"","ph":"","f":"2026-02-22","l":"2026-04-22","lt":60,"rev":141,"pay":3,"s":"active","ds":17,"ea":47,"la":47},
+{"n":"אפרת אזולאי אפרים","e":"","ph":"","f":"2026-02-22","l":"2026-04-22","lt":60,"rev":141,"pay":3,"s":"active","ds":17,"ea":47,"la":47},
+{"n":"Adi kahanan","e":"adi@targetbody.co.il","ph":"0544599924","f":"2026-02-22","l":"2026-04-22","lt":59,"rev":104,"pay":3,"s":"active","ds":17,"ea":10,"la":47},
+{"n":"נטלי רבני","e":"","ph":"","f":"2026-02-24","l":"2026-04-22","lt":57,"rev":235,"pay":3,"s":"active","ds":17,"ea":141,"la":47},
+{"n":"שרה קבילו","e":"Hanikabilo2022@gmail.com","ph":"0526539002","f":"2026-03-22","l":"2026-04-22","lt":31,"rev":57,"pay":2,"s":"active","ds":17,"ea":10,"la":47},
+{"n":"רוזני בראון","e":"","ph":"","f":"2026-04-22","l":"2026-04-22","lt":1,"rev":47,"pay":1,"s":"active","ds":17,"ea":47,"la":47},
+{"n":"נטלי אביקסיס","e":"nataliaviksis2@gmail.com","ph":"0546084440","f":"2026-04-22","l":"2026-04-22","lt":1,"rev":10,"pay":1,"s":"active","ds":17,"ea":10,"la":10},
+{"n":"נטלי אביקסיס","e":"nataliaviksis2@gmail.com","ph":"0546084440","f":"2026-04-22","l":"2026-04-22","lt":1,"rev":39,"pay":1,"s":"active","ds":17,"ea":39,"la":39},
+{"n":"ענת בר","e":"anatbar20051961@gmail.com","ph":"0505328703","f":"2026-04-22","l":"2026-04-22","lt":1,"rev":10,"pay":1,"s":"active","ds":16,"ea":10,"la":10},
+{"n":"ענת בר","e":"anatbar20051961@gmail.com","ph":"0505328703","f":"2026-04-22","l":"2026-04-22","lt":1,"rev":39,"pay":1,"s":"active","ds":16,"ea":39,"la":39},
+{"n":"אושרה בן שושן","e":"obarushe@gmail.com","ph":"8528971341","f":"2026-04-22","l":"2026-04-22","lt":1,"rev":10,"pay":1,"s":"active","ds":16,"ea":10,"la":10},
+{"n":"‪Ninet Ben Eliyahu‬‏","e":"","ph":"","f":"2026-02-23","l":"2026-04-23","lt":60,"rev":141,"pay":3,"s":"active","ds":16,"ea":47,"la":47},
+{"n":"מיכל דגן - הורות מהלב","e":"","ph":"","f":"2026-02-23","l":"2026-04-23","lt":60,"rev":141,"pay":3,"s":"active","ds":16,"ea":47,"la":47},
+{"n":"ליבנת בורג","e":"Livnat.therapist@gmail.com","ph":"0548182417","f":"2026-02-23","l":"2026-04-23","lt":59,"rev":347,"pay":5,"s":"active","ds":16,"ea":10,"la":47},
+{"n":"רותם וורסקיין","e":"","ph":"","f":"2026-04-23","l":"2026-04-23","lt":1,"rev":47,"pay":1,"s":"active","ds":16,"ea":47,"la":47},
+{"n":"Maria Shehadeh","e":"","ph":"","f":"2026-02-24","l":"2026-04-24","lt":60,"rev":141,"pay":3,"s":"active","ds":15,"ea":47,"la":47},
+{"n":"גאדה די אמברוסיו","e":"Giadita100@outlook.com","ph":"0525800102","f":"2026-02-24","l":"2026-04-24","lt":59,"rev":104,"pay":3,"s":"active","ds":15,"ea":10,"la":47},
+{"n":"רוני הלוי","e":"ronishalev11@gmail.com","ph":"0526871513","f":"2026-02-24","l":"2026-04-24","lt":59,"rev":104,"pay":3,"s":"active","ds":15,"ea":10,"la":47},
+{"n":"שירלי סימון","e":"","ph":"","f":"2026-02-25","l":"2026-04-25","lt":59,"rev":141,"pay":3,"s":"active","ds":14,"ea":47,"la":47},
+{"n":"חיה קניגסברג","e":"abc95111@gmail.com","ph":"0537705412","f":"2026-02-25","l":"2026-04-25","lt":59,"rev":104,"pay":3,"s":"active","ds":14,"ea":10,"la":47},
+{"n":"מיכל שלזינגר","e":"michal@healthyliving.co.il","ph":"0528728526","f":"2026-02-26","l":"2026-04-26","lt":59,"rev":173,"pay":4,"s":"active","ds":13,"ea":10,"la":47},
+{"n":"רחלי צפרי","e":"rachelyt.design@gmail.com","ph":"0528672222","f":"2026-02-26","l":"2026-04-26","lt":59,"rev":104,"pay":3,"s":"active","ds":13,"ea":10,"la":47},
+{"n":"בוריס אקסנפלד","e":"office.ilana22@gmail.com","ph":"0533333075","f":"2026-02-26","l":"2026-04-26","lt":59,"rev":104,"pay":3,"s":"active","ds":13,"ea":10,"la":47},
+{"n":"אליזבט פרי","e":"Elizabeth9177@gmail.com","ph":"0506728219","f":"2026-04-26","l":"2026-04-26","lt":1,"rev":10,"pay":1,"s":"active","ds":13,"ea":10,"la":10},
+{"n":"דניאל טוויג","e":"stylephoto3322@gmail.com","ph":"0546521559","f":"2026-04-26","l":"2026-04-26","lt":1,"rev":10,"pay":1,"s":"active","ds":13,"ea":10,"la":10},
+{"n":"עמית חכם","e":"amithaham91@gmail.com","ph":"0542307750","f":"2026-02-27","l":"2026-04-27","lt":59,"rev":104,"pay":3,"s":"active","ds":12,"ea":10,"la":47},
+{"n":"שניאל","e":"daniel8cohen@gmail.com","ph":"0544445547","f":"2026-02-27","l":"2026-04-27","lt":59,"rev":104,"pay":3,"s":"active","ds":12,"ea":10,"la":47},
+{"n":"אורטל","e":"Ortalreginiano1@gmail.com","ph":"0549473399","f":"2026-03-27","l":"2026-04-27","lt":31,"rev":126,"pay":3,"s":"active","ds":12,"ea":10,"la":47},
+{"n":"אורטל כספי","e":"ortal.babchik@gmail.com","ph":"0504713030","f":"2026-04-27","l":"2026-04-27","lt":1,"rev":10,"pay":1,"s":"active","ds":12,"ea":10,"la":10},
+{"n":"תם מוזס כהן","e":"Tomik0608@gmail.com","ph":"0509949992","f":"2026-04-27","l":"2026-04-27","lt":1,"rev":49,"pay":2,"s":"active","ds":11,"ea":10,"la":39},
+{"n":"רעות זמטר","e":"","ph":"","f":"2026-02-02","l":"2026-04-28","lt":85,"rev":188,"pay":4,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"רוזני","e":"nanib46@gmail.com","ph":"0523100060","f":"2026-02-11","l":"2026-04-28","lt":76,"rev":177,"pay":3,"s":"active","ds":11,"ea":69,"la":39},
+{"n":"דורין","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"טל אילון - עיצוב פנים","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"שרון שגיא","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"רזניק דורון","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":180,"pay":4,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"גיא צ.א בעמ","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"אביטל גרוסמן","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"סימה גזית","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"כלנית טחן","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"קארין בראונר","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"Mor Naftaly","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"אילת בן פזי שטיינר","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"אביטל רוט","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"Chen Yehezkel","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"ליאת שחם","e":"","ph":"","f":"2026-02-28","l":"2026-04-28","lt":60,"rev":141,"pay":3,"s":"active","ds":11,"ea":47,"la":47},
+{"n":"קטרין ויוראנו","e":"kathyvio@gmail.com","ph":"0548089669","f":"2026-04-28","l":"2026-04-28","lt":1,"rev":10,"pay":1,"s":"active","ds":11,"ea":10,"la":10},
+{"n":"טל בועז","e":"talsh954@gmail.com","ph":"0538323445","f":"2026-04-28","l":"2026-04-28","lt":1,"rev":10,"pay":1,"s":"active","ds":11,"ea":10,"la":10},
+{"n":"טל בועז","e":"talsh954@gmail.com","ph":"0538323445","f":"2026-04-28","l":"2026-04-28","lt":1,"rev":39,"pay":1,"s":"active","ds":11,"ea":39,"la":39},
+{"n":"סיון שופיר","e":"sishdu@gmail.com","ph":"0527271993","f":"2026-04-28","l":"2026-04-28","lt":1,"rev":10,"pay":1,"s":"active","ds":10,"ea":10,"la":10},
+{"n":"חני הרמן","e":"H2design.3d@gmail.com","ph":"0509170140","f":"2026-03-29","l":"2026-04-29","lt":31,"rev":94,"pay":2,"s":"active","ds":10,"ea":47,"la":47},
+{"n":"אפרת בר אור","e":"efratbaror@gmail.com","ph":"0543975663","f":"2026-04-29","l":"2026-04-29","lt":1,"rev":10,"pay":1,"s":"active","ds":10,"ea":10,"la":10},
+{"n":"אתי צור","e":"Shira@tzur-adv.com","ph":"0503035633","f":"2026-04-29","l":"2026-04-29","lt":1,"rev":10,"pay":1,"s":"active","ds":10,"ea":10,"la":10},
+{"n":"גוני תזהר","e":"gonishilohram@gmail.com","ph":"0506613201","f":"2026-04-29","l":"2026-04-29","lt":1,"rev":10,"pay":1,"s":"active","ds":9,"ea":10,"la":10},
+{"n":"נועה ולצר","e":"","ph":"","f":"2026-02-02","l":"2026-05-01","lt":88,"rev":188,"pay":4,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"מיקי נדלר","e":"","ph":"","f":"2026-02-10","l":"2026-05-01","lt":80,"rev":188,"pay":4,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"מאיה גולדברג","e":"mayago@gmail.com","ph":"0547616787","f":"2026-02-19","l":"2026-05-01","lt":71,"rev":315,"pay":4,"s":"active","ds":8,"ea":174,"la":47},
+{"n":"שירלי וייסמן","e":"shirlyv42@gmail.com","ph":"0508803808","f":"2026-02-23","l":"2026-05-01","lt":67,"rev":357,"pay":5,"s":"active","ds":8,"ea":147,"la":47},
+{"n":"גיל יניב","e":"yael.yaniv4@gmail.com","ph":"0505658280","f":"2026-02-24","l":"2026-05-01","lt":66,"rev":208,"pay":6,"s":"active","ds":8,"ea":10,"la":47},
+{"n":"סיגל ניר דקל","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"מירב ערן","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"קרן זלאיט","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"אמירה כהן","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"עדי גרובנר","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"לירון","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":180,"pay":4,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"חן","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"גל לנדס","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"יואלה הרשקו","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"אורי אורינגר","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"חופית","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"Svetlana nolfina","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"damila grin","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"רחל וורקו","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"לימור גולן","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"גלית עוגן","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"שירה זינגר שיזינג","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"עינת רבהון","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"דניאל יוסף","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"Elisheva meyer","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":61,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"אילנית בלסון טבצ'ניק","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"אביב פרגון","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"לני טרמן","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"מידד חסיד","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"ליאת מיכאלי","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"טל שלמון-צעידי","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":61,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"שירלי","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":61,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"דרורית לזר","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"Yoli Dror","e":"","ph":"","f":"2026-03-01","l":"2026-05-01","lt":62,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"דלית קהתי","e":"dalitcoaching@gmail.com","ph":"0522309023","f":"2026-03-01","l":"2026-05-01","lt":61,"rev":104,"pay":3,"s":"active","ds":8,"ea":10,"la":47},
+{"n":"Natalie Gabay","e":"nataliegm3@gmail.com","ph":"0546420026","f":"2026-03-01","l":"2026-05-01","lt":61,"rev":104,"pay":3,"s":"active","ds":8,"ea":10,"la":47},
+{"n":"מוריה רז פישר","e":"moriaraz@gmail.com","ph":"0528994827","f":"2026-03-01","l":"2026-05-01","lt":61,"rev":104,"pay":3,"s":"active","ds":8,"ea":10,"la":47},
+{"n":"סיוונה כהן","e":"sivanacohen9@gmail.com","ph":"0548064023","f":"2026-03-01","l":"2026-05-01","lt":61,"rev":104,"pay":3,"s":"active","ds":8,"ea":10,"la":47},
+{"n":"סיון מלכה","e":"","ph":"","f":"2026-03-11","l":"2026-05-01","lt":51,"rev":141,"pay":3,"s":"active","ds":8,"ea":47,"la":47},
+{"n":"איריס חזן","e":"iris199941@gmail.com","ph":"0522447400","f":"2026-04-01","l":"2026-05-01","lt":30,"rev":57,"pay":2,"s":"active","ds":8,"ea":10,"la":47},
+{"n":"ליאת עד","e":"","ph":"","f":"2026-02-02","l":"2026-05-02","lt":90,"rev":188,"pay":4,"s":"active","ds":7,"ea":47,"la":47},
+{"n":"ravitzur","e":"","ph":"","f":"2026-02-02","l":"2026-05-02","lt":90,"rev":188,"pay":4,"s":"active","ds":7,"ea":47,"la":47},
+{"n":"מאיה ליאני","e":"Mayaliani999@gmail.com","ph":"0503344063","f":"2026-03-02","l":"2026-05-02","lt":61,"rev":104,"pay":3,"s":"active","ds":7,"ea":10,"la":47},
+{"n":"הודיה סוכר","e":"hodayahodaya111@gmail.com","ph":"0509558595","f":"2026-03-30","l":"2026-05-02","lt":33,"rev":57,"pay":2,"s":"active","ds":7,"ea":10,"la":47},
+{"n":"Yuval Yosef","e":"yuvalw1991@gmail.com","ph":"0543004955","f":"2026-03-31","l":"2026-05-02","lt":32,"rev":104,"pay":3,"s":"active","ds":7,"ea":10,"la":47},
+{"n":"Shira shahar","e":"shirashahar123456s@gmail.com","ph":"0545553079","f":"2026-03-31","l":"2026-05-02","lt":32,"rev":57,"pay":2,"s":"active","ds":7,"ea":10,"la":47},
+{"n":"דינה ניב","e":"dinan76@gmail.com","ph":"0545401829","f":"2026-04-27","l":"2026-05-02","lt":5,"rev":329,"pay":2,"s":"active","ds":7,"ea":47,"la":282},
+{"n":"dana alcaz","e":"danaalcaz@gmail.com","ph":"0528703443","f":"2026-04-28","l":"2026-05-02","lt":4,"rev":1034,"pay":2,"s":"active","ds":7,"ea":47,"la":987},
+{"n":"סימה רחלין","e":"Sima@almalle.com","ph":"8505604329","f":"2026-05-02","l":"2026-05-02","lt":1,"rev":10,"pay":1,"s":"active","ds":6,"ea":10,"la":10},
+{"n":"טאייברט מרגריטה","e":"ritatvh@gmail.com","ph":"0545858006","f":"2026-05-02","l":"2026-05-02","lt":1,"rev":10,"pay":1,"s":"active","ds":6,"ea":10,"la":10},
+{"n":"lilach sne","e":"insidup.co.il@gmail.com","ph":"0523502783","f":"2026-02-03","l":"2026-05-03","lt":89,"rev":151,"pay":4,"s":"active","ds":6,"ea":10,"la":47},
+{"n":"איה","e":"ayayunik@gmail.com","ph":"0505158000","f":"2026-02-03","l":"2026-05-03","lt":89,"rev":151,"pay":4,"s":"active","ds":6,"ea":10,"la":47},
+{"n":"Avitali abramow","e":"avitali.abramow@gmail.com","ph":"0509475768","f":"2026-03-03","l":"2026-05-03","lt":61,"rev":104,"pay":3,"s":"active","ds":6,"ea":10,"la":47},
+{"n":"אילנית גיבלי","e":"ilanitbarda12@gmail.com","ph":"0548004007","f":"2026-03-03","l":"2026-05-03","lt":61,"rev":104,"pay":3,"s":"active","ds":6,"ea":10,"la":47},
+{"n":"גלית פלד פיק","e":"galitpeledpik@gmail.com","ph":"0527279977","f":"2026-03-03","l":"2026-05-03","lt":61,"rev":104,"pay":3,"s":"active","ds":6,"ea":10,"la":47},
+{"n":"Ora Jane Drori","e":"oraayoga@gmail.com","ph":"0546738237","f":"2026-03-03","l":"2026-05-03","lt":61,"rev":104,"pay":3,"s":"active","ds":6,"ea":10,"la":47},
+{"n":"סנדרה פינטו","e":"Sandrapinto2209@gmail.com","ph":"0548031651","f":"2026-04-03","l":"2026-05-03","lt":30,"rev":57,"pay":2,"s":"active","ds":6,"ea":10,"la":47},
+{"n":"אהוד טייץ","e":"ehuddesign@gmail.com","ph":"0526835073","f":"2026-04-03","l":"2026-05-03","lt":30,"rev":57,"pay":2,"s":"active","ds":6,"ea":10,"la":47},
+{"n":"עדי חברוני","e":"adihevroni@gmail.com","ph":"0507414700","f":"2026-05-03","l":"2026-05-03","lt":1,"rev":10,"pay":1,"s":"active","ds":6,"ea":10,"la":10},
+{"n":"חני קוזיאל","e":"hanni.koziel@gmail.com","ph":"0546588172","f":"2026-05-03","l":"2026-05-03","lt":1,"rev":10,"pay":1,"s":"active","ds":6,"ea":10,"la":10},
+{"n":"Oshrat Snapiri","e":"oshratbutbul@gmail.com","ph":"0547474798","f":"2026-05-03","l":"2026-05-03","lt":1,"rev":10,"pay":1,"s":"active","ds":6,"ea":10,"la":10},
+{"n":"Oshrat Snapiri","e":"oshratbutbul@gmail.com","ph":"0547474798","f":"2026-05-03","l":"2026-05-03","lt":1,"rev":39,"pay":1,"s":"active","ds":6,"ea":39,"la":39},
+{"n":"שרון רוזנבלום","e":"sharon7ros@gmail.com","ph":"8505607075","f":"2026-03-04","l":"2026-05-04","lt":62,"rev":104,"pay":3,"s":"active","ds":5,"ea":10,"la":47},
+{"n":"חן ארבל זך","e":"Chenarbelz82@gmail.com","ph":"0506202888","f":"2026-03-04","l":"2026-05-04","lt":61,"rev":104,"pay":3,"s":"active","ds":5,"ea":10,"la":47},
+{"n":"תמר טיאר","e":"tamartayar2@gmail.com","ph":"0522656667","f":"2026-03-04","l":"2026-05-04","lt":61,"rev":104,"pay":3,"s":"active","ds":5,"ea":10,"la":47},
+{"n":"אפרת יאיר","e":"efratwiss36@gmail.com","ph":"0502261257","f":"2026-03-04","l":"2026-05-04","lt":61,"rev":104,"pay":3,"s":"active","ds":5,"ea":10,"la":47},
+{"n":"תמר צפריר","e":"tamarza96@gmail.com","ph":"0547720799","f":"2026-03-04","l":"2026-05-04","lt":61,"rev":104,"pay":3,"s":"active","ds":5,"ea":10,"la":47},
+{"n":"אתי נפתי","e":"ettyln@gmail.com","ph":"0503939773","f":"2026-04-04","l":"2026-05-04","lt":30,"rev":57,"pay":2,"s":"active","ds":5,"ea":10,"la":47},
+{"n":"Bat sheva Rosenfeld","e":"bat7rosenfeld@gmail.com","ph":"0542116358","f":"2026-05-04","l":"2026-05-04","lt":1,"rev":10,"pay":1,"s":"active","ds":5,"ea":10,"la":10},
+{"n":"רותם וליק","e":"valikrotem@gmail.com","ph":"0528737730","f":"2026-05-04","l":"2026-05-04","lt":1,"rev":10,"pay":1,"s":"active","ds":4,"ea":10,"la":10},
+{"n":"רותם","e":"valikrotem@gmail.com","ph":"0528737730","f":"2026-05-04","l":"2026-05-04","lt":1,"rev":39,"pay":1,"s":"active","ds":4,"ea":39,"la":39},
+{"n":"ירדן סופר","e":"yarden121211@gmail.com","ph":"0526202120","f":"2026-05-04","l":"2026-05-04","lt":1,"rev":10,"pay":1,"s":"active","ds":4,"ea":10,"la":10},
+{"n":"לילה פורת","e":"lilaporat75@gmail.com","ph":"0545723181","f":"2026-05-04","l":"2026-05-04","lt":1,"rev":39,"pay":1,"s":"active","ds":4,"ea":39,"la":39},
+{"n":"דנה רוזן","e":"info@danarozen.co.il","ph":"0542473074","f":"2026-03-22","l":"2026-05-05","lt":44,"rev":194,"pay":4,"s":"active","ds":4,"ea":10,"la":98},
+{"n":"שרון קפזידר","e":"sharon.kafe@gmail.com","ph":"0503204020","f":"2026-05-05","l":"2026-05-05","lt":1,"rev":10,"pay":1,"s":"active","ds":4,"ea":10,"la":10},
+{"n":"נורית צורגיל","e":"nuritpromo@gmail.com","ph":"0546240167","f":"2026-05-05","l":"2026-05-05","lt":1,"rev":10,"pay":1,"s":"active","ds":3,"ea":10,"la":10},
+{"n":"שרית שמיר אומידי","e":"saritshom@gmail.com","ph":"0502415124","f":"2026-05-05","l":"2026-05-05","lt":1,"rev":10,"pay":1,"s":"active","ds":3,"ea":10,"la":10},
+{"n":"Marina shafronsky","e":"M0522822305@gmail.com","ph":"0522822305","f":"2026-05-05","l":"2026-05-05","lt":1,"rev":86,"pay":2,"s":"active","ds":3,"ea":47,"la":39},
+{"n":"מאיה מסיקה","e":"liat8282@gmail.com","ph":"0547927270","f":"2026-05-06","l":"2026-05-06","lt":1,"rev":10,"pay":1,"s":"active","ds":3,"ea":10,"la":10},
+{"n":"ליאת טלבי","e":"liat8282@gmail.com","ph":"0547927270","f":"2026-05-06","l":"2026-05-06","lt":1,"rev":39,"pay":1,"s":"active","ds":3,"ea":39,"la":39},
+{"n":"עדי אברהם","e":"Adistyleoffice@gmail.com","ph":"0543974025","f":"2026-05-06","l":"2026-05-06","lt":1,"rev":10,"pay":1,"s":"active","ds":3,"ea":10,"la":10},
+{"n":"Lior Shimony Shilon","e":"","ph":"","f":"2026-02-07","l":"2026-05-07","lt":90,"rev":188,"pay":4,"s":"active","ds":2,"ea":47,"la":47},
+{"n":"פפה קדוש","e":"pepa@pepa.co.il","ph":"0522905970","f":"2026-02-07","l":"2026-05-07","lt":89,"rev":240,"pay":5,"s":"active","ds":2,"ea":89,"la":47},
+{"n":"נטלי ברקאי סגליס","e":"Nataliebarkai@gmail.com","ph":"0547688775","f":"2026-02-07","l":"2026-05-07","lt":89,"rev":151,"pay":4,"s":"active","ds":2,"ea":10,"la":47},
+{"n":"הילי רפאלי","e":"Socialengine.israel@gmail.com","ph":"0532479031","f":"2026-02-07","l":"2026-05-07","lt":89,"rev":151,"pay":4,"s":"active","ds":2,"ea":10,"la":47},
+{"n":"גילי מזרחי","e":"gili.mizrahi03@gmail.com","ph":"0523445444","f":"2026-03-07","l":"2026-05-07","lt":61,"rev":104,"pay":3,"s":"active","ds":2,"ea":10,"la":47},
+{"n":"חני אליזרוב","e":"hani.elizarov@gmail.com","ph":"0549091911","f":"2026-03-07","l":"2026-05-07","lt":61,"rev":104,"pay":3,"s":"active","ds":2,"ea":10,"la":47},
+{"n":"אוסנת תהל לביא","e":"osnat321@gmail.com","ph":"0523720497","f":"2026-03-07","l":"2026-05-07","lt":61,"rev":104,"pay":3,"s":"active","ds":2,"ea":10,"la":47},
+{"n":"Avital Margulis","e":"avital@righter.co.il","ph":"0525613980","f":"2026-05-07","l":"2026-05-07","lt":1,"rev":10,"pay":1,"s":"active","ds":2,"ea":10,"la":10},
+{"n":"רוני חגי","e":"ronider74@gmail.com","ph":"0502711237","f":"2026-05-07","l":"2026-05-07","lt":1,"rev":10,"pay":1,"s":"active","ds":2,"ea":10,"la":10},
+{"n":"לימור פינק מהדיטש","e":"Lim2fink@gmail.com","ph":"0546759590","f":"2026-02-08","l":"2026-05-08","lt":89,"rev":151,"pay":4,"s":"active","ds":1,"ea":10,"la":47},
+{"n":"דפי נומה רוזנצויג","e":"dafinuma@gmail.com","ph":"0524624024","f":"2026-02-08","l":"2026-05-08","lt":89,"rev":151,"pay":4,"s":"active","ds":1,"ea":10,"la":47},
+{"n":"מתן קדוש","e":"Matan_kadosh@walla.co.il","ph":"0547642423","f":"2026-02-08","l":"2026-05-08","lt":89,"rev":151,"pay":4,"s":"active","ds":1,"ea":10,"la":47},
+{"n":"טל איל","e":"moklon80@gmail.com","ph":"0528343446","f":"2026-04-08","l":"2026-05-08","lt":31,"rev":57,"pay":2,"s":"active","ds":1,"ea":10,"la":47},
+{"n":"yotvat anshel","e":"yotvat1@gmail.com","ph":"0547741292","f":"2026-05-08","l":"2026-05-08","lt":1,"rev":10,"pay":1,"s":"active","ds":0,"ea":10,"la":10},
+{"n":"ניצן גל","e":"Gal.nitzan123@gmail.com","ph":"0544241900","f":"2026-05-08","l":"2026-05-08","lt":1,"rev":10,"pay":1,"s":"active","ds":0,"ea":10,"la":10},
+{"n":"ניצן גל","e":"Gal.nitzan123@gmail.com","ph":"0544241900","f":"2026-05-08","l":"2026-05-08","lt":1,"rev":39,"pay":1,"s":"active","ds":0,"ea":39,"la":39},
+{"n":"רויטל שטוסל","e":"","ph":"","f":"2026-02-09","l":"2026-05-09","lt":90,"rev":188,"pay":4,"s":"active","ds":0,"ea":47,"la":47},
+{"n":"מורן אלהינדי פינס","e":"moranalpi@gmail.com","ph":"0524563167","f":"2026-02-09","l":"2026-05-09","lt":89,"rev":151,"pay":4,"s":"active","ds":0,"ea":10,"la":47},
+{"n":"ריקי הברפלד","e":"rikihab@gmail.com","ph":"0528593712","f":"2026-03-07","l":"2026-05-09","lt":63,"rev":401,"pay":4,"s":"active","ds":0,"ea":297,"la":47},
+{"n":"‪ilanit boker‬‏","e":"ilanitboker1@gmail.com","ph":"0543532637","f":"2026-03-09","l":"2026-05-09","lt":61,"rev":173,"pay":4,"s":"active","ds":0,"ea":10,"la":47},
+{"n":"אורנה שוימר","e":"Orna.dorf@gmail.com","ph":"0544380515","f":"2026-03-09","l":"2026-05-09","lt":61,"rev":104,"pay":3,"s":"active","ds":0,"ea":10,"la":47},
+{"n":"דקלה שלום","e":"babysmiles.info@gmail.com","ph":"0545950373","f":"2026-03-09","l":"2026-05-09","lt":61,"rev":104,"pay":3,"s":"active","ds":0,"ea":10,"la":47},
+{"n":"רחלי טליאס","e":"Rachelitalias1973@gmail.com","ph":"0504056050","f":"2026-02-02","l":"2026-02-02","lt":1,"rev":10,"pay":1,"s":"churned","ds":96,"ea":10,"la":10},
+{"n":"מאשה ספוז'ניק","e":"mmenin@gmail.com","ph":"0528838485","f":"2026-02-02","l":"2026-02-02","lt":1,"rev":89,"pay":1,"s":"churned","ds":96,"ea":89,"la":89},
+{"n":"ליהי","e":"lihitzion@gmail.com","ph":"0547743219","f":"2026-02-03","l":"2026-02-03","lt":1,"rev":10,"pay":1,"s":"churned","ds":95,"ea":10,"la":10},
+{"n":"נגה מורן","e":"Nomoclinica@gmail.com","ph":"0525416890","f":"2026-02-03","l":"2026-02-03","lt":1,"rev":10,"pay":1,"s":"churned","ds":94,"ea":10,"la":10},
+{"n":"פופה זפרני","e":"studiofufa@gmail.com","ph":"0526345554","f":"2026-02-04","l":"2026-02-04","lt":1,"rev":89,"pay":1,"s":"churned","ds":94,"ea":89,"la":89},
+{"n":"שני פטיסרי","e":"Sh3el3@gmail.com","ph":"0508890003","f":"2026-02-04","l":"2026-02-04","lt":1,"rev":89,"pay":1,"s":"churned","ds":94,"ea":89,"la":89},
+{"n":"לירן","e":"Liranaharoni1@gmail.com","ph":"0522033237","f":"2026-02-04","l":"2026-02-04","lt":1,"rev":10,"pay":1,"s":"churned","ds":94,"ea":10,"la":10},
+{"n":"רותם שיר פולק","e":"Rotem0810@gmail.com","ph":"0526205989","f":"2026-02-04","l":"2026-02-04","lt":1,"rev":10,"pay":1,"s":"churned","ds":94,"ea":10,"la":10},
+{"n":"דורין בראל","e":"hapinukiya@gmail.com","ph":"0507480533","f":"2026-02-05","l":"2026-02-05","lt":1,"rev":89,"pay":1,"s":"churned","ds":93,"ea":89,"la":89},
+{"n":"ליאת בריק","e":"lilosh99@gmail.com","ph":"0528164601","f":"2026-02-05","l":"2026-02-05","lt":1,"rev":10,"pay":1,"s":"churned","ds":93,"ea":10,"la":10},
+{"n":"שושי ליבנה","e":"shoshi.stylist@gmail.com","ph":"0528489669","f":"2026-02-06","l":"2026-02-06","lt":1,"rev":89,"pay":1,"s":"churned","ds":92,"ea":89,"la":89},
+{"n":"שרי שוחט","e":"","ph":"","f":"2026-02-07","l":"2026-02-07","lt":1,"rev":47,"pay":1,"s":"churned","ds":91,"ea":47,"la":47},
+{"n":"טל דניאל","e":"tal0304@gmail.com","ph":"0546222434","f":"2026-02-07","l":"2026-02-07","lt":1,"rev":247,"pay":1,"s":"churned","ds":91,"ea":247,"la":247},
+{"n":"וינטרוב איילת","e":"","ph":"","f":"2026-02-08","l":"2026-02-08","lt":1,"rev":47,"pay":1,"s":"churned","ds":90,"ea":47,"la":47},
+{"n":"פנינה סורסקי","e":"Like4success@gmail.com","ph":"0548003788","f":"2026-02-08","l":"2026-02-08","lt":1,"rev":247,"pay":1,"s":"churned","ds":90,"ea":247,"la":247},
+{"n":"נעמה נח","e":"Naamanoac@gmail.com","ph":"0508766898","f":"2026-02-09","l":"2026-02-09","lt":1,"rev":10,"pay":1,"s":"churned","ds":88,"ea":10,"la":10},
+{"n":"Twotone Ltd","e":"zoharkalev@gmail.com","ph":"0546476694","f":"2026-02-10","l":"2026-02-10","lt":1,"rev":89,"pay":1,"s":"churned","ds":88,"ea":89,"la":89},
+{"n":"עמית חיון","e":"amithaun23@gmail.com","ph":"0536964500","f":"2026-02-10","l":"2026-02-10","lt":1,"rev":99,"pay":2,"s":"churned","ds":87,"ea":89,"la":10},
+{"n":"Almog Hefner","e":"geffen12@gmail.com","ph":"0546690676","f":"2026-02-10","l":"2026-02-10","lt":1,"rev":10,"pay":1,"s":"churned","ds":87,"ea":10,"la":10},
+{"n":"עדי בורדה","e":"adib1801@gmail.com","ph":"0526032110","f":"2026-02-11","l":"2026-02-11","lt":1,"rev":10,"pay":1,"s":"churned","ds":87,"ea":10,"la":10},
+{"n":"לנדס גל","e":"gallandesclinic@gmail.com","ph":"0544468725","f":"2026-02-11","l":"2026-02-11","lt":1,"rev":69,"pay":1,"s":"churned","ds":86,"ea":69,"la":69},
+{"n":"ענבל דובינסקי","e":"ceresent.daughter@gmail.com","ph":"0524756028","f":"2026-02-12","l":"2026-02-12","lt":1,"rev":247,"pay":1,"s":"churned","ds":86,"ea":247,"la":247},
+{"n":"איילת בראל זומר","e":"Ayeletbor@gmail.com","ph":"0508210113","f":"2026-02-13","l":"2026-02-13","lt":1,"rev":69,"pay":1,"s":"churned","ds":85,"ea":69,"la":69},
+{"n":"שירן ירושלמי","e":"s_kikos@yahoo.com","ph":"0526005120","f":"2026-02-13","l":"2026-02-13","lt":1,"rev":10,"pay":1,"s":"churned","ds":85,"ea":10,"la":10},
+{"n":"ניצן בוהדנה","e":"nitz.bu@gmail.com","ph":"0546595133","f":"2026-02-14","l":"2026-02-14","lt":1,"rev":10,"pay":1,"s":"churned","ds":84,"ea":10,"la":10},
+{"n":"חנה קופר","e":"hannacoop57@gmail.com","ph":"0523263474","f":"2026-02-14","l":"2026-02-14","lt":1,"rev":69,"pay":1,"s":"churned","ds":83,"ea":69,"la":69},
+{"n":"חנה שאטל","e":"hanasl1@walla.co.il","ph":"0505273664","f":"2026-02-18","l":"2026-02-18","lt":1,"rev":10,"pay":1,"s":"churned","ds":80,"ea":10,"la":10},
+{"n":"לילך אשל","e":"lilacheshel4@gmail.com","ph":"0523895337","f":"2026-02-18","l":"2026-02-18","lt":1,"rev":10,"pay":1,"s":"churned","ds":80,"ea":10,"la":10},
+{"n":"אביבה שוחט","e":"daniella.shock@gmail.com","ph":"0543174144","f":"2026-02-18","l":"2026-02-18","lt":1,"rev":10,"pay":1,"s":"churned","ds":80,"ea":10,"la":10},
+{"n":"Meyran Menkes","e":"meyran.menkes@gmail.com","ph":"0527711102","f":"2026-02-18","l":"2026-02-18","lt":1,"rev":10,"pay":1,"s":"churned","ds":79,"ea":10,"la":10},
+{"n":"שירה תמרי","e":"","ph":"","f":"2026-02-19","l":"2026-02-19","lt":1,"rev":10,"pay":1,"s":"churned","ds":79,"ea":10,"la":10},
+{"n":"רחלי טליאס","e":"Rachelitalias1973@gmail.com","ph":"0504056050","f":"2026-02-19","l":"2026-02-19","lt":1,"rev":174,"pay":1,"s":"churned","ds":79,"ea":174,"la":174},
+{"n":"אלינה פלדשטיין","e":"Elinaf.office@gmail.com","ph":"0549105900","f":"2026-02-20","l":"2026-02-20","lt":1,"rev":10,"pay":1,"s":"churned","ds":78,"ea":10,"la":10},
+{"n":"הילה מור זהבי","e":"hila.morzehavi@gmail.com","ph":"0524453348","f":"2026-02-21","l":"2026-02-21","lt":1,"rev":69,"pay":1,"s":"churned","ds":77,"ea":69,"la":69},
+{"n":"סיון מלכה","e":"Sivan.emanika@gmail.com","ph":"0544936401","f":"2026-02-21","l":"2026-02-21","lt":1,"rev":174,"pay":1,"s":"churned","ds":76,"ea":174,"la":174},
+{"n":"סוניה אהרוני","e":"Soniaaharoni229@gmail.com","ph":"0544990086","f":"2026-02-22","l":"2026-02-22","lt":1,"rev":10,"pay":1,"s":"churned","ds":75,"ea":10,"la":10},
+{"n":"שחר אליהו","e":"","ph":"","f":"2026-02-23","l":"2026-02-23","lt":1,"rev":47,"pay":1,"s":"churned","ds":75,"ea":47,"la":47},
+{"n":"שי מקדסי","e":"","ph":"","f":"2026-02-23","l":"2026-02-23","lt":1,"rev":47,"pay":1,"s":"churned","ds":75,"ea":47,"la":47},
+{"n":"ליאת עמנואל","e":"liat.emanuel@gmail.com","ph":"0526265806","f":"2026-02-23","l":"2026-02-23","lt":1,"rev":69,"pay":1,"s":"churned","ds":75,"ea":69,"la":69},
+{"n":"עינבר בחבוט","e":"malkiinbar1@gmail.com","ph":"0522291819","f":"2026-02-23","l":"2026-02-23","lt":1,"rev":10,"pay":1,"s":"churned","ds":74,"ea":10,"la":10},
+{"n":"שירלי אדלרסברג","e":"","ph":"","f":"2026-02-24","l":"2026-02-24","lt":1,"rev":47,"pay":1,"s":"churned","ds":74,"ea":47,"la":47},
+{"n":"ליבנת בורג","e":"Livnat.therapist@gmail.com","ph":"0548182417","f":"2026-02-24","l":"2026-02-24","lt":1,"rev":147,"pay":1,"s":"churned","ds":74,"ea":147,"la":147},
+{"n":"maayan cohen","e":"cheeks.maayan@gmail.com","ph":"0542098188","f":"2026-02-25","l":"2026-02-25","lt":1,"rev":10,"pay":1,"s":"churned","ds":73,"ea":10,"la":10},
+{"n":"שושי ניראל","e":"shoshi.nirel@gmail.com","ph":"0507870284","f":"2026-02-25","l":"2026-02-25","lt":1,"rev":10,"pay":1,"s":"churned","ds":73,"ea":10,"la":10},
+{"n":"מוטי עילם","e":"atalyaeilamzavdi@gmail.com","ph":"0502444235","f":"2026-02-26","l":"2026-02-26","lt":1,"rev":79,"pay":2,"s":"churned","ds":72,"ea":10,"la":69},
+{"n":"שירלי וייסמן","e":"Shirlyv42@gmail.com","ph":"0508803808","f":"2026-02-26","l":"2026-02-26","lt":1,"rev":174,"pay":1,"s":"churned","ds":71,"ea":174,"la":174},
+{"n":"איילת בראל זומר","e":"ayeletbor@gmail.com","ph":"0508210113","f":"2026-02-26","l":"2026-02-26","lt":1,"rev":147,"pay":1,"s":"churned","ds":71,"ea":147,"la":147},
+{"n":"זוהר כהן","e":"","ph":"","f":"2026-02-01","l":"2026-03-01","lt":29,"rev":94,"pay":2,"s":"churned","ds":69,"ea":47,"la":47},
+{"n":"שרון מאיר","e":"","ph":"","f":"2026-03-01","l":"2026-03-01","lt":1,"rev":47,"pay":1,"s":"churned","ds":69,"ea":47,"la":47},
+{"n":"יעל פירסט","e":"","ph":"","f":"2026-03-01","l":"2026-03-01","lt":1,"rev":47,"pay":1,"s":"churned","ds":69,"ea":47,"la":47},
+{"n":"רותם סעדיה","e":"","ph":"","f":"2026-03-01","l":"2026-03-01","lt":1,"rev":47,"pay":1,"s":"churned","ds":69,"ea":47,"la":47},
+{"n":"אדווה גולדנר","e":"","ph":"","f":"2026-03-01","l":"2026-03-01","lt":1,"rev":47,"pay":1,"s":"churned","ds":69,"ea":47,"la":47},
+{"n":"חנית אפתיה","e":"","ph":"","f":"2026-03-01","l":"2026-03-01","lt":1,"rev":47,"pay":1,"s":"churned","ds":69,"ea":47,"la":47},
+{"n":"דניאל מלחי","e":"","ph":"","f":"2026-03-01","l":"2026-03-01","lt":1,"rev":47,"pay":1,"s":"churned","ds":69,"ea":47,"la":47},
+{"n":"נועם","e":"","ph":"","f":"2026-03-01","l":"2026-03-01","lt":1,"rev":47,"pay":1,"s":"churned","ds":69,"ea":47,"la":47},
+{"n":"Ety Ifergan","e":"","ph":"","f":"2026-03-01","l":"2026-03-01","lt":1,"rev":47,"pay":1,"s":"churned","ds":69,"ea":47,"la":47},
+{"n":"נטע שהם","e":"netsho77@gmail.com","ph":"0524830859","f":"2026-03-01","l":"2026-03-01","lt":1,"rev":10,"pay":1,"s":"churned","ds":69,"ea":10,"la":10},
+{"n":"טל סולץ הרמלין","e":"tal.hermelin@gmail.com","ph":"0507998898","f":"2026-03-01","l":"2026-03-01","lt":1,"rev":10,"pay":1,"s":"churned","ds":69,"ea":10,"la":10},
+{"n":"דיורה דיאנה חודז׳יבקוב","e":"Dian.hod@gmail.com","ph":"0549469699","f":"2026-03-01","l":"2026-03-01","lt":1,"rev":79,"pay":2,"s":"churned","ds":68,"ea":10,"la":69},
+{"n":"שרה קסיר","e":"Saragelfman13@gmail.com","ph":"0548787838","f":"2026-02-02","l":"2026-03-02","lt":28,"rev":57,"pay":2,"s":"churned","ds":68,"ea":10,"la":47},
+{"n":"כלילה שחר","e":"clila.shahar@gmail.com","ph":"0548825420","f":"2026-03-02","l":"2026-03-02","lt":1,"rev":10,"pay":1,"s":"churned","ds":68,"ea":10,"la":10},
+{"n":"בלסון טבצניק","e":"Ilanit@arttech.co.il","ph":"0522951177","f":"2026-03-02","l":"2026-03-02","lt":1,"rev":174,"pay":1,"s":"churned","ds":68,"ea":174,"la":174},
+{"n":"ליאת אליהו","e":"Liat.rtm@gmail.com","ph":"0529282658","f":"2026-03-02","l":"2026-03-02","lt":1,"rev":69,"pay":1,"s":"churned","ds":68,"ea":69,"la":69},
+{"n":"שירי רוזן","e":"sr.stivi@gmail.com","ph":"0544715494","f":"2026-03-02","l":"2026-03-02","lt":1,"rev":10,"pay":1,"s":"churned","ds":67,"ea":10,"la":10},
+{"n":"מיתר מאנה בוטבול","e":"Meitarmana@gmail.com","ph":"0526740139","f":"2026-03-02","l":"2026-03-02","lt":1,"rev":247,"pay":1,"s":"churned","ds":67,"ea":247,"la":247},
+{"n":"tahel kilman","e":"Tahelkilman@gmail.com","ph":"0506306687","f":"2026-03-02","l":"2026-03-02","lt":1,"rev":10,"pay":1,"s":"churned","ds":67,"ea":10,"la":10},
+{"n":"שרונה כחלון","e":"sharonack1@gmail.com","ph":"0506551342","f":"2026-03-03","l":"2026-03-03","lt":1,"rev":10,"pay":1,"s":"churned","ds":67,"ea":10,"la":10},
+{"n":"מור תעיזי קלימיאן","e":"mor.home.styling@gmail.com","ph":"0546313864","f":"2026-02-04","l":"2026-03-04","lt":28,"rev":57,"pay":2,"s":"churned","ds":66,"ea":10,"la":47},
+{"n":"לילוש בן שטרית","e":"leelush12@gmail.com","ph":"0543732111","f":"2026-03-04","l":"2026-03-04","lt":1,"rev":10,"pay":1,"s":"churned","ds":65,"ea":10,"la":10},
+{"n":"Elinor Dotan","e":"elinor.dotan@gmail.com","ph":"0522212116","f":"2026-03-04","l":"2026-03-04","lt":1,"rev":69,"pay":1,"s":"churned","ds":65,"ea":69,"la":69},
+{"n":"לאה באט","e":"miksam40@gmail.com","ph":"0523803521","f":"2026-03-04","l":"2026-03-04","lt":1,"rev":10,"pay":1,"s":"churned","ds":65,"ea":10,"la":10},
+{"n":"ענבל שטורם","e":"inbal7792@gmail.com","ph":"0525202512","f":"2026-03-06","l":"2026-03-06","lt":1,"rev":10,"pay":1,"s":"churned","ds":64,"ea":10,"la":10},
+{"n":"סיגל פרוינד","e":"freund.sigal@gmail.com","ph":"0538252221","f":"2026-02-07","l":"2026-03-07","lt":28,"rev":57,"pay":2,"s":"churned","ds":63,"ea":10,"la":47},
+{"n":"Rona","e":"Rona19193@gmail.com","ph":"0547969612","f":"2026-02-07","l":"2026-03-07","lt":28,"rev":57,"pay":2,"s":"churned","ds":63,"ea":10,"la":47},
+{"n":"SHARONA SHALEV","e":"shash080766@gmail.com","ph":"0507689847","f":"2026-02-18","l":"2026-03-07","lt":18,"rev":20,"pay":2,"s":"churned","ds":62,"ea":10,"la":10},
+{"n":"שרון קצקו רונן","e":"sharonr@humanlink.co.il","ph":"0528270302","f":"2026-03-07","l":"2026-03-07","lt":1,"rev":10,"pay":1,"s":"churned","ds":63,"ea":10,"la":10},
+{"n":"אינגריד ברקוביץ","e":"ingridselem11@gmail.com","ph":"0532765913","f":"2026-03-07","l":"2026-03-07","lt":1,"rev":297,"pay":1,"s":"churned","ds":62,"ea":297,"la":297},
+{"n":"טל דקל","e":"Taldekel2000@gmail.com","ph":"0525622225","f":"2026-03-07","l":"2026-03-07","lt":1,"rev":69,"pay":1,"s":"churned","ds":62,"ea":69,"la":69},
+{"n":"שרונה שלו","e":"Shash080766@gmail.com","ph":"0507689847","f":"2026-03-08","l":"2026-03-08","lt":1,"rev":316,"pay":2,"s":"churned","ds":62,"ea":247,"la":69},
+{"n":"לידור ישראל","e":"Lidor.israel@outlook.com","ph":"0508653653","f":"2026-03-09","l":"2026-03-09","lt":1,"rev":10,"pay":1,"s":"churned","ds":61,"ea":10,"la":10},
+{"n":"Moran Shelli","e":"Moranshelli.pmu@gmail.com","ph":"0508383618","f":"2026-03-09","l":"2026-03-09","lt":1,"rev":10,"pay":1,"s":"churned","ds":61,"ea":10,"la":10},
+{"n":"מורן שלי","e":"Moranshelli.pmu@gmail.com","ph":"0508383618","f":"2026-03-09","l":"2026-03-09","lt":1,"rev":147,"pay":1,"s":"churned","ds":61,"ea":147,"la":147},
+{"n":"פרידה כהן","e":"prydhk@gmail.com","ph":"0546543907","f":"2026-03-09","l":"2026-03-09","lt":1,"rev":10,"pay":1,"s":"churned","ds":60,"ea":10,"la":10},
+{"n":"שרונה כהן","e":"Begova4u@gmail.com","ph":"0507626452","f":"2026-02-10","l":"2026-03-10","lt":29,"rev":57,"pay":2,"s":"churned","ds":60,"ea":10,"la":47},
+{"n":"פורמן אביבית בידיים טובות","e":"furmanavivit@gmail.com","ph":"0502377559","f":"2026-03-10","l":"2026-03-10","lt":1,"rev":69,"pay":1,"s":"churned","ds":60,"ea":69,"la":69},
+{"n":"מור בלילי","e":"morbalilinail@gmail.com","ph":"0506820483","f":"2026-03-10","l":"2026-03-10","lt":1,"rev":10,"pay":1,"s":"churned","ds":60,"ea":10,"la":10},
+{"n":"נעמה שקד לוי","e":"shava.lanu@gmail.com","ph":"0509751610","f":"2026-03-11","l":"2026-03-11","lt":1,"rev":197,"pay":1,"s":"churned","ds":58,"ea":197,"la":197},
+{"n":"קרן אלנקרי","e":"Kerenoriyaniv@gmail.com","ph":"0549258781","f":"2026-02-13","l":"2026-03-13","lt":28,"rev":193,"pay":3,"s":"churned","ds":57,"ea":89,"la":94},
+{"n":"מאיה סלבוצקי","e":"maya5922@gmail.com","ph":"0528278905","f":"2026-03-15","l":"2026-03-15","lt":1,"rev":10,"pay":1,"s":"churned","ds":55,"ea":10,"la":10},
+{"n":"נילי בן דוד","e":"nbendavid5@gmail.com","ph":"0525542234","f":"2026-03-15","l":"2026-03-15","lt":1,"rev":197,"pay":1,"s":"churned","ds":55,"ea":197,"la":197},
+{"n":"טל בלכר","e":"talblecher1979@gmail.com","ph":"0523431476","f":"2026-03-15","l":"2026-03-15","lt":1,"rev":127,"pay":1,"s":"churned","ds":55,"ea":127,"la":127},
+{"n":"שרית שבייב","e":"Sarit1005689@walla.com","ph":"0538268898","f":"2026-03-15","l":"2026-03-15","lt":1,"rev":10,"pay":1,"s":"churned","ds":55,"ea":10,"la":10},
+{"n":"מאשה","e":"mashakandler@gmail.com","ph":"0547576156","f":"2026-03-15","l":"2026-03-15","lt":1,"rev":243,"pay":2,"s":"churned","ds":55,"ea":174,"la":69},
+{"n":"אדווה אור","e":"Hashtagevent18@gmail.com","ph":"0526389573","f":"2026-02-16","l":"2026-03-16","lt":28,"rev":57,"pay":2,"s":"churned","ds":54,"ea":10,"la":47},
+{"n":"נטלי זרגריאן","e":"Nataliez170@gmail.com","ph":"0525850374","f":"2026-03-16","l":"2026-03-16","lt":1,"rev":197,"pay":1,"s":"churned","ds":54,"ea":197,"la":197},
+{"n":"לירון","e":"Liron131191@gmail.com","ph":"0545740120","f":"2026-03-16","l":"2026-03-16","lt":1,"rev":197,"pay":1,"s":"churned","ds":54,"ea":197,"la":197},
+{"n":"ארזה כהן","e":"tamracohen58@gmail.com","ph":"0523666058","f":"2026-02-17","l":"2026-03-18","lt":29,"rev":114,"pay":4,"s":"churned","ds":52,"ea":10,"la":47},
+{"n":"סוזי","e":"suzer9@gmail.com","ph":"0502905000","f":"2026-02-19","l":"2026-03-19","lt":28,"rev":57,"pay":2,"s":"churned","ds":51,"ea":10,"la":47},
+{"n":"שרון בן אהרון","e":"s2sharons@gmail.com","ph":"0544603911","f":"2026-02-19","l":"2026-03-19","lt":28,"rev":57,"pay":2,"s":"churned","ds":51,"ea":10,"la":47},
+{"n":"לימור אפורי","e":"Limorafo@gmail.com","ph":"0504321288","f":"2026-03-19","l":"2026-03-19","lt":1,"rev":197,"pay":1,"s":"churned","ds":51,"ea":197,"la":197},
+{"n":"רחלי בן עזרא","e":"Goldmind.racheli@gmail.com","ph":"0544616268","f":"2026-02-20","l":"2026-03-20","lt":29,"rev":67,"pay":3,"s":"churned","ds":50,"ea":10,"la":47},
+{"n":"עינב עזרא","e":"eceisar@gmail.com","ph":"0546515522","f":"2026-02-20","l":"2026-03-20","lt":29,"rev":136,"pay":2,"s":"churned","ds":50,"ea":89,"la":47},
+{"n":"דנה יצחקי","e":"danadancing@gmail.com","ph":"0523801163","f":"2026-02-20","l":"2026-03-20","lt":28,"rev":57,"pay":2,"s":"churned","ds":50,"ea":10,"la":47},
+{"n":"ילנה ורסנו","e":"yosefyelena@gmail.com","ph":"0546159293","f":"2026-02-20","l":"2026-03-20","lt":28,"rev":273,"pay":4,"s":"churned","ds":50,"ea":10,"la":47},
+{"n":"ענבל לוי","e":"leviinbal29@gmail.com","ph":"0507653719","f":"2026-02-20","l":"2026-03-20","lt":28,"rev":57,"pay":2,"s":"churned","ds":50,"ea":10,"la":47},
+{"n":"Messler Ella","e":"ellalm22@gmail.com","ph":"0524855806","f":"2026-03-21","l":"2026-03-21","lt":1,"rev":10,"pay":1,"s":"churned","ds":49,"ea":10,"la":10},
+{"n":"שירלי ממן - טיפול רגשי & הדרכת הורים","e":"shirmaman8@gmail.com","ph":"0507828414","f":"2026-03-21","l":"2026-03-21","lt":1,"rev":197,"pay":1,"s":"churned","ds":49,"ea":197,"la":197},
+{"n":"ליאור רונן","e":"lior27@gmail.com","ph":"0523871201","f":"2026-03-21","l":"2026-03-21","lt":1,"rev":297,"pay":1,"s":"churned","ds":48,"ea":297,"la":297},
+{"n":"דנית ששון","e":"Danit@danits.com","ph":"0528820156","f":"2026-03-21","l":"2026-03-21","lt":1,"rev":297,"pay":1,"s":"churned","ds":48,"ea":297,"la":297},
+{"n":"בני מנשרוב","e":"Moran6489@gmail.com","ph":"0504221724","f":"2026-03-21","l":"2026-03-21","lt":1,"rev":297,"pay":1,"s":"churned","ds":48,"ea":297,"la":297},
+{"n":"יעל לויתן ירדן","e":"yula8494@gmail.com","ph":"0544602071","f":"2026-03-21","l":"2026-03-21","lt":1,"rev":297,"pay":1,"s":"churned","ds":48,"ea":297,"la":297},
+{"n":"מאיר מילוא","e":"info@tzipimilo.net","ph":"0545360595","f":"2026-03-21","l":"2026-03-21","lt":1,"rev":297,"pay":1,"s":"churned","ds":48,"ea":297,"la":297},
+{"n":"חן עמר","e":"","ph":"","f":"2026-02-22","l":"2026-03-22","lt":29,"rev":94,"pay":2,"s":"churned","ds":48,"ea":47,"la":47},
+{"n":"רוזני בראון-דולה","e":"","ph":"","f":"2026-02-22","l":"2026-03-22","lt":29,"rev":94,"pay":2,"s":"churned","ds":48,"ea":47,"la":47},
+{"n":"גילה דרעי","e":"","ph":"","f":"2026-02-22","l":"2026-03-22","lt":29,"rev":94,"pay":2,"s":"churned","ds":48,"ea":47,"la":47},
+{"n":"מעיין דנקאו","e":"Maayan.nlp@gmail.com","ph":"0535282775","f":"2026-02-22","l":"2026-03-22","lt":28,"rev":304,"pay":3,"s":"churned","ds":48,"ea":10,"la":47},
+{"n":"רותם וורסקיין","e":"rotemv@gmail.com","ph":"0546519616","f":"2026-03-22","l":"2026-03-22","lt":1,"rev":10,"pay":1,"s":"churned","ds":48,"ea":10,"la":10},
+{"n":"ליאת עמנואל","e":"liat.emanuel@gmail.com","ph":"0526265806","f":"2026-02-23","l":"2026-03-23","lt":28,"rev":57,"pay":2,"s":"churned","ds":47,"ea":10,"la":47},
+{"n":"אדיר טרנר","e":"Rakadi@gmail.com","ph":"0549432004","f":"2026-02-23","l":"2026-03-23","lt":28,"rev":57,"pay":2,"s":"churned","ds":47,"ea":10,"la":47},
+{"n":"נילי סלומון","e":"Nilly.shimony@gmail.com","ph":"0547526503","f":"2026-03-23","l":"2026-03-23","lt":1,"rev":297,"pay":1,"s":"churned","ds":47,"ea":297,"la":297},
+{"n":"אלין","e":"Elin-fh@hotmail.com","ph":"0542247272","f":"2026-03-23","l":"2026-03-23","lt":1,"rev":79,"pay":2,"s":"churned","ds":46,"ea":10,"la":69},
+{"n":"יעל מילשטיין","e":"yaelimil@gmail.com","ph":"0528767633","f":"2026-02-24","l":"2026-03-24","lt":28,"rev":57,"pay":2,"s":"churned","ds":46,"ea":10,"la":47},
+{"n":"יונית","e":"yonitdesign1@gmail.com","ph":"0544600036","f":"2026-03-24","l":"2026-03-24","lt":1,"rev":69,"pay":1,"s":"churned","ds":45,"ea":69,"la":69},
+{"n":"שירי ניסן","e":"Shirinisan@gmail.com","ph":"0522335649","f":"2026-02-25","l":"2026-03-25","lt":28,"rev":57,"pay":2,"s":"churned","ds":45,"ea":10,"la":47},
+{"n":"Yuval yosef","e":"yuvalw1991@gmail.com","ph":"0543004955","f":"2026-02-25","l":"2026-03-25","lt":28,"rev":57,"pay":2,"s":"churned","ds":45,"ea":10,"la":47},
+{"n":"לינוי טיבי","e":"Linoylevi2121@gmail.com","ph":"0509522338","f":"2026-02-25","l":"2026-03-25","lt":28,"rev":57,"pay":2,"s":"churned","ds":45,"ea":10,"la":47},
+{"n":"עמית טל","e":"tal08224@gmail.com","ph":"0507740006","f":"2026-02-25","l":"2026-03-25","lt":28,"rev":57,"pay":2,"s":"churned","ds":45,"ea":10,"la":47},
+{"n":"רותם רובינשטיין","e":"rotemrub@gmail.com","ph":"0528642070","f":"2026-03-25","l":"2026-03-25","lt":1,"rev":69,"pay":1,"s":"churned","ds":45,"ea":69,"la":69},
+{"n":"טל מיכלוביץ","e":"tmichalovitch@gmail.com","ph":"0547374592","f":"2026-03-25","l":"2026-03-25","lt":1,"rev":69,"pay":1,"s":"churned","ds":44,"ea":69,"la":69},
+{"n":"Rinat Cohen","e":"cohen.rinat02@gmail.com","ph":"0508800505","f":"2026-03-25","l":"2026-03-25","lt":1,"rev":69,"pay":1,"s":"churned","ds":44,"ea":69,"la":69},
+{"n":"keren zarfati","e":"kerenzarfati19@gmail.com","ph":"0526682336","f":"2026-02-26","l":"2026-03-26","lt":29,"rev":57,"pay":2,"s":"churned","ds":44,"ea":10,"la":47},
+{"n":"זוהר נתניאן","e":"zohar32124@gmail.com","ph":"0535448364","f":"2026-02-26","l":"2026-03-26","lt":28,"rev":57,"pay":2,"s":"churned","ds":44,"ea":10,"la":47},
+{"n":"יעל לויתן ירדן","e":"yula8494@gmail.com","ph":"0544602071","f":"2026-03-26","l":"2026-03-26","lt":1,"rev":69,"pay":1,"s":"churned","ds":44,"ea":69,"la":69},
+{"n":"מיכל אורדן","e":"","ph":"","f":"2026-02-28","l":"2026-03-28","lt":28,"rev":94,"pay":2,"s":"churned","ds":42,"ea":47,"la":47},
+{"n":"‫ענבל ברגמן‬‎","e":"hamoodoula@gmail.com","ph":"0543340134","f":"2026-03-29","l":"2026-03-29","lt":1,"rev":10,"pay":1,"s":"churned","ds":41,"ea":10,"la":10},
+{"n":"ענבל ברגמן","e":"hamoodoula@gmail.com","ph":"0543340134","f":"2026-03-29","l":"2026-03-29","lt":1,"rev":69,"pay":1,"s":"churned","ds":41,"ea":69,"la":69},
+{"n":"יובל יוסף","e":"yuvalw1991@gmail.com","ph":"0543004955","f":"2026-02-25","l":"2026-03-31","lt":35,"rev":138,"pay":2,"s":"churned","ds":39,"ea":69,"la":69},
+{"n":"ליב","e":"Livnatyakov9@gmail.com","ph":"0542835755","f":"2026-02-23","l":"2026-04-01","lt":37,"rev":241,"pay":3,"s":"churned","ds":38,"ea":147,"la":47},
+{"n":"אתי לבן","e":"","ph":"","f":"2026-03-01","l":"2026-04-01","lt":31,"rev":94,"pay":2,"s":"churned","ds":38,"ea":47,"la":47},
+{"n":"Miri chigirinsky","e":"","ph":"","f":"2026-03-01","l":"2026-04-01","lt":31,"rev":94,"pay":2,"s":"churned","ds":38,"ea":47,"la":47},
+{"n":"עדנה כהן ניסן","e":"","ph":"","f":"2026-03-01","l":"2026-04-01","lt":31,"rev":94,"pay":2,"s":"churned","ds":38,"ea":47,"la":47},
+{"n":"בן אדר","e":"","ph":"","f":"2026-03-01","l":"2026-04-01","lt":31,"rev":94,"pay":2,"s":"churned","ds":38,"ea":47,"la":47},
+{"n":"אור פריידין","e":"","ph":"","f":"2026-03-01","l":"2026-04-01","lt":31,"rev":94,"pay":2,"s":"churned","ds":38,"ea":47,"la":47},
+{"n":"מיטל אזרי","e":"Meitalazari@gmail.com","ph":"0524494975","f":"2026-03-01","l":"2026-04-01","lt":31,"rev":57,"pay":2,"s":"churned","ds":38,"ea":10,"la":47},
+{"n":"יוליה דיין בורודין","e":"yulliboutique@gmail.com","ph":"0584455048","f":"2026-03-01","l":"2026-04-01","lt":31,"rev":57,"pay":2,"s":"churned","ds":38,"ea":10,"la":47},
+{"n":"אמיר אלגוב","e":"","ph":"","f":"2026-03-10","l":"2026-04-01","lt":22,"rev":94,"pay":2,"s":"churned","ds":38,"ea":47,"la":47},
+{"n":"סיון מטוס","e":"","ph":"","f":"2026-02-02","l":"2026-04-02","lt":60,"rev":141,"pay":3,"s":"churned","ds":37,"ea":47,"la":47},
+{"n":"איילת","e":"Ayeletbor@gmail.com","ph":"0508210113","f":"2026-02-02","l":"2026-04-02","lt":59,"rev":104,"pay":3,"s":"churned","ds":37,"ea":10,"la":47},
+{"n":"ליאת אליהו","e":"Liat.rtm@gmail.com","ph":"0529282658","f":"2026-03-02","l":"2026-04-02","lt":31,"rev":57,"pay":2,"s":"churned","ds":37,"ea":10,"la":47},
+{"n":"עדי דויד","e":"Rdtnlp@gmail.com","ph":"0544580276","f":"2026-03-02","l":"2026-04-02","lt":31,"rev":57,"pay":2,"s":"churned","ds":37,"ea":10,"la":47},
+{"n":"בלה טל","e":"bella@tal-cpa.com","ph":"0543056759","f":"2026-04-02","l":"2026-04-02","lt":1,"rev":10,"pay":1,"s":"churned","ds":37,"ea":10,"la":10},
+{"n":"ציפי אלגייב","e":"Tsipishd@gmail.com","ph":"0506309777","f":"2026-04-02","l":"2026-04-02","lt":1,"rev":10,"pay":1,"s":"churned","ds":36,"ea":10,"la":10},
+{"n":"עלית אוקון","e":"alit13okoun@gmail.com","ph":"0543192322","f":"2026-04-02","l":"2026-04-02","lt":1,"rev":10,"pay":1,"s":"churned","ds":36,"ea":10,"la":10},
+{"n":"ענת שינדלר","e":"Anat.shindler@gmail.com","ph":"0523557730","f":"2026-03-03","l":"2026-04-03","lt":32,"rev":57,"pay":2,"s":"churned","ds":36,"ea":10,"la":47},
+{"n":"טל קנטרו","e":"Info@kanterobags.com","ph":"0526426538","f":"2026-03-03","l":"2026-04-03","lt":31,"rev":57,"pay":2,"s":"churned","ds":36,"ea":10,"la":47},
+{"n":"קרן ברנד","e":"karnuna2@gmail.com","ph":"0547923477","f":"2026-03-03","l":"2026-04-03","lt":31,"rev":57,"pay":2,"s":"churned","ds":36,"ea":10,"la":47},
+{"n":"אולגה איסייב","e":"olgash1988@gmail.com","ph":"0543285494","f":"2026-04-03","l":"2026-04-03","lt":1,"rev":10,"pay":1,"s":"churned","ds":36,"ea":10,"la":10}];
+
+let mlFilter = 'all';
+let mlCurrentPage = 1;
+const ML_PER_PAGE = 50;
+
+function filterMembers(f, btn) {
+  mlFilter = f;
+  mlCurrentPage = 1;
+  document.querySelectorAll('#mf-all,#mf-active,#mf-churned').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMembers();
+}
+
+function renderMembers() {
+  const search = (document.getElementById('ml-search')?.value || '').toLowerCase();
+  const sort = document.getElementById('ml-sort')?.value || 'last-desc';
+
+  let list = MEMBERS.filter(m => {
+    if (mlFilter === 'active' && m.s !== 'active') return false;
+    if (mlFilter === 'churned' && m.s !== 'churned') return false;
+    if (search) {
+      const hay = (m.n + m.e + m.ph).toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+
+  // Sort
+  list.sort((a, b) => {
+    if (sort === 'last-desc') return b.l.localeCompare(a.l);
+    if (sort === 'last-asc') return a.l.localeCompare(b.l);
+    if (sort === 'rev-desc') return b.rev - a.rev;
+    if (sort === 'lt-desc') return b.lt - a.lt;
+    if (sort === 'pay-desc') return b.pay - a.pay;
+    return 0;
+  });
+
+  const total = list.length;
+  const totalPages = Math.ceil(total / ML_PER_PAGE);
+  mlCurrentPage = Math.min(mlCurrentPage, Math.max(1, totalPages));
+  const start = (mlCurrentPage - 1) * ML_PER_PAGE;
+  const page = list.slice(start, start + ML_PER_PAGE);
+
+  // Update KPI
+  const active = MEMBERS.filter(m => m.s === 'active').length;
+  const churned = MEMBERS.filter(m => m.s === 'churned').length;
+  const totalRev = MEMBERS.reduce((s, m) => s + m.rev, 0);
+  const e1 = document.getElementById('ml-active-count');
+  const e2 = document.getElementById('ml-churned-count');
+  const e3 = document.getElementById('ml-rev-total');
+  if (e1) e1.textContent = active;
+  if (e2) e2.textContent = churned;
+  if (e3) e3.textContent = '₪' + totalRev.toLocaleString();
+
+  // Render rows
+  const tbody = document.getElementById('ml-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = page.map((m, i) => {
+    const isActive = m.s === 'active';
+    const statusPill = isActive
+      ? '<span class="pill pg">פעיל</span>'
+      : '<span class="pill pr">עזב</span>';
+    const revColor = m.rev >= 100 ? '#10b981' : m.rev < 47 ? '#ef4444' : '#e8edf5';
+    const ltColor = m.lt > 30 ? '#10b981' : m.lt < 5 ? '#ef4444' : '#f59e0b';
+    const dsStyle = !isActive && m.ds > 60 ? 'color:#ef4444' : '';
+    return \`<tr>
+      <td style="color:var(--muted);font-family:var(--mono);padding-right:16px;">\${start + i + 1}</td>
+      <td style="font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="\${m.e}">\${m.n || '—'}</td>
+      <td>\${statusPill}</td>
+      <td style="font-family:var(--mono);font-size:10px;">\${m.f}</td>
+      <td style="font-family:var(--mono);font-size:10px;">\${m.l}</td>
+      <td style="font-family:var(--mono);color:\${ltColor}">\${m.lt}</td>
+      <td style="font-family:var(--mono);">\${m.pay}</td>
+      <td style="font-family:var(--mono);font-weight:700;color:\${revColor};">₪\${m.rev.toLocaleString()}</td>
+      <td style="font-family:var(--mono);\${dsStyle}">\${m.ds}d</td>
+      <td style="font-size:10px;color:var(--muted);">\${m.ph || '—'}</td>
+    </tr>\`;
+  }).join('');
+
+  // Pagination info
+  const countLabel = document.getElementById('ml-count-label');
+  const pageInfo = document.getElementById('ml-page-info');
+  if (countLabel) countLabel.textContent = \`מציג \${start+1}–\${Math.min(start+ML_PER_PAGE, total)} מתוך \${total} חברים\`;
+  if (pageInfo) pageInfo.textContent = \`עמוד \${mlCurrentPage} / \${totalPages}\`;
+}
+
+function mlPage(dir) {
+  const search = (document.getElementById('ml-search')?.value || '').toLowerCase();
+  let list = MEMBERS.filter(m => {
+    if (mlFilter === 'active' && m.s !== 'active') return false;
+    if (mlFilter === 'churned' && m.s !== 'churned') return false;
+    if (search) return (m.n + m.e + m.ph).toLowerCase().includes(search);
+    return true;
+  });
+  const totalPages = Math.ceil(list.length / ML_PER_PAGE);
+  mlCurrentPage = Math.max(1, Math.min(totalPages, mlCurrentPage + dir));
+  renderMembers();
+}
+
+
+// ═══════════════════════════════════════════
+//  LIVE CARDCOM FETCH SYSTEM
+//  Calls Cardcom API via Make webhook on load
+//  Credentials: Terminal 141682
+// ═══════════════════════════════════════════
+
+const CARDCOM_API = "https://secure.cardcom.solutions/api/v11/Transactions/ListTransactions";
+const CARDCOM_CREDS = {
+  ApiName: "ecmZEnSnDHMOdfaOGqco",
+  ApiPassword: "6c94Dyc2Sdok2qs3t27l",
+  TerminalNumber: "141682"
+};
+
+// Today and year start for dynamic date ranges
+function getDateStr(d) {
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yy = d.getFullYear();
+  return dd + mm + yy;
+}
+
+const TODAY = new Date();
+const YEAR_START = new Date(TODAY.getFullYear(), 0, 1);
+const TODAY_STR = getDateStr(TODAY);
+const YEAR_START_STR = getDateStr(YEAR_START);
+const CURRENT_MONTH = TODAY.toISOString().slice(0,7);
+const CURRENT_MONTH_NUM = String(TODAY.getMonth()+1).padStart(2,'0');
+const CURRENT_YEAR = String(TODAY.getFullYear());
+const DAYS_IN_MONTH = new Date(TODAY.getFullYear(), TODAY.getMonth()+1, 0).getDate();
+const DAYS_ELAPSED = TODAY.getDate();
+
+const PRODUCT_MAP = {
+  10: {name:'מנוי חדש (Trial)', type:'new'},
+  39: {name:'מנוי ₪39 מבצע', type:'recurring'},
+  47: {name:'מנוי ₪47', type:'recurring'},
+  59: {name:'מנוי ₪59', type:'recurring'},
+  69: {name:'מנוי ₪69', type:'recurring'},
+  89: {name:'מנוי ₪89', type:'recurring'},
+  94: {name:'מנוי ₪94', type:'recurring'},
+  98: {name:'חבילה ₪98', type:'package'},
+  127: {name:'מנוי ₪127', type:'recurring'},
+  141: {name:'מנוי ₪141', type:'recurring'},
+  147: {name:'מנוי ₪147', type:'recurring'},
+  174: {name:'מנוי ₪174', type:'recurring'},
+  197: {name:'מנוי ₪197', type:'recurring'},
+  247: {name:'מנוי ₪247', type:'recurring'},
+  282: {name:'חבילה ₪282', type:'package'},
+  297: {name:'מנוי ₪297', type:'recurring'},
+  987: {name:'חבילה ₪987', type:'package'},
+};
+
+const RECURRING_AMOUNTS = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
+
+// ── YOFI STATIC DATA (manual CSV updates) ──
+const YOFI_TX = [
+  {date:"2026-01-11",amount:2350,product:"מנוי שנתי",type:"annual"},
+  {date:"2026-01-11",amount:2350,product:"מנוי שנתי",type:"annual"},
+  {date:"2026-01-11",amount:2350,product:"מנוי שנתי",type:"annual"},
+  {date:"2026-01-11",amount:2350,product:"מנוי שנתי",type:"annual"},
+  {date:"2026-01-28",amount:2850,product:"מנוי שנתי VIP",type:"annual"},
+  {date:"2026-01-28",amount:2850,product:"מנוי שנתי VIP",type:"annual"},
+  {date:"2026-01-28",amount:2850,product:"מנוי שנתי VIP",type:"annual"},
+  {date:"2026-01-29",amount:2850,product:"מנוי שנתי VIP",type:"annual"},
+  {date:"2026-01-30",amount:2850,product:"מנוי שנתי VIP",type:"annual"},
+  {date:"2026-02-18",amount:2850,product:"מנוי שנתי VIP",type:"annual"},
+  {date:"2026-02-18",amount:2850,product:"מנוי שנתי VIP",type:"annual"},
+  {date:"2026-02-18",amount:7670,product:"חבילת אימונים",type:"package"},
+  {date:"2026-02-22",amount:10030,product:"חבילה מתקדמת",type:"package"},
+  {date:"2026-03-01",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-01",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-01",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-01",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-01",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-07",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-07",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-07",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-07",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-08",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-21",amount:850,product:"מנוי ₪850",type:"monthly"},
+  {date:"2026-03-21",amount:850,product:"מנוי ₪850",type:"monthly"},
+  {date:"2026-03-21",amount:850,product:"מנוי ₪850",type:"monthly"},
+  {date:"2026-03-21",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-21",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-21",amount:997,product:"מנוי ₪997",type:"monthly"},
+  {date:"2026-03-21",amount:850,product:"מנוי ₪850",type:"monthly"},
+  {date:"2026-03-21",amount:850,product:"מנוי ₪850",type:"monthly"},
+  {date:"2026-03-25",amount:850,product:"מנוי ₪850",type:"monthly"},
+  {date:"2026-03-27",amount:850,product:"מנוי ₪850",type:"monthly"},
+  {date:"2026-03-28",amount:850,product:"מנוי ₪850",type:"monthly"},
+  {date:"2026-03-29",amount:1200,product:"מנוי ₪1200",type:"monthly"},
+  {date:"2026-03-29",amount:1200,product:"מנוי ₪1200",type:"monthly"},
+  {date:"2026-03-29",amount:1200,product:"מנוי ₪1200",type:"monthly"},
+  {date:"2026-03-29",amount:1200,product:"מנוי ₪1200",type:"monthly"},
+  {date:"2026-03-30",amount:1200,product:"מנוי ₪1200",type:"monthly"},
+  {date:"2026-04-10",amount:7670,product:"חבילת אימונים",type:"package"},
+  {date:"2026-04-14",amount:850,product:"מנוי ₪850",type:"monthly"},
+  {date:"2026-04-19",amount:1250,product:"מנוי ₪1250",type:"monthly"},
+  {date:"2026-04-27",amount:5500,product:"חבילה גדולה",type:"package"},
+  {date:"2026-05-01",amount:29.9,product:"דמי חבר",type:"fee"},
+  {date:"2026-05-03",amount:1250,product:"מנוי ₪1250",type:"monthly"},
+  {date:"2026-05-03",amount:6500,product:"חבילה גדולה",type:"package"},
+  {date:"2026-05-04",amount:850,product:"מנוי ₪850",type:"monthly"},
+  {date:"2026-05-05",amount:850,product:"מנוי ₪850",type:"monthly"},
+  {date:"2026-05-05",amount:850,product:"מנוי ₪850",type:"monthly"},
+  {date:"2026-05-05",amount:850,product:"מנוי ₪850",type:"monthly"},
+];
+
+// ── PROCESS TRANSACTIONS ──
+function processTransactions(txns) {
+  const valid = txns.filter(t => !t.IsRefund && t.Amount > 1);
+
+  // Member lifecycle
+  const memberMap = {};
+  for (const t of [...valid].sort((a,b) => a.CreateDate.localeCompare(b.CreateDate))) {
+    const key = t.Token || t.CardOwnerEmail || t.CardOwnerPhone;
+    if (!key) continue;
+    if (!memberMap[key]) memberMap[key] = {txns:[], name:t.CardOwnerName, email:t.CardOwnerEmail, phone:t.CardOwnerPhone};
+    memberMap[key].txns.push(t);
+  }
+
+  const members = Object.entries(memberMap).map(([token, m]) => {
+    const first = m.txns[0], last = m.txns[m.txns.length-1];
+    const rev = m.txns.reduce((s,t) => s+t.Amount, 0);
+    const firstDt = new Date(first.CreateDate);
+    const lastDt = new Date(last.CreateDate);
+    const lifeDays = Math.max(1, Math.round((lastDt-firstDt)/(1000*60*60*24))+1);
+    const daysSince = Math.round((TODAY-lastDt)/(1000*60*60*24));
+    const isActive = daysSince <= 35;
+    return {
+      n: m.name||'—', e: m.email||'', ph: m.phone||'',
+      f: first.CreateDate.slice(0,10), l: last.CreateDate.slice(0,10),
+      lt: lifeDays, rev, pay: m.txns.length,
+      s: isActive?'active':'churned', ds: daysSince,
+      ea: first.Amount, la: last.Amount
+    };
+  });
+
+  const active = members.filter(m => m.s==='active');
+  const churned = members.filter(m => m.s==='churned');
+
+  // Monthly Cardcom breakdown
+  const monthlyC = {};
+  for (const t of valid) {
+    const m = t.CreateDate.slice(0,7);
+    if (!monthlyC[m]) monthlyC[m] = {revenue:0,new:0,recurring:0,count:0};
+    monthlyC[m].revenue += t.Amount;
+    monthlyC[m].count++;
+    if (t.Amount === 10) monthlyC[m].new++;
+    if (RECURRING_AMOUNTS.has(t.Amount)) monthlyC[m].recurring++;
+  }
+
+  // MTD stats
+  const mtdTxns = valid.filter(t => t.CreateDate.startsWith(CURRENT_MONTH));
+  const mtdRev = mtdTxns.reduce((s,t) => s+t.Amount, 0);
+  const mtdNew = mtdTxns.filter(t => t.Amount===10).length;
+  const mtdRecurring = mtdTxns.filter(t => RECURRING_AMOUNTS.has(t.Amount)).length;
+
+  // YTD
+  const ytdRev = valid.reduce((s,t) => s+t.Amount, 0);
+
+  // MRR - last payment of each active member
+  let mrr = 0;
+  for (const m of active) {
+    const lastTxn = memberMap[Object.keys(memberMap).find(k => {
+      const mem = memberMap[k];
+      return mem.name === m.n && mem.txns[mem.txns.length-1].CreateDate.slice(0,10) === m.l;
+    })||''];
+    if (lastTxn) {
+      const lastAmt = lastTxn.txns[lastTxn.txns.length-1].Amount;
+      if (RECURRING_AMOUNTS.has(lastAmt) || lastAmt===10) mrr += lastAmt;
+    }
+  }
+  // Fallback MRR estimate
+  if (mrr === 0) mrr = mtdRecurring * 47;
+
+  // Day of week analysis
+  const dow = {new:new Array(7).fill(0), rev:new Array(7).fill(0), rec:new Array(7).fill(0)};
+  for (const t of valid) {
+    const d = new Date(t.CreateDate).getDay(); // 0=Sun
+    dow.rev[d] += t.Amount;
+    if (t.Amount===10) dow.new[d]++;
+    if (RECURRING_AMOUNTS.has(t.Amount)) dow.rec[d]++;
+  }
+
+  // Weekly (last 8 weeks)
+  const weekMap = {};
+  for (const t of valid) {
+    const dt = new Date(t.CreateDate);
+    const wk = getWeekKey(dt);
+    if (!weekMap[wk]) weekMap[wk] = {rev:0,newM:0,rec:0};
+    weekMap[wk].rev += t.Amount;
+    if (t.Amount===10) weekMap[wk].newM++;
+    if (RECURRING_AMOUNTS.has(t.Amount)) weekMap[wk].rec++;
+  }
+  const weeks = Object.keys(weekMap).sort().slice(-8);
+
+  // Product breakdown YTD
+  const prodMap = {};
+  for (const t of valid) {
+    const p = PRODUCT_MAP[t.Amount] || {name:`₪${t.Amount}`,type:'other'};
+    if (!prodMap[p.name]) prodMap[p.name] = {count:0,rev:0};
+    prodMap[p.name].count++;
+    prodMap[p.name].rev += t.Amount;
+  }
+
+  // MTD product breakdown
+  const prodMTD = {};
+  for (const t of mtdTxns) {
+    const p = PRODUCT_MAP[t.Amount] || {name:`₪${t.Amount}`,type:'other'};
+    if (!prodMTD[p.name]) prodMTD[p.name] = {count:0,rev:0};
+    prodMTD[p.name].count++;
+    prodMTD[p.name].rev += t.Amount;
+  }
+
+  // Yofi combined
+  const yofiMTD = YOFI_TX.filter(y => y.date.startsWith(CURRENT_MONTH)).reduce((s,y) => s+y.amount, 0);
+  const yofiYTD = YOFI_TX.reduce((s,y) => s+y.amount, 0);
+
+  // Monthly combined for charts
+  const allMonths = [...new Set([...Object.keys(monthlyC), ...YOFI_TX.map(y=>y.date.slice(0,7))])].sort();
+  const yofiByMonth = {};
+  for (const y of YOFI_TX) {
+    const m = y.date.slice(0,7);
+    yofiByMonth[m] = (yofiByMonth[m]||0) + y.amount;
+  }
+
+  // Heatmap - new members per day (last 8 weeks x 7 days)
+  const hmData = buildHeatmapData(valid);
+
+  // New members list for member tab
+  const newMembersThisMonth = valid
+    .filter(t => t.Amount===10 && t.CreateDate.startsWith(CURRENT_MONTH))
+    .map(t => ({name: t.CardOwnerName, date: t.CreateDate.slice(0,10)}));
+
+  return {
+    txns: valid,
+    members,
+    active, churned,
+    mtdRev, mtdNew, mtdRecurring, ytdRev,
+    mrr,
+    monthlyC, yofiByMonth, allMonths,
+    yofiMTD, yofiYTD,
+    dow, weeks, weekMap,
+    prodMap, prodMTD,
+    hmData,
+    newMembersThisMonth,
+    churnedRevenue: churned.reduce((s,m)=>s+m.rev,0),
+    avgChurnedLife: churned.length ? Math.round(churned.reduce((s,m)=>s+m.lt,0)/churned.length) : 0,
+  };
+}
+
+function getWeekKey(dt) {
+  const d = new Date(dt);
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate() + 3 - (d.getDay()+6)%7);
+  const week1 = new Date(d.getFullYear(),0,4);
+  const wn = 1 + Math.round(((d-week1)/86400000 - 3 + (week1.getDay()+6)%7)/7);
+  return `${dt.getFullYear()}-W${String(wn).padStart(2,'0')}`;
+}
+
+function buildHeatmapData(txns) {
+  const dayMap = {};
+  for (const t of txns) {
+    if (t.Amount===10) {
+      const d = t.CreateDate.slice(0,10);
+      dayMap[d] = (dayMap[d]||0)+1;
+    }
+  }
+  // Last 8 weeks
+  const weeks = [], days = ['א','ב','ג','ד','ה','ו','ש'];
+  const data = [];
+  for (let w=7; w>=0; w--) {
+    const weekData = [];
+    const weekLabel = `W-${w}`;
+    for (let d=0; d<7; d++) {
+      const dt = new Date(TODAY);
+      dt.setDate(TODAY.getDate() - (w*7) - (TODAY.getDay()-d+7)%7);
+      const key = dt.toISOString().slice(0,10);
+      weekData.push(dayMap[key]||0);
+    }
+    weeks.unshift(weekLabel);
+    data.unshift(weekData);
+  }
+  return {weeks, days, data};
+}
+
+// ── FETCH FROM CARDCOM ──
+async function fetchCardcomData() {
+  showLoadingState();
+  
+  try {
+    // Fetch YTD (page 1)
+    const body1 = JSON.stringify({
+      ApiName: CARDCOM_CREDS.ApiName,
+      ApiPassword: CARDCOM_CREDS.ApiPassword,
+      FromDate: YEAR_START_STR,
+      ToDate: TODAY_STR,
+      Page: "1",
+      Page_size: "500"
+    });
+
+    const [r1, r2] = await Promise.all([
+      fetch(CARDCOM_API, {method:'POST', headers:{'Content-Type':'application/json'}, body: body1}),
+      fetch(CARDCOM_API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+        ApiName: CARDCOM_CREDS.ApiName,
+        ApiPassword: CARDCOM_CREDS.ApiPassword,
+        FromDate: YEAR_START_STR,
+        ToDate: TODAY_STR,
+        Page: "2",
+        Page_size: "500"
+      })})
+    ]);
+
+    const [d1, d2] = await Promise.all([r1.json(), r2.json()]);
+    
+    const allTxns = [...(d1.Tranzactions||[]), ...(d2.Tranzactions||[])];
+    
+    // Deduplicate by TranzactionId
+    const seen = new Set();
+    const unique = allTxns.filter(t => {
+      if (seen.has(t.TranzactionId)) return false;
+      seen.add(t.TranzactionId);
+      return true;
+    });
+
+    const computed = processTransactions(unique);
+    updateDashboard(computed);
+    updateMemberList(computed.members);
+    updateLastRefresh();
+    
+  } catch(err) {
+    console.error('Cardcom fetch failed:', err);
+    showFallbackData();
+  }
+}
+
+function showLoadingState() {
+  const loadEls = ['k-rev','k-act','k-mrr','k-eom','k-churn','k-renew','k-ytd','k-ltv'];
+  loadEls.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = '...'; el.style.opacity = '0.4'; }
+  });
+}
+
+function updateLastRefresh() {
+  const el = document.getElementById('last-refresh');
+  if (el) el.textContent = 'עודכן: ' + new Date().toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'});
+}
+
+// ── UPDATE DASHBOARD WITH LIVE DATA ──
+function updateDashboard(c) {
+  const yofiMTD = c.yofiMTD;
+  const combinedMTD = c.mtdRev + yofiMTD;
+  const combinedYTD = c.ytdRev + c.yofiYTD;
+  const eomForecast = Math.round((combinedMTD / DAYS_ELAPSED) * DAYS_IN_MONTH);
+  const goalPct = Math.min(99, Math.round(combinedMTD / 50000 * 100));
+  const ltv = c.txns.length ? Math.round(c.ytdRev / c.members.length) : 0;
+
+  // KPI updates
+  const set = (id, val) => { const el=document.getElementById(id); if(el){el.textContent=val;el.style.opacity='1';} };
+  
+  set('k-rev', '₪' + combinedMTD.toLocaleString());
+  set('k-act', c.active.length);
+  set('k-mrr', '₪' + c.mrr.toLocaleString());
+  set('k-eom', '₪' + eomForecast.toLocaleString());
+  set('k-churn', c.churned.length + ' חברים');
+  set('k-renew', c.mtdRecurring);
+  set('k-ytd', '₪' + combinedYTD.toLocaleString());
+  set('k-ltv', '₪' + ltv);
+  set('ml-active-count', c.active.length);
+  set('ml-churned-count', c.churned.length);
+  set('ml-rev-total', '₪' + c.ytdRev.toLocaleString());
+
+  // Churn analysis
+  set('churn-rev', '₪' + c.churnedRevenue.toLocaleString());
+  set('churn-avg', '₪' + (c.churned.length ? Math.round(c.churnedRevenue/c.churned.length) : 0));
+  set('churn-life', c.avgChurnedLife + ' ימים');
+
+  // Goal bar
+  const gb = document.getElementById('goal-bar-fill');
+  if (gb) gb.style.width = goalPct + '%';
+  set('goal-pct', goalPct + '%');
+  set('goal-current', '₪' + combinedMTD.toLocaleString() + ' / ₪50,000');
+  set('goal-forecast', 'תחזית: ₪' + eomForecast.toLocaleString() + (eomForecast>=50000?' ✅':' ⚠️'));
+
+  // MRR page
+  set('mrr-arr', '₪' + (c.mrr*12).toLocaleString());
+  set('mrr-ytd', '₪' + combinedYTD.toLocaleString());
+
+  // Rebuild charts with live data
+  rebuildCharts(c);
+}
+
+function rebuildCharts(c) {
+  // Get all months sorted
+  const months = c.allMonths.sort();
+  const mLabels = months.map(m => {
+    const names = {
+      '2026-01':'ינואר','2026-02':'פברואר','2026-03':'מרץ',
+      '2026-04':'אפריל','2026-05':'מאי','2026-06':'יוני',
+      '2026-07':'יולי','2026-08':'אוגוסט','2026-09':'ספטמבר',
+      '2026-10':'אוקטובר','2026-11':'נובמבר','2026-12':'דצמבר'
+    };
+    return names[m] || m;
+  });
+
+  const cardcomByMonth = months.map(m => (c.monthlyC[m]||{}).revenue||0);
+  const yofiByMonth = months.map(m => c.yofiByMonth[m]||0);
+  const combinedByMonth = months.map((m,i) => cardcomByMonth[i] + yofiByMonth[i]);
+  const newByMonth = months.map(m => (c.monthlyC[m]||{}).new||0);
+  const churnByMonth = months.map((m,i) => {
+    // Approximate churn as members who joined 2+ months ago and haven't paid recently
+    return Math.max(0, Math.round((c.churned.length / months.length)));
+  });
+
+  // Weekly data
+  const wLabels = c.weeks.map(w => w.replace('2026-',''));
+  const wRev = c.weeks.map(w => (c.weekMap[w]||{}).rev||0);
+  const wNew = c.weeks.map(w => (c.weekMap[w]||{}).newM||0);
+  const wRec = c.weeks.map(w => (c.weekMap[w]||{}).rec||0);
+
+  // DOW - reorder Sun=0 to Hebrew order (Sun first)
+  const dowLabels = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+  
+  // Products top 8
+  const sortedProds = Object.entries(c.prodMap).sort((a,b)=>b[1].count-a[1].count).slice(0,9);
+  const prodLabels = sortedProds.map(([k])=>k);
+  const prodCounts = sortedProds.map(([,v])=>v.count);
+
+  // Update each chart
+  const updateChart = (ch, labels, datasets) => {
+    if (!ch) return;
+    ch.data.labels = labels;
+    datasets.forEach((ds, i) => {
+      if (ch.data.datasets[i]) Object.assign(ch.data.datasets[i], ds);
+    });
+    ch.update('none');
+  };
+
+  updateChart(chs.monthly, mLabels, [{data:cardcomByMonth},{data:yofiByMonth}]);
+  updateChart(chs.churn, mLabels.slice(1), [{data:newByMonth.slice(1)},{data:churnByMonth.slice(1)}]);
+  updateChart(chs.newmo, mLabels.slice(1), [{data:newByMonth.slice(1)}]);
+  updateChart(chs.revStack, mLabels, [{data:cardcomByMonth},{data:yofiByMonth},{data:combinedByMonth}]);
+  updateChart(chs.weeklyRev, wLabels, [{data:wRev}]);
+  updateChart(chs.wkNew, wLabels, [{data:wNew},{data:wRec}]);
+  updateChart(chs.dowNew, dowLabels, [{data:c.dow.new}]);
+  updateChart(chs.dowRev, dowLabels, [{data:c.dow.rev}]);
+  updateChart(chs.prods, prodLabels, [{data:prodCounts}]);
+
+  // Update member status donut
+  if (chs.status) {
+    chs.status.data.datasets[0].data = [c.active.length, c.churned.length];
+    chs.status.update('none');
+  }
+
+  // Rebuild heatmap
+  buildHeatmapLive(c.hmData);
+}
+
+function buildHeatmapLive(hmData) {
+  const el = document.getElementById('hm');
+  if (!el) return;
+  const {weeks, days, data} = hmData;
+  const maxV = Math.max(1, ...data.flat());
+  el.innerHTML = '<div></div>' + days.map(d=>`<div class="hm-hdr">${d}</div>`).join('');
+  weeks.forEach((w,wi) => {
+    el.innerHTML += `<div class="hm-lbl">${w}</div>`;
+    days.forEach((_,di) => {
+      const v = data[wi][di];
+      const r = v/maxV;
+      const bg = `rgba(99,102,241,${.12+r*.88})`;
+      const fc = r>.5?'#fff':'#94a3b8';
+      el.innerHTML += `<div class="hm-cell" style="background:${bg};color:${fc}" title="${v} חדשים">${v||''}</div>`;
+    });
+  });
+}
+
+function showFallbackData() {
+  // Static fallback already in charts from initCharts()
+  const el = document.getElementById('last-refresh');
+  if (el) el.textContent = '⚠️ נתונים סטטיים (שגיאת חיבור)';
+  const loadEls = ['k-rev','k-act','k-mrr','k-eom','k-churn','k-renew','k-ytd','k-ltv'];
+  loadEls.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.opacity = '1';
+  });
+}
+
+// ── BOOT ──
+document.addEventListener('DOMContentLoaded',()=>{initCharts();buildHeatmap();setTimeout(renderMembers,100);fetchCardcomData();});
+</script>
+</body>
+</html>
