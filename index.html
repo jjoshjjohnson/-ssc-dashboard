@@ -2,347 +2,557 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SSC Dashboard — Something Social Club</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#080b12;--surface:#0e1220;--surface2:#131927;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
-  --text:#e8edf5;--muted:#64748b;--faint:#1e2a3a;
-  --indigo:#6366f1;--cyan:#06b6d4;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--pink:#ec4899;--purple:#8b5cf6;
-  --font:'Sora',sans-serif;--mono:'IBM Plex Mono',monospace;--r:12px;--r-sm:8px;
-}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;direction:rtl}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(99,102,241,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
-.shell{position:relative;z-index:1;display:flex;min-height:100vh}
-/* SIDEBAR */
-.sidebar{width:210px;min-height:100vh;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
-.logo-area{padding:22px 18px 18px;border-bottom:1px solid var(--border)}
-.logo{display:flex;align-items:center;gap:10px;margin-bottom:4px}
-.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--indigo),var(--purple));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.logo-text{font-size:14px;font-weight:700;color:#fff}
-.logo-sub{font-size:9px;color:var(--muted);margin-top:3px;font-family:var(--mono);letter-spacing:.5px}
-.nav{padding:14px 10px;flex:1}
-.nav-label{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:0 8px;margin-bottom:5px;margin-top:14px}
-.nav-item{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:var(--r-sm);cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);transition:all .15s;margin-bottom:2px;border:1px solid transparent;background:none;width:100%;text-align:right}
-.nav-item:hover{background:rgba(99,102,241,.08);color:var(--text);border-color:rgba(99,102,241,.2)}
-.nav-item.active{background:rgba(99,102,241,.15);color:#fff;border-color:rgba(99,102,241,.3)}
-.nav-dot{width:5px;height:5px;border-radius:50%;background:var(--faint);flex-shrink:0}
-.nav-item.active .nav-dot{background:var(--indigo);box-shadow:0 0 6px var(--indigo)}
-.sb-footer{padding:14px;border-top:1px solid var(--border)}
-.live{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--green);font-family:var(--mono)}
-.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-/* MAIN */
-.main{flex:1;overflow-x:hidden;min-width:0}
-.topbar{position:sticky;top:0;z-index:100;background:rgba(8,11,18,.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between}
-.tb-title{font-size:15px;font-weight:700;color:#fff}
-.tb-meta{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px}
-.tf{display:flex;gap:3px;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:3px}
-.tf-btn{padding:4px 12px;border-radius:999px;font-size:10px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .15s;font-family:var(--font)}
-.tf-btn.active{background:var(--indigo);color:#fff}
-/* PAGES */
-.page{padding:20px 24px;display:none}
+:root{
+  --purple:#7c3aed;--purple2:#9f67fa;--purple-light:#ede9fe;
+  --blue:#2563eb;--blue2:#3b82f6;
+  --pink:#db2777;--pink2:#f472b6;
+  --orange:#ea580c;--orange2:#fb923c;
+  --green:#059669;--green2:#34d399;
+  --red:#dc2626;--red2:#f87171;
+  --cyan:#0891b2;--cyan2:#22d3ee;
+  --bg:#f1f5f9;--white:#ffffff;
+  --text:#1e293b;--muted:#64748b;--border:#e2e8f0;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 4px 6px rgba(0,0,0,.07),0 10px 40px rgba(0,0,0,.10);
+  --r:16px;--r-sm:10px;
+  --font:'Poppins',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;direction:rtl;font-size:14px}
+
+/* ── SHELL ── */
+.shell{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:240px;flex-shrink:0;
+  background:linear-gradient(180deg,#5b21b6 0%,#7c3aed 40%,#6d28d9 100%);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.sb-logo{padding:28px 24px 24px;border-bottom:1px solid rgba(255,255,255,.15)}
+.sb-logo-inner{display:flex;align-items:center;gap:12px}
+.sb-logo-icon{width:42px;height:42px;background:rgba(255,255,255,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;backdrop-filter:blur(10px)}
+.sb-logo-text{color:#fff;font-size:16px;font-weight:700;letter-spacing:-.3px}
+.sb-logo-sub{color:rgba(255,255,255,.6);font-size:10px;margin-top:2px;font-weight:400}
+.sb-nav{padding:20px 14px;flex:1}
+.sb-section{font-size:9px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;padding:0 10px;margin-bottom:8px;margin-top:20px}
+.sb-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,.7);transition:all .2s;margin-bottom:3px;border:none;background:none;width:100%;text-align:right}
+.sb-item:hover{background:rgba(255,255,255,.12);color:#fff}
+.sb-item.active{background:rgba(255,255,255,.2);color:#fff;box-shadow:0 4px 15px rgba(0,0,0,.2)}
+.sb-item .sb-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;background:rgba(255,255,255,.1);flex-shrink:0}
+.sb-item.active .sb-icon{background:rgba(255,255,255,.25)}
+.sb-footer{padding:20px;border-top:1px solid rgba(255,255,255,.15)}
+.sb-live{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.7)}
+.sb-live-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+/* ── MAIN ── */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:16px 28px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 0 var(--border);
+}
+.tb-left{}
+.tb-title{font-size:20px;font-weight:700;color:var(--text)}
+.tb-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.tb-right{display:flex;align-items:center;gap:12px}
+.tf{display:flex;gap:2px;background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:3px}
+.tf-btn{padding:6px 16px;border-radius:999px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .2s;font-family:var(--font)}
+.tf-btn.active{background:var(--purple);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.4)}
+.refresh-btn{width:36px;height:36px;border-radius:999px;background:var(--purple-light);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.refresh-btn:hover{background:var(--purple);transform:rotate(180deg)}
+
+/* ── PAGE ── */
+.page{padding:24px 28px;display:none;animation:fadeIn .3s ease}
 .page.active{display:block}
-/* SECTION TITLE */
-.sec{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.sec::after{content:'';flex:1;height:1px;background:var(--border)}
-/* KPI GRID */
-.kg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
-.kg3{grid-template-columns:repeat(3,1fr)}
-.kg2{grid-template-columns:repeat(2,1fr)}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;animation:fadeUp .4s ease both}
-.kpi:nth-child(2){animation-delay:.05s}.kpi:nth-child(3){animation-delay:.1s}.kpi:nth-child(4){animation-delay:.15s}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.kpi:hover{border-color:var(--border2);transform:translateY(-1px)}
-.kpi::before{content:'';position:absolute;top:0;right:0;left:0;height:2px;border-radius:var(--r) var(--r) 0 0}
-.kpi.i::before{background:linear-gradient(90deg,transparent,var(--indigo))}
-.kpi.c::before{background:linear-gradient(90deg,transparent,var(--cyan))}
-.kpi.g::before{background:linear-gradient(90deg,transparent,var(--green))}
-.kpi.y::before{background:linear-gradient(90deg,transparent,var(--yellow))}
-.kpi.r::before{background:linear-gradient(90deg,transparent,var(--red))}
-.kpi.p::before{background:linear-gradient(90deg,transparent,var(--purple))}
-.kpi.pk::before{background:linear-gradient(90deg,transparent,var(--pink))}
-.kpi-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:12px}
-.ico-i{background:rgba(99,102,241,.15)}.ico-c{background:rgba(6,182,212,.15)}.ico-g{background:rgba(16,185,129,.15)}
-.ico-y{background:rgba(245,158,11,.15)}.ico-r{background:rgba(239,68,68,.15)}.ico-p{background:rgba(139,92,246,.15)}.ico-pk{background:rgba(236,72,153,.15)}
-.kpi-lbl{font-size:10px;color:var(--muted);font-weight:500;margin-bottom:5px;letter-spacing:.2px}
-.kpi-val{font-size:24px;font-weight:800;color:#fff;line-height:1;margin-bottom:6px;font-family:var(--mono);letter-spacing:-1px}
-.kpi-val.lg{font-size:28px}.kpi-val.sm{font-size:19px}
-.kpi-sub{font-size:10px;color:var(--muted)}
-.up{color:var(--green)}.dn{color:var(--red)}
-/* CHART CARD */
-.cc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
-.cc-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
-.cc-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px}
-.cc-sub{font-size:10px;color:var(--muted)}
-.cc-legend{display:flex;gap:12px;font-size:10px;color:var(--muted)}
-.ld{width:7px;height:7px;border-radius:50%;display:inline-block;margin-left:4px}
-.cw{position:relative;height:200px}
-.cw.tall{height:260px}.cw.sh{height:150px}
-/* GRID */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
-/* TABLE */
-table.dt{width:100%;border-collapse:collapse;font-size:11px}
-table.dt th{text-align:right;padding:7px 9px;font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
-table.dt td{padding:9px 9px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── KPI CARDS ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.kpi-row-3{grid-template-columns:repeat(3,1fr)}
+.kpi-row-2{grid-template-columns:repeat(2,1fr)}
+
+.kpi{
+  border-radius:var(--r);padding:22px;color:#fff;
+  position:relative;overflow:hidden;cursor:default;
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:var(--shadow-lg);
+}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.15)}
+.kpi::before{content:'';position:absolute;top:-30px;left:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.1)}
+.kpi::after{content:'';position:absolute;bottom:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.07)}
+
+.kpi.purple{background:linear-gradient(135deg,#7c3aed,#a855f7)}
+.kpi.blue{background:linear-gradient(135deg,#2563eb,#60a5fa)}
+.kpi.green{background:linear-gradient(135deg,#059669,#34d399)}
+.kpi.orange{background:linear-gradient(135deg,#ea580c,#fb923c)}
+.kpi.pink{background:linear-gradient(135deg,#db2777,#f472b6)}
+.kpi.red{background:linear-gradient(135deg,#dc2626,#f87171)}
+.kpi.cyan{background:linear-gradient(135deg,#0891b2,#22d3ee)}
+.kpi.indigo{background:linear-gradient(135deg,#4338ca,#818cf8)}
+
+.kpi-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.kpi-ico{width:44px;height:44px;background:rgba(255,255,255,.25);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;backdrop-filter:blur(10px)}
+.kpi-badge{font-size:10px;font-weight:600;background:rgba(255,255,255,.25);padding:3px 8px;border-radius:999px;backdrop-filter:blur(10px)}
+.kpi-badge.up::before{content:'↑ '}
+.kpi-badge.dn::before{content:'↓ '}
+.kpi-lbl{font-size:11px;font-weight:500;opacity:.85;margin-bottom:6px;letter-spacing:.3px}
+.kpi-val{font-size:28px;font-weight:800;line-height:1;letter-spacing:-1px}
+.kpi-val.lg{font-size:34px}
+.kpi-val.sm{font-size:22px}
+.kpi-sub{font-size:11px;opacity:.75;margin-top:6px}
+
+/* ── WHITE CARD ── */
+.card{background:var(--white);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border)}
+.card-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+.card-title{font-size:15px;font-weight:600;color:var(--text)}
+.card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.card-badge{font-size:10px;font-weight:600;padding:4px 10px;border-radius:999px}
+.badge-purple{background:var(--purple-light);color:var(--purple)}
+.badge-green{background:#d1fae5;color:var(--green)}
+.badge-red{background:#fee2e2;color:var(--red)}
+.badge-orange{background:#ffedd5;color:var(--orange)}
+.badge-blue{background:#dbeafe;color:var(--blue)}
+
+/* ── GRID LAYOUTS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.g-7-5{display:grid;grid-template-columns:7fr 5fr;gap:16px;margin-bottom:16px}
+.g-5-7{display:grid;grid-template-columns:5fr 7fr;gap:16px;margin-bottom:16px}
+
+/* ── CHART WRAP ── */
+.cw{position:relative;height:210px}
+.cw.tall{height:270px}
+.cw.sh{height:150px}
+
+/* ── GOAL BAR ── */
+.goal-wrap{background:var(--white);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border)}
+.goal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.goal-pct{font-size:32px;font-weight:800;color:var(--purple)}
+.goal-bar-bg{height:12px;background:var(--bg);border-radius:999px;overflow:hidden;margin-bottom:8px}
+.goal-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--purple),var(--purple2),var(--cyan2));transition:width 1.2s cubic-bezier(.4,0,.2,1);position:relative}
+.goal-bar-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:4px;background:#fff;border-radius:999px;box-shadow:0 0 10px rgba(255,255,255,.8)}
+.goal-stats{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+
+/* ── MINI STAT ROW ── */
+.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.mini-stat{background:var(--white);border-radius:var(--r-sm);padding:16px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.mini-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ico-purple{background:var(--purple-light)}
+.ico-green{background:#d1fae5}
+.ico-red{background:#fee2e2}
+.ico-orange{background:#ffedd5}
+.ico-blue{background:#dbeafe}
+.ico-cyan{background:#cffafe}
+.mini-info{}
+.mini-lbl{font-size:10px;color:var(--muted);font-weight:500;margin-bottom:2px}
+.mini-val{font-size:18px;font-weight:700;color:var(--text)}
+
+/* ── DONUT LAYOUT ── */
+.donut-wrap{display:flex;align-items:center;gap:20px}
+.donut-canvas{width:150px;height:150px;flex-shrink:0}
+.donut-legend{}
+.dl-item{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px}
+.dl-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.dl-lbl{color:var(--muted);flex:1}
+.dl-val{font-weight:700;color:var(--text);font-size:13px}
+
+/* ── TABLE ── */
+table.dt{width:100%;border-collapse:collapse;font-size:12px}
+table.dt th{text-align:right;padding:10px 12px;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;border-bottom:2px solid var(--border);background:var(--bg)}
+table.dt td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
 table.dt tr:last-child td{border-bottom:none}
-table.dt tr:hover td{background:rgba(255,255,255,.02)}
-.pill{display:inline-block;padding:2px 7px;border-radius:999px;font-size:9px;font-weight:600;font-family:var(--mono)}
-.pg{background:rgba(16,185,129,.15);color:var(--green)}
-.pr{background:rgba(239,68,68,.15);color:var(--red)}
-.py{background:rgba(245,158,11,.15);color:var(--yellow)}
-.pb{background:rgba(99,102,241,.15);color:var(--indigo)}
-.pc{background:rgba(6,182,212,.15);color:var(--cyan)}
-.pp{background:rgba(139,92,246,.15);color:var(--purple)}
-/* GOAL BAR */
-.goal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
-.gb-bg{height:8px;background:var(--faint);border-radius:99px;overflow:hidden;margin:10px 0 6px}
-.gb-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--indigo),var(--cyan));position:relative}
-.gb-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:2px;background:#fff;border-radius:99px;box-shadow:0 0 6px #fff}
-.sp{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
-/* DONUT WRAP */
-.dw{display:flex;align-items:center;gap:18px}
-.dl{flex:1}
-.dli{display:flex;align-items:center;gap:7px;margin-bottom:9px;font-size:11px}
-.dld{width:7px;height:7px;border-radius:2px;flex-shrink:0}
-.dll{color:var(--muted);flex:1}
-.dlv{font-weight:700;color:#fff;font-family:var(--mono);font-size:11px}
-/* HEATMAP */
-.hm{display:grid;grid-template-columns:70px repeat(7,1fr);gap:3px;font-size:10px}
-.hm-hdr{text-align:center;color:var(--muted);font-weight:600;font-size:9px;padding-bottom:5px;letter-spacing:.3px}
-.hm-lbl{color:var(--muted);display:flex;align-items:center;font-size:9px;padding-right:4px}
-.hm-cell{height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;font-family:var(--mono);transition:transform .15s;cursor:default}
+table.dt tr:hover td{background:#f8fafc}
+table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
+
+/* ── PILLS ── */
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:600}
+.pg{background:#d1fae5;color:#065f46}
+.pr{background:#fee2e2;color:#991b1b}
+.py{background:#fef3c7;color:#92400e}
+.pb{background:#dbeafe;color:#1e40af}
+.pc{background:#cffafe;color:#164e63}
+.pp{background:var(--purple-light);color:#5b21b6}
+
+/* ── HEATMAP ── */
+.hm-grid{display:grid;grid-template-columns:56px repeat(7,1fr);gap:4px}
+.hm-hdr{text-align:center;font-size:10px;font-weight:600;color:var(--muted);padding-bottom:4px}
+.hm-lbl{font-size:10px;color:var(--muted);display:flex;align-items:center;padding-right:4px}
+.hm-cell{height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;transition:transform .15s;cursor:default}
 .hm-cell:hover{transform:scale(1.15);z-index:2;position:relative}
-/* INSIGHT BOX */
-.insight{border-radius:var(--r-sm);padding:11px 13px;font-size:11px;line-height:1.6;margin-bottom:8px}
-.ins-r{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)}
-.ins-y{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2)}
-.ins-g{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2)}
-.ins-b{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2)}
-/* INNER GRID */
-.inner3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-.inner-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-sm);padding:13px}
-.dvd{height:1px;background:var(--border);margin:16px 0}
-/* RESPONSIVE */
-@media(max-width:1100px){.kg{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr 1fr}}
-@media(max-width:800px){.sidebar{display:none}.g2{grid-template-columns:1fr}.page{padding:14px}}
-@media(max-width:500px){.kg{grid-template-columns:1fr}.topbar{padding:10px 14px}}
+
+/* ── INSIGHT BOXES ── */
+.insight{border-radius:var(--r-sm);padding:14px 16px;font-size:12px;line-height:1.7;margin-bottom:10px;display:flex;gap:10px;align-items:flex-start}
+.ins-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.ins-r{background:#fef2f2;border:1px solid #fecaca}
+.ins-y{background:#fffbeb;border:1px solid #fde68a}
+.ins-g{background:#f0fdf4;border:1px solid #bbf7d0}
+.ins-b{background:#eff6ff;border:1px solid #bfdbfe}
+
+/* ── SECTION TITLE ── */
+.sec{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── INNER MINI CARDS ── */
+.inner-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.inner-card{background:var(--bg);border-radius:var(--r-sm);padding:14px;border:1px solid var(--border)}
+.ic-lbl{font-size:10px;color:var(--muted);font-weight:500;margin-bottom:6px}
+.ic-val{font-size:20px;font-weight:800;color:var(--text)}
+
+/* ── MEMBER FILTERS ── */
+.filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 16px;background:var(--bg);border-radius:var(--r-sm);margin-bottom:14px}
+.filter-tf{display:flex;gap:2px;background:var(--white);border:1px solid var(--border);border-radius:999px;padding:3px}
+.filter-btn{padding:5px 14px;border-radius:999px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .15s;font-family:var(--font)}
+.filter-btn.active{background:var(--purple);color:#fff}
+.filter-search{flex:1;min-width:200px;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:12px;font-family:var(--font);outline:none}
+.filter-search:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.filter-select{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:12px;font-family:var(--font);outline:none}
+
+/* ── PAGINATION ── */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.page-btns{display:flex;gap:6px}
+.page-btn{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:5px 14px;color:var(--text);cursor:pointer;font-size:11px;font-family:var(--font);transition:all .15s}
+.page-btn:hover{background:var(--purple);color:#fff;border-color:var(--purple)}
+
+/* ── DIVIDER ── */
+.dvd{height:1px;background:var(--border);margin:18px 0}
+
+/* ── LEGEND ── */
+.legend{display:flex;gap:14px;font-size:11px;color:var(--muted)}
+.ld{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:5px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1200px){.kpi-row{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.sidebar{display:none}.g2,.g-7-5,.g-5-7{grid-template-columns:1fr}.page{padding:16px}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr}.topbar{padding:12px 16px}.mini-stats{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 <div class="shell">
 
-<!-- SIDEBAR -->
+<!-- ══ SIDEBAR ══ -->
 <aside class="sidebar">
-  <div class="logo-area">
-    <div class="logo">
-      <div class="logo-icon">💫</div>
+  <div class="sb-logo">
+    <div class="sb-logo-inner">
+      <div class="sb-logo-icon">💫</div>
       <div>
-        <div class="logo-text">SSC</div>
+        <div class="sb-logo-text">SSC</div>
+        <div class="sb-logo-sub">Something Social Club</div>
       </div>
     </div>
-    <div class="logo-sub">Something Social Club</div>
   </div>
-  <nav class="nav">
-    <div class="nav-label">ניווט</div>
-    <button class="nav-item active" onclick="go('overview',this)"><span class="nav-dot"></span>סקירה כללית</button>
-    <button class="nav-item" onclick="go('members',this)"><span class="nav-dot"></span>חברים ושחיקה</button>
-    <button class="nav-item" onclick="go('revenue',this)"><span class="nav-dot"></span>הכנסות ו-MRR</button>
-    <button class="nav-item" onclick="go('products',this)"><span class="nav-dot"></span>מוצרים ומכירות</button>
-    <button class="nav-item" onclick="go('acquisition',this)"><span class="nav-dot"></span>גיוס ו-CAC</button>
-    <button class="nav-item" onclick="go('members-list',this)"><span class="nav-dot"></span>רשימת חברים</button>
+  <nav class="sb-nav">
+    <div class="sb-section">ניווט ראשי</div>
+    <button class="sb-item active" onclick="go('overview',this)"><div class="sb-icon">📊</div>סקירה כללית</button>
+    <button class="sb-item" onclick="go('members',this)"><div class="sb-icon">👥</div>חברים ושחיקה</button>
+    <button class="sb-item" onclick="go('revenue',this)"><div class="sb-icon">💰</div>הכנסות ו-MRR</button>
+    <button class="sb-item" onclick="go('products',this)"><div class="sb-icon">🛍️</div>מוצרים</button>
+    <button class="sb-item" onclick="go('acquisition',this)"><div class="sb-icon">🎯</div>גיוס ו-CAC</button>
+    <div class="sb-section">נתונים</div>
+    <button class="sb-item" onclick="go('members-list',this)"><div class="sb-icon">📋</div>רשימת חברים</button>
   </nav>
   <div class="sb-footer">
-    <div class="live"><div class="live-dot"></div>Live · Cardcom 09/05/26</div>
+    <div class="sb-live"><div class="sb-live-dot"></div><span id="last-refresh">טוען נתונים...</span></div>
   </div>
 </aside>
 
-<!-- MAIN -->
+<!-- ══ MAIN ══ -->
 <main class="main">
+
+<!-- TOPBAR -->
 <div class="topbar">
-  <div>
+  <div class="tb-left">
     <div class="tb-title" id="pg-title">סקירה כללית</div>
-    <div class="tb-meta">שבת 09 מאי 2026 · יום 9/31 · <span id="last-refresh" style="color:var(--green)">טוען נתונים חיים...</span></div>
+    <div class="tb-sub">Something Social Club · Terminal 141682</div>
   </div>
-  <div class="tf">
-    <button class="tf-btn active" onclick="setTF('m',this)">חודשי</button>
-    <button class="tf-btn" onclick="setTF('w',this)">שבועי</button>
-    <button class="tf-btn" onclick="setTF('a',this)">שנתי</button>
+  <div class="tb-right">
+    <div class="tf">
+      <button class="tf-btn active" onclick="setTF('m',this)">חודשי</button>
+      <button class="tf-btn" onclick="setTF('w',this)">שבועי</button>
+      <button class="tf-btn" onclick="setTF('a',this)">שנתי</button>
+    </div>
+    <button class="refresh-btn" onclick="fetchCardcomData()" title="רענן נתונים">🔄</button>
   </div>
 </div>
 
-<!-- ════ OVERVIEW ════ -->
+<!-- ══════════════ OVERVIEW ══════════════ -->
 <div class="page active" id="pg-overview">
 
-  <div class="kg" style="margin-top:4px;">
-    <div class="kpi i"><div class="kpi-ico ico-i">💰</div><div class="kpi-lbl">הכנסות החודש (מאי)</div><div class="kpi-val" id="k-rev"" id="k-rev">₪16,617</div><div class="kpi-sub up">↑ קצב ₪1,846/יום</div></div>
-    <div class="kpi g"><div class="kpi-ico ico-g">👥</div><div class="kpi-lbl">חברים פעילים</div><div class="kpi-val" id="k-act"" id="k-act">285</div><div class="kpi-sub up">+17 חדשים החודש</div></div>
-    <div class="kpi c"><div class="kpi-ico ico-c">📈</div><div class="kpi-lbl">MRR קארדקום</div><div class="kpi-val" id="k-mrr"" id="k-mrr">₪11,565</div><div class="kpi-sub">281 מנויים חוזרים</div></div>
-    <div class="kpi y"><div class="kpi-ico ico-y">🎯</div><div class="kpi-lbl">תחזית EOM</div><div class="kpi-val" id="k-eom"">₪57,236</div><div class="kpi-sub up">115% מיעד ₪50K ✅</div></div>
-  </div>
-
-  <div class="kg">
-    <div class="kpi r"><div class="kpi-ico ico-r">📉</div><div class="kpi-lbl">שחיקה (Churn)</div><div class="kpi-val" id="k-churn" sm">157 חברים</div><div class="kpi-sub dn">35.5% מסה"כ</div></div>
-    <div class="kpi p"><div class="kpi-ico ico-p">🔄</div><div class="kpi-lbl">חידושים החודש</div><div class="kpi-val" id="k-renew" sm">78</div><div class="kpi-sub">₪3,666 מ-₪47</div></div>
-    <div class="kpi pk"><div class="kpi-ico ico-pk">🌟</div><div class="kpi-lbl">YTD הכנסות</div><div class="kpi-val" id="k-ytd" sm">₪141,094</div><div class="kpi-sub">קארדקום + יופי</div></div>
-    <div class="kpi i"><div class="kpi-ico ico-c">💡</div><div class="kpi-lbl">LTV ממוצע (קארדקום)</div><div class="kpi-val" id="k-ltv" sm">₪91</div><div class="kpi-sub">442 חברים ייחודיים</div></div>
-  </div>
-
-  <div class="goal">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div><div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;">יעד חודשי — מאי 2026</div><div style="font-size:10px;color:var(--muted)">יום 9/31 · 29% מהחודש חלף</div></div>
-      <div style="text-align:left;"><div style="font-family:var(--mono);font-size:22px;font-weight:800;color:#fff;">33.2%</div><div style="font-size:10px;color:var(--green)">₪16,617 / ₪50,000</div></div>
+  <div class="kpi-row">
+    <div class="kpi purple">
+      <div class="kpi-top"><div class="kpi-ico">💰</div><span class="kpi-badge up" id="k-rev-badge">קצב ₪1,846/יום</span></div>
+      <div class="kpi-lbl">הכנסות החודש</div>
+      <div class="kpi-val" id="k-rev">₪16,617</div>
+      <div class="kpi-sub">קארדקום + יופי · מאי 2026</div>
     </div>
-    <div class="gb-bg"><div class="gb-fill" id="goal-bar-fill" style="width:33.2%"></div></div>
-    <div class="sp"><span>נדרש: ₪33,383</span><span style="color:var(--green)">תחזית: ₪57,236 ✅</span></div>
+    <div class="kpi blue">
+      <div class="kpi-top"><div class="kpi-ico">👥</div><span class="kpi-badge up">+17 החודש</span></div>
+      <div class="kpi-lbl">חברים פעילים</div>
+      <div class="kpi-val" id="k-act">285</div>
+      <div class="kpi-sub">תשלום ב-35 ימים אחרונים</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-top"><div class="kpi-ico">📈</div><span class="kpi-badge">281 מנויים</span></div>
+      <div class="kpi-lbl">MRR קארדקום</div>
+      <div class="kpi-val" id="k-mrr">₪11,565</div>
+      <div class="kpi-sub">Monthly Recurring Revenue</div>
+    </div>
+    <div class="kpi orange">
+      <div class="kpi-top"><div class="kpi-ico">🎯</div><span class="kpi-badge up">115% מיעד</span></div>
+      <div class="kpi-lbl">תחזית סוף חודש</div>
+      <div class="kpi-val" id="k-eom">₪57,236</div>
+      <div class="kpi-sub">יעד: ₪50,000 ✅</div>
+    </div>
   </div>
 
-  <div class="g2">
-    <div class="cc">
-      <div class="cc-hd">
-        <div><div class="cc-title">הכנסות חודשיות</div><div class="cc-sub">ינואר–מאי 2026</div></div>
-        <div class="cc-legend"><span><span class="ld" style="background:var(--indigo)"></span>קארדקום</span><span><span class="ld" style="background:var(--cyan)"></span>יופי</span></div>
+  <div class="kpi-row">
+    <div class="kpi red">
+      <div class="kpi-top"><div class="kpi-ico">📉</div><span class="kpi-badge dn">35.5%</span></div>
+      <div class="kpi-lbl">שחיקה (Churn)</div>
+      <div class="kpi-val sm" id="k-churn">157 חברים</div>
+      <div class="kpi-sub">מסה"כ 442 חברים</div>
+    </div>
+    <div class="kpi cyan">
+      <div class="kpi-top"><div class="kpi-ico">🔄</div><span class="kpi-badge">₪3,666</span></div>
+      <div class="kpi-lbl">חידושים החודש</div>
+      <div class="kpi-val sm" id="k-renew">78</div>
+      <div class="kpi-sub">מנויי ₪47 קארדקום</div>
+    </div>
+    <div class="kpi pink">
+      <div class="kpi-top"><div class="kpi-ico">🌟</div><span class="kpi-badge">2026</span></div>
+      <div class="kpi-lbl">YTD הכנסות</div>
+      <div class="kpi-val sm" id="k-ytd">₪141,094</div>
+      <div class="kpi-sub">קארדקום + יופי</div>
+    </div>
+    <div class="kpi indigo">
+      <div class="kpi-top"><div class="kpi-ico">💡</div><span class="kpi-badge">442 חברים</span></div>
+      <div class="kpi-lbl">LTV ממוצע</div>
+      <div class="kpi-val sm" id="k-ltv">₪91</div>
+      <div class="kpi-sub">קארדקום בלבד</div>
+    </div>
+  </div>
+
+  <!-- GOAL BAR -->
+  <div class="goal-wrap">
+    <div class="goal-top">
+      <div>
+        <div class="card-title">יעד חודשי — מאי 2026</div>
+        <div class="card-sub" style="margin-top:3px">יום <span id="days-elapsed">9</span> מתוך 31 · 29% מהחודש</div>
+      </div>
+      <div style="text-align:left">
+        <div class="goal-pct" id="goal-pct">33.2%</div>
+        <div id="goal-current" style="font-size:12px;color:var(--muted)">₪16,617 מתוך ₪50,000</div>
+      </div>
+    </div>
+    <div class="goal-bar-bg"><div class="goal-bar-fill" id="goal-bar-fill" style="width:33.2%"></div></div>
+    <div class="goal-stats">
+      <span>נדרש לסיום: ₪33,383</span>
+      <span id="goal-forecast" style="color:var(--green);font-weight:600">תחזית: ₪57,236 ✅</span>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW -->
+  <div class="g-7-5">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd">
+        <div><div class="card-title">הכנסות חודשיות</div><div class="card-sub">קארדקום + יופי · 2026</div></div>
+        <div class="legend"><span><span class="ld" style="background:#7c3aed"></span>קארדקום</span><span><span class="ld" style="background:#0891b2"></span>יופי</span></div>
       </div>
       <div class="cw"><canvas id="ch-monthly"></canvas></div>
     </div>
-    <div class="cc">
-      <div class="cc-hd"><div><div class="cc-title">חדשים vs שחיקה</div><div class="cc-sub">קארדקום לפי חודש</div></div></div>
-      <div class="cw"><canvas id="ch-churn"></canvas></div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd">
+        <div><div class="card-title">Analytics</div><div class="card-sub">פילוח חברים</div></div>
+      </div>
+      <div class="donut-wrap" style="height:210px;align-items:center;">
+        <div class="donut-canvas"><canvas id="ch-status"></canvas></div>
+        <div class="donut-legend">
+          <div class="dl-item"><div class="dl-dot" style="background:#7c3aed"></div><div class="dl-lbl">פעילים</div><div class="dl-val" id="dl-active">285</div></div>
+          <div class="dl-item"><div class="dl-dot" style="background:#dc2626"></div><div class="dl-lbl">עזבו</div><div class="dl-val" id="dl-churned">157</div></div>
+          <div class="dl-item"><div class="dl-dot" style="background:#059669"></div><div class="dl-lbl">שימור</div><div class="dl-val">64.5%</div></div>
+          <div class="dl-item"><div class="dl-dot" style="background:#ea580c"></div><div class="dl-lbl">חדשים/חודש</div><div class="dl-val" id="dl-new">17</div></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="cc">
-    <div class="cc-hd"><div><div class="cc-title">הצטרפויות לפי יום — מפת חום</div><div class="cc-sub">כמות חברים חדשים (₪10) לפי שבוע ויום</div></div></div>
-    <div class="hm" id="hm"></div>
+  <!-- HEATMAP -->
+  <div class="card">
+    <div class="card-hd">
+      <div><div class="card-title">ימים חזקים — הצטרפויות חדשות</div><div class="card-sub">כמות חברים חדשים לפי יום בשבוע</div></div>
+      <span class="card-badge badge-purple">8 שבועות אחרונים</span>
+    </div>
+    <div class="hm-grid" id="hm"></div>
   </div>
 
 </div><!-- /overview -->
 
 
-<!-- ════ MEMBERS ════ -->
+<!-- ══════════════ MEMBERS ══════════════ -->
 <div class="page" id="pg-members">
 
-  <div class="kg kg3">
-    <div class="kpi g"><div class="kpi-ico ico-g">✅</div><div class="kpi-lbl">חברים פעילים</div><div class="kpi-val">285</div><div class="kpi-sub">תשלום ב-35 יום האחרונים</div></div>
-    <div class="kpi r"><div class="kpi-ico ico-r">❌</div><div class="kpi-lbl">עזבו (Churned)</div><div class="kpi-val">157</div><div class="kpi-sub dn">35.5% מסה"כ 442 חברים</div></div>
-    <div class="kpi y"><div class="kpi-ico ico-y">⏳</div><div class="kpi-lbl">ממוצע חיי חבר שעזב</div><div class="kpi-val">10 יום</div><div class="kpi-sub">הכנסה ממוצעת: ₪84.6</div></div>
+  <div class="kpi-row kpi-row-3">
+    <div class="kpi green">
+      <div class="kpi-top"><div class="kpi-ico">✅</div><span class="kpi-badge">64.5% שימור</span></div>
+      <div class="kpi-lbl">חברים פעילים</div>
+      <div class="kpi-val" id="m-active">285</div>
+      <div class="kpi-sub">תשלום ב-35 ימים אחרונים</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-top"><div class="kpi-ico">❌</div><span class="kpi-badge dn">35.5%</span></div>
+      <div class="kpi-lbl">עזבו (Churned)</div>
+      <div class="kpi-val" id="m-churned">157</div>
+      <div class="kpi-sub">מסה"כ 442 חברים</div>
+    </div>
+    <div class="kpi orange">
+      <div class="kpi-top"><div class="kpi-ico">⏳</div><span class="kpi-badge">ממוצע</span></div>
+      <div class="kpi-lbl">חיי חבר שעזב</div>
+      <div class="kpi-val" id="m-life">10 ימים</div>
+      <div class="kpi-sub">הכנסה ממוצעת ₪84.6</div>
+    </div>
   </div>
 
-  <div class="g2">
-    <div class="cc">
-      <div class="cc-hd"><div><div class="cc-title">פילוח מצב חברות</div><div class="cc-sub">פעילים vs עזבו</div></div></div>
-      <div class="dw" style="height:180px;align-items:center;">
-        <div style="width:150px;height:150px;flex-shrink:0;"><canvas id="ch-status"></canvas></div>
-        <div class="dl">
-          <div class="dli"><div class="dld" style="background:var(--green)"></div><div class="dll">פעילים</div><div class="dlv">285</div></div>
-          <div class="dli"><div class="dld" style="background:var(--red)"></div><div class="dll">עזבו</div><div class="dlv">157</div></div>
-          <div class="dli"><div class="dld" style="background:var(--faint)"></div><div class="dll">שיעור שימור</div><div class="dlv">64.5%</div></div>
+  <div class="g-5-7">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd"><div><div class="card-title">פילוח מצב חברות</div><div class="card-sub">פעילים vs עזבו</div></div></div>
+      <div class="donut-wrap" style="height:190px;align-items:center;">
+        <div class="donut-canvas"><canvas id="ch-member-donut"></canvas></div>
+        <div class="donut-legend">
+          <div class="dl-item"><div class="dl-dot" style="background:#059669"></div><div class="dl-lbl">פעילים</div><div class="dl-val" id="md-active">285</div></div>
+          <div class="dl-item"><div class="dl-dot" style="background:#dc2626"></div><div class="dl-lbl">עזבו</div><div class="dl-val" id="md-churned">157</div></div>
         </div>
       </div>
     </div>
-    <div class="cc">
-      <div class="cc-hd"><div><div class="cc-title">חברים חדשים לפי חודש</div><div class="cc-sub">כניסות ₪10 חדשות</div></div></div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd"><div><div class="card-title">חברים חדשים לפי חודש</div><div class="card-sub">₪10 Trial</div></div></div>
       <div class="cw"><canvas id="ch-newmo"></canvas></div>
     </div>
   </div>
 
-  <div class="cc">
-    <div class="cc-title" style="margin-bottom:14px;">🔍 ניתוח שחיקה</div>
-    <div class="inner3">
-      <div class="inner-box"><div class="kpi-lbl">הכנסה מחברים שעזבו</div><div id="churn-rev" style="font-size:20px;font-weight:800;color:var(--red);font-family:var(--mono);margin-top:6px;">₪13,275</div><div class="kpi-sub">לפני עזיבה</div></div>
-      <div class="inner-box"><div class="kpi-lbl">ממוצע per churned member</div><div id="churn-avg" style="font-size:20px;font-weight:800;color:var(--yellow);font-family:var(--mono);margin-top:6px;">₪84.6</div><div class="kpi-sub dn">vs ₪100 CAC = הפסד ₪15.4</div></div>
-      <div class="inner-box"><div class="kpi-lbl">Churn Rate חודשי (משוער)</div><div style="font-size:20px;font-weight:800;color:var(--red);font-family:var(--mono);margin-top:6px;">~8.8%</div><div class="kpi-sub">שוק SaaS ממוצע: 5-7%</div></div>
+  <div style="height:16px"></div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px">🔍 ניתוח שחיקה מפורט</div>
+    <div class="inner-grid">
+      <div class="inner-card"><div class="ic-lbl">הכנסה מחברים שעזבו</div><div class="ic-val" id="churn-rev" style="color:var(--red)">₪13,275</div><div style="font-size:11px;color:var(--muted);margin-top:4px">לפני עזיבה</div></div>
+      <div class="inner-card"><div class="ic-lbl">הפסד CAC נטו</div><div class="ic-val" style="color:var(--orange)">₪2,418</div><div style="font-size:11px;color:var(--muted);margin-top:4px">157 × ₪15.4</div></div>
+      <div class="inner-card"><div class="ic-lbl">Churn Rate חודשי</div><div class="ic-val" style="color:var(--red)">~8.8%</div><div style="font-size:11px;color:var(--muted);margin-top:4px">שוק SaaS ממוצע 5-7%</div></div>
     </div>
     <div class="dvd"></div>
-    <div class="insight ins-r">⚠️ <strong>ממוצע 10 ימים בלבד</strong> — רוב השחיקה קורית לפני החידוש הראשון ב-₪47. ה-Trial לא מחזיק.</div>
-    <div class="insight ins-y">💸 <strong>הפסד CAC</strong> — 157 חברים שעזבו × ₪15.4 = <strong>₪2,418 הפסד נקי</strong> על גיוס לשווא.</div>
-    <div class="insight ins-g">✅ <strong>64.5% שימור</strong> — חזק לשוק ישראלי. המטרה: להגיע ל-75%+ עם onboarding משופר.</div>
+    <div class="insight ins-r"><div class="ins-icon">⚠️</div><div><strong>ממוצע 10 ימים בלבד</strong> — רוב השחיקה קורית לפני החידוש הראשון. ה-Trial ב-₪10 לא מחזיק. נדרש onboarding חזק בשבוע הראשון.</div></div>
+    <div class="insight ins-y"><div class="ins-icon">💸</div><div><strong>הפסד CAC על שחיקה: ₪2,418</strong> — מכל 100 חברים חדשים, ₪15 מוצאים לאוויר. שיפור onboarding ל-80% שימור = חיסכון של ₪1,200 בחודש.</div></div>
+    <div class="insight ins-g"><div class="ins-icon">✅</div><div><strong>64.5% שימור — חזק לשוק ישראלי.</strong> המטרה: 75%+. כל אחוז שיפור = ₪160 פחות הפסד CAC ו-₪47 יותר MRR.</div></div>
   </div>
 
 </div><!-- /members -->
 
 
-<!-- ════ REVENUE ════ -->
+<!-- ══════════════ REVENUE ══════════════ -->
 <div class="page" id="pg-revenue">
 
-  <div class="kg">
-    <div class="kpi i"><div class="kpi-ico ico-i">📊</div><div class="kpi-lbl">YTD הכנסות 2026</div><div class="kpi-val" id="mrr-ytd" sm">₪141,094</div><div class="kpi-sub">קארדקום + יופי</div></div>
-    <div class="kpi c"><div class="kpi-ico ico-c">🔵</div><div class="kpi-lbl">MRR קארדקום</div><div class="kpi-val sm">₪11,565</div><div class="kpi-sub">281 מנויים פעילים</div></div>
-    <div class="kpi g"><div class="kpi-ico ico-g">🟢</div><div class="kpi-lbl">ARR משוער</div><div class="kpi-val" id="mrr-arr" sm">₪138,780</div><div class="kpi-sub">MRR × 12</div></div>
-    <div class="kpi y"><div class="kpi-ico ico-y">📅</div><div class="kpi-lbl">חודש הכי חזק</div><div class="kpi-val sm">מרץ</div><div class="kpi-sub">₪41,295 סה"כ</div></div>
+  <div class="kpi-row">
+    <div class="kpi purple">
+      <div class="kpi-top"><div class="kpi-ico">📊</div><span class="kpi-badge">2026</span></div>
+      <div class="kpi-lbl">YTD הכנסות</div>
+      <div class="kpi-val sm" id="mrr-ytd">₪141,094</div>
+      <div class="kpi-sub">קארדקום + יופי</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-top"><div class="kpi-ico">🔵</div><span class="kpi-badge">281 מנויים</span></div>
+      <div class="kpi-lbl">MRR קארדקום</div>
+      <div class="kpi-val sm">₪11,565</div>
+      <div class="kpi-sub">Monthly Recurring Revenue</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-top"><div class="kpi-ico">📅</div><span class="kpi-badge">MRR × 12</span></div>
+      <div class="kpi-lbl">ARR משוער</div>
+      <div class="kpi-val sm" id="mrr-arr">₪138,780</div>
+      <div class="kpi-sub">Annual Recurring Revenue</div>
+    </div>
+    <div class="kpi orange">
+      <div class="kpi-top"><div class="kpi-ico">🏆</div><span class="kpi-badge">₪41,295</span></div>
+      <div class="kpi-lbl">חודש הכי חזק</div>
+      <div class="kpi-val sm">מרץ</div>
+      <div class="kpi-sub">108 חברים חדשים</div>
+    </div>
   </div>
 
-  <div class="cc">
-    <div class="cc-hd">
-      <div><div class="cc-title">הכנסות חודשיות — 2026</div><div class="cc-sub">קארדקום + יופי + סה"כ</div></div>
-      <div class="cc-legend"><span><span class="ld" style="background:var(--indigo)"></span>קארדקום</span><span><span class="ld" style="background:var(--cyan)"></span>יופי</span><span><span class="ld" style="background:var(--yellow)"></span>סה"כ</span></div>
+  <div class="card">
+    <div class="card-hd">
+      <div><div class="card-title">הכנסות חודשיות 2026</div><div class="card-sub">קארדקום + יופי מצטבר</div></div>
+      <div class="legend"><span><span class="ld" style="background:#7c3aed"></span>קארדקום</span><span><span class="ld" style="background:#0891b2"></span>יופי</span><span><span class="ld" style="background:#f59e0b"></span>סה"כ</span></div>
     </div>
     <div class="cw tall"><canvas id="ch-rev-stack"></canvas></div>
   </div>
 
   <div class="g2">
-    <div class="cc">
-      <div class="cc-hd"><div><div class="cc-title">פילוח YTD</div><div class="cc-sub">קארדקום vs יופי</div></div></div>
-      <div class="dw" style="height:180px;align-items:center;">
-        <div style="width:150px;height:150px;flex-shrink:0;"><canvas id="ch-split"></canvas></div>
-        <div class="dl">
-          <div class="dli"><div class="dld" style="background:var(--indigo)"></div><div class="dll">קארדקום</div><div class="dlv">₪41,833</div></div>
-          <div class="dli"><div class="dld" style="background:var(--cyan)"></div><div class="dll">יופי</div><div class="dlv">₪99,261</div></div>
-          <div class="dli"><div class="dld" style="background:var(--faint)"></div><div class="dll">יופי %</div><div class="dlv">70.4%</div></div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd"><div><div class="card-title">פילוח YTD</div><div class="card-sub">קארדקום vs יופי</div></div></div>
+      <div class="donut-wrap" style="height:190px;align-items:center;">
+        <div class="donut-canvas"><canvas id="ch-split"></canvas></div>
+        <div class="donut-legend">
+          <div class="dl-item"><div class="dl-dot" style="background:#7c3aed"></div><div class="dl-lbl">קארדקום</div><div class="dl-val">₪41,833</div></div>
+          <div class="dl-item"><div class="dl-dot" style="background:#0891b2"></div><div class="dl-lbl">יופי</div><div class="dl-val">₪99,261</div></div>
+          <div class="dl-item"><div class="dl-dot" style="background:var(--border)"></div><div class="dl-lbl">יופי מהסה"כ</div><div class="dl-val">70.4%</div></div>
         </div>
       </div>
     </div>
-    <div class="cc">
-      <div class="cc-title" style="margin-bottom:12px;">טבלת הכנסות חודשית</div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title" style="margin-bottom:14px">טבלת הכנסות חודשית</div>
       <table class="dt">
         <thead><tr><th>חודש</th><th>קארדקום</th><th>יופי</th><th>סה"כ</th></tr></thead>
         <tbody>
-          <tr><td>ינואר</td><td>—</td><td>₪23,650</td><td style="font-weight:700;color:#fff;">₪23,650</td></tr>
-          <tr><td>פברואר</td><td>₪8,487</td><td>₪23,400</td><td style="font-weight:700;color:#fff;">₪31,887</td></tr>
-          <tr><td>מרץ</td><td>₪15,534</td><td>₪25,761</td><td style="font-weight:700;color:var(--green);">₪41,295 🏆</td></tr>
-          <tr><td>אפריל</td><td>₪12,375</td><td>₪15,270</td><td style="font-weight:700;color:#fff;">₪27,645</td></tr>
-          <tr style="background:rgba(99,102,241,.08)"><td><strong>מאי ◄</strong></td><td>₪5,437</td><td>₪11,180</td><td style="font-weight:700;color:var(--indigo);">₪16,617</td></tr>
-          <tr><td style="color:var(--yellow);font-weight:700;">סה"כ</td><td style="color:var(--indigo);font-weight:700;">₪41,833</td><td style="color:var(--cyan);font-weight:700;">₪99,261</td><td style="color:var(--yellow);font-weight:800;">₪141,094</td></tr>
+          <tr><td>ינואר</td><td>—</td><td>₪23,650</td><td style="font-weight:700">₪23,650</td></tr>
+          <tr><td>פברואר</td><td>₪8,487</td><td>₪23,400</td><td style="font-weight:700">₪31,887</td></tr>
+          <tr><td>מרץ</td><td>₪15,534</td><td>₪25,761</td><td style="font-weight:700;color:var(--green)">₪41,295 🏆</td></tr>
+          <tr><td>אפריל</td><td>₪12,375</td><td>₪15,270</td><td style="font-weight:700">₪27,645</td></tr>
+          <tr style="background:#f5f3ff"><td><strong>מאי ◄</strong></td><td>₪5,437</td><td>₪11,180</td><td style="font-weight:700;color:var(--purple)">₪16,617</td></tr>
+          <tr class="tot"><td>סה"כ</td><td>₪41,833</td><td>₪99,261</td><td>₪141,094</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <div class="cc">
-    <div class="cc-hd"><div><div class="cc-title">הכנסות שבועיות — קארדקום</div><div class="cc-sub">8 שבועות אחרונים</div></div></div>
+  <div style="height:16px"></div>
+  <div class="card">
+    <div class="card-hd"><div><div class="card-title">הכנסות שבועיות — קארדקום</div><div class="card-sub">8 שבועות אחרונים</div></div></div>
     <div class="cw"><canvas id="ch-weekly-rev"></canvas></div>
   </div>
 
 </div><!-- /revenue -->
 
 
-<!-- ════ PRODUCTS ════ -->
+<!-- ══════════════ PRODUCTS ══════════════ -->
 <div class="page" id="pg-products">
 
   <div class="sec">מוצרים מתחילת החודש — מאי 2026</div>
-
   <div class="g2">
-    <div class="cc">
-      <div class="cc-title" style="margin-bottom:3px;">קארדקום — מאי</div><div class="cc-sub" style="margin-bottom:14px;">לפי מחיר מוצר</div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd"><div><div class="card-title">קארדקום — מאי</div></div><span class="card-badge badge-purple">₪5,437</span></div>
       <table class="dt">
         <thead><tr><th>מוצר</th><th>כמות</th><th>הכנסה</th><th>%</th></tr></thead>
         <tbody>
           <tr><td>מנוי ₪47</td><td>78</td><td>₪3,666</td><td><span class="pill pb">67.4%</span></td></tr>
-          <tr><td>מנוי חדש ₪10</td><td>17</td><td>₪170</td><td><span class="pill pc">3.1%</span></td></tr>
           <tr><td>חבילה ₪987</td><td>1</td><td>₪987</td><td><span class="pill pp">18.2%</span></td></tr>
+          <tr><td>₪39 מבצע</td><td>6</td><td>₪234</td><td><span class="pill py">4.3%</span></td></tr>
           <tr><td>חבילה ₪282</td><td>1</td><td>₪282</td><td><span class="pill py">5.2%</span></td></tr>
-          <tr><td>₪39 מבצע</td><td>6</td><td>₪234</td><td></td></tr>
+          <tr><td>מנוי חדש ₪10</td><td>17</td><td>₪170</td><td><span class="pill pg">3.1%</span></td></tr>
           <tr><td>₪98</td><td>1</td><td>₪98</td><td></td></tr>
-          <tr><td style="font-weight:700;color:#fff;">סה"כ</td><td style="font-weight:700;">104</td><td style="font-weight:700;color:var(--indigo);">₪5,437</td><td></td></tr>
+          <tr class="tot"><td>סה"כ</td><td>104</td><td>₪5,437</td><td></td></tr>
         </tbody>
       </table>
     </div>
-    <div class="cc">
-      <div class="cc-title" style="margin-bottom:3px;">יופי — מאי</div><div class="cc-sub" style="margin-bottom:14px;">לפי מוצר</div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd"><div><div class="card-title">יופי — מאי</div></div><span class="card-badge badge-blue">₪11,180</span></div>
       <table class="dt">
         <thead><tr><th>מוצר</th><th>כמות</th><th>הכנסה</th><th>%</th></tr></thead>
         <tbody>
@@ -350,39 +560,38 @@ table.dt tr:hover td{background:rgba(255,255,255,.02)}
           <tr><td>מנוי ₪850</td><td>4</td><td>₪3,400</td><td><span class="pill pb">30.4%</span></td></tr>
           <tr><td>מנוי ₪1,250</td><td>1</td><td>₪1,250</td><td><span class="pill pc">11.2%</span></td></tr>
           <tr><td>דמי חבר ₪30</td><td>1</td><td>₪30</td><td></td></tr>
-          <tr><td style="font-weight:700;color:#fff;">סה"כ</td><td style="font-weight:700;">7</td><td style="font-weight:700;color:var(--cyan);">₪11,180</td><td></td></tr>
+          <tr class="tot"><td>סה"כ</td><td>7</td><td>₪11,180</td><td></td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
+  <div style="height:16px"></div>
   <div class="sec">מוצרים שנתי — 2026</div>
-
   <div class="g2">
-    <div class="cc">
-      <div class="cc-title" style="margin-bottom:3px;">קארדקום — YTD</div><div class="cc-sub" style="margin-bottom:14px;">פברואר–מאי · 906 עסקאות</div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd"><div><div class="card-title">קארדקום — YTD</div><div class="card-sub">906 עסקאות</div></div><span class="card-badge badge-purple">₪41,833</span></div>
       <table class="dt">
         <thead><tr><th>מוצר</th><th>כמות</th><th>הכנסה</th></tr></thead>
         <tbody>
-          <tr><td>מנוי ₪47</td><td><span class="pill pb">505</span></td><td style="color:var(--indigo);font-weight:700;">₪23,735</td></tr>
+          <tr><td>מנוי ₪47</td><td><span class="pill pb">505</span></td><td style="color:var(--purple);font-weight:700">₪23,735</td></tr>
           <tr><td>מנוי חדש ₪10</td><td>258</td><td>₪2,580</td></tr>
           <tr><td>מנוי ₪69</td><td>43</td><td>₪2,967</td></tr>
           <tr><td>מנוי ₪297</td><td>10</td><td>₪2,970</td></tr>
-          <tr><td>מנוי ₪247</td><td>7</td><td>₪1,729</td></tr>
-          <tr><td>מנוי ₪174</td><td>8</td><td>₪1,392</td></tr>
           <tr><td>מנוי ₪89</td><td>14</td><td>₪1,246</td></tr>
           <tr><td>מנוי ₪39 מבצע</td><td>30</td><td>₪1,170</td></tr>
+          <tr><td>מנוי ₪247</td><td>7</td><td>₪1,729</td></tr>
           <tr><td>חבילה ₪987</td><td>1</td><td>₪987</td></tr>
-          <tr><td style="font-weight:700;color:#fff;">סה"כ</td><td style="font-weight:700;">906</td><td style="font-weight:700;color:var(--yellow);">₪41,833</td></tr>
+          <tr class="tot"><td>סה"כ</td><td>906</td><td>₪41,833</td></tr>
         </tbody>
       </table>
     </div>
-    <div class="cc">
-      <div class="cc-title" style="margin-bottom:3px;">יופי — YTD</div><div class="cc-sub" style="margin-bottom:14px;">ינואר–מאי · 51 עסקאות</div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd"><div><div class="card-title">יופי — YTD</div><div class="card-sub">51 עסקאות</div></div><span class="card-badge badge-blue">₪99,261</span></div>
       <table class="dt">
         <thead><tr><th>מוצר</th><th>כמות</th><th>הכנסה</th></tr></thead>
         <tbody>
-          <tr><td>חבילות גדולות</td><td><span class="pill pp">3</span></td><td style="color:var(--purple);font-weight:700;">₪18,500</td></tr>
+          <tr><td>חבילות גדולות</td><td><span class="pill pp">3</span></td><td style="color:var(--purple);font-weight:700">₪18,500</td></tr>
           <tr><td>חבילת אימונים ₪7,670</td><td>2</td><td>₪15,340</td></tr>
           <tr><td>חבילה מתקדמת ₪10,030</td><td>1</td><td>₪10,030</td></tr>
           <tr><td>מנוי שנתי VIP ₪2,850</td><td>5</td><td>₪14,250</td></tr>
@@ -390,130 +599,145 @@ table.dt tr:hover td{background:rgba(255,255,255,.02)}
           <tr><td>מנוי ₪997</td><td>14</td><td>₪13,958</td></tr>
           <tr><td>מנוי ₪850</td><td>14</td><td>₪11,900</td></tr>
           <tr><td>מנוי ₪1,200</td><td>5</td><td>₪6,000</td></tr>
-          <tr><td>מנוי ₪1,250</td><td>2</td><td>₪2,500</td></tr>
-          <tr><td style="font-weight:700;color:#fff;">סה"כ</td><td style="font-weight:700;">51</td><td style="font-weight:700;color:var(--yellow);">₪99,261</td></tr>
+          <tr class="tot"><td>סה"כ</td><td>51</td><td>₪99,261</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <div class="cc">
-    <div class="cc-hd"><div><div class="cc-title">מיקס מוצרים קארדקום — כמות עסקאות</div><div class="cc-sub">YTD כל הסוגים</div></div></div>
+  <div style="height:16px"></div>
+  <div class="card">
+    <div class="card-hd"><div><div class="card-title">מיקס מוצרים — כמות עסקאות YTD</div><div class="card-sub">קארדקום</div></div></div>
     <div class="cw"><canvas id="ch-prods"></canvas></div>
   </div>
 
 </div><!-- /products -->
 
 
-<!-- ════ ACQUISITION ════ -->
+<!-- ══════════════ ACQUISITION ══════════════ -->
 <div class="page" id="pg-acquisition">
 
-  <div class="kg kg3">
-    <div class="kpi i"><div class="kpi-ico ico-i">🎯</div><div class="kpi-lbl">חברים חדשים YTD</div><div class="kpi-val">258</div><div class="kpi-sub">₪10 Trial · קארדקום</div></div>
-    <div class="kpi r"><div class="kpi-ico ico-r">💸</div><div class="kpi-lbl">CAC מניח</div><div class="kpi-val">₪100</div><div class="kpi-sub">תקציב כולל: ₪25,800</div></div>
-    <div class="kpi y"><div class="kpi-ico ico-y">⚖️</div><div class="kpi-lbl">LTV:CAC</div><div class="kpi-val">0.9x</div><div class="kpi-sub dn">יעד: 3x+</div></div>
-  </div>
-
-  <div class="cc" style="margin-bottom:12px;">
-    <div class="cc-title" style="margin-bottom:14px;">📊 ניתוח CAC ו-LTV</div>
-    <div class="inner3">
-      <div class="inner-box"><div class="kpi-lbl">LTV ממוצע קארדקום</div><div style="font-size:20px;font-weight:800;color:#fff;font-family:var(--mono);margin-top:6px;">₪91</div><div class="kpi-sub">₪41,833 / 462 עסקאות</div></div>
-      <div class="inner-box" style="border-color:rgba(239,68,68,.25);background:rgba(239,68,68,.06)"><div class="kpi-lbl">הפסד CAC שחיקה</div><div style="font-size:20px;font-weight:800;color:var(--red);font-family:var(--mono);margin-top:6px;">₪2,418</div><div class="kpi-sub">157 × ₪15.4</div></div>
-      <div class="inner-box" style="border-color:rgba(16,185,129,.25);background:rgba(16,185,129,.06)"><div class="kpi-lbl">ROI חברים פעילים</div><div style="font-size:20px;font-weight:800;color:var(--green);font-family:var(--mono);margin-top:6px;">2.8x</div><div class="kpi-sub">₪28,558 / ₪10,200</div></div>
+  <div class="kpi-row kpi-row-3">
+    <div class="kpi purple">
+      <div class="kpi-top"><div class="kpi-ico">🎯</div><span class="kpi-badge">YTD</span></div>
+      <div class="kpi-lbl">חברים חדשים</div>
+      <div class="kpi-val">258</div>
+      <div class="kpi-sub">₪10 Trial · קארדקום</div>
     </div>
-    <div class="dvd"></div>
-    <div class="insight ins-b">🎯 <strong>יעד 3x LTV:CAC</strong> — צריך LTV ₪300. עם ₪47/חודש זה 6.4 חודשים ממוצע חיים. פוקוס על שימור חודש ראשון.</div>
-    <div class="insight ins-y">💡 אם הצלחת להעלות אחוז ממשיכים לחידוש ₪47 ראשון מ-64.5% ל-80%, ה-LTV קופץ ל-₪140 — LTV:CAC מגיע ל-1.4x.</div>
-    <div class="insight ins-g">✅ <strong>מרץ = הקמפיין הכי טוב</strong> — 108 חברים חדשים. כדאי לנתח מה עבד ולשחזר.</div>
+    <div class="kpi red">
+      <div class="kpi-top"><div class="kpi-ico">💸</div><span class="kpi-badge">הנחה</span></div>
+      <div class="kpi-lbl">CAC מניח</div>
+      <div class="kpi-val">₪100</div>
+      <div class="kpi-sub">תקציב כולל: ₪25,800</div>
+    </div>
+    <div class="kpi orange">
+      <div class="kpi-top"><div class="kpi-ico">⚖️</div><span class="kpi-badge dn">יעד 3x</span></div>
+      <div class="kpi-lbl">LTV:CAC יחס</div>
+      <div class="kpi-val">0.9x</div>
+      <div class="kpi-sub">פעילים: 2.8x ✅</div>
+    </div>
   </div>
 
   <div class="g2">
-    <div class="cc">
-      <div class="cc-hd"><div><div class="cc-title">חברים חדשים לפי יום בשבוע</div><div class="cc-sub">YTD — ימים חזקים</div></div></div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd"><div><div class="card-title">חברים חדשים לפי יום</div><div class="card-sub">YTD — איזה ימים הכי חזקים?</div></div></div>
       <div class="cw"><canvas id="ch-dow-new"></canvas></div>
     </div>
-    <div class="cc">
-      <div class="cc-hd"><div><div class="cc-title">הכנסות לפי יום בשבוע</div><div class="cc-sub">קארדקום YTD</div></div></div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-hd"><div><div class="card-title">הכנסות לפי יום בשבוע</div><div class="card-sub">קארדקום YTD</div></div></div>
       <div class="cw"><canvas id="ch-dow-rev"></canvas></div>
     </div>
   </div>
 
-  <div class="cc">
-    <div class="cc-hd"><div><div class="cc-title">חברים חדשים + חידושים לפי שבוע</div><div class="cc-sub">8 שבועות אחרונים</div></div></div>
+  <div style="height:16px"></div>
+  <div class="card">
+    <div class="card-hd"><div><div class="card-title">חברים חדשים + חידושים שבועי</div><div class="card-sub">8 שבועות אחרונים</div></div></div>
     <div class="cw"><canvas id="ch-wk-new"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:14px">📊 ניתוח CAC ו-LTV</div>
+    <div class="inner-grid">
+      <div class="inner-card"><div class="ic-lbl">LTV ממוצע (קארדקום)</div><div class="ic-val">₪91</div><div style="font-size:11px;color:var(--muted);margin-top:4px">₪41,833 / 462 עסקאות</div></div>
+      <div class="inner-card" style="border-color:#fecaca"><div class="ic-lbl">הפסד CAC שחיקה</div><div class="ic-val" style="color:var(--red)">₪2,418</div><div style="font-size:11px;color:var(--muted);margin-top:4px">157 × ₪15.4</div></div>
+      <div class="inner-card" style="border-color:#bbf7d0"><div class="ic-lbl">ROI חברים פעילים</div><div class="ic-val" style="color:var(--green)">2.8x</div><div style="font-size:11px;color:var(--muted);margin-top:4px">₪28,558 / ₪10,200</div></div>
+    </div>
+    <div class="insight ins-b"><div class="ins-icon">🎯</div><div><strong>יעד 3x LTV:CAC</strong> — צריך LTV ₪300. עם ₪47/חודש = 6.4 חודשי חיים ממוצע. כרגע 10 ימים — הפוקוס על שימור חודש ראשון.</div></div>
+    <div class="insight ins-g"><div class="ins-icon">✅</div><div><strong>מרץ = הקמפיין הכי טוב</strong> — 108 חברים חדשים. כדאי לנתח מה עבד שם ולשחזר.</div></div>
   </div>
 
 </div><!-- /acquisition -->
 
-<!-- ════ MEMBERS LIST ════ -->
+
+<!-- ══════════════ MEMBER LIST ══════════════ -->
 <div class="page" id="pg-members-list">
 
-  <div class="kg kg3" style="margin-top:4px;">
-    <div class="kpi g"><div class="kpi-ico ico-g">✅</div><div class="kpi-lbl">פעילים</div><div class="kpi-val" id="ml-active-count">—</div><div class="kpi-sub">תשלום ב-35 יום אחרונים</div></div>
-    <div class="kpi r"><div class="kpi-ico ico-r">❌</div><div class="kpi-lbl">עזבו</div><div class="kpi-val" id="ml-churned-count">—</div><div class="kpi-sub">לא שילמו 35+ יום</div></div>
-    <div class="kpi y"><div class="kpi-ico ico-y">💰</div><div class="kpi-lbl">הכנסה מהרשימה</div><div class="kpi-val" id="ml-rev-total">—</div><div class="kpi-sub">סה"כ קארדקום</div></div>
-  </div>
-
-  <!-- FILTERS -->
-  <div class="cc" style="margin-bottom:12px;padding:14px 18px;">
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <div style="display:flex;gap:4px;">
-        <button class="tf-btn active" id="mf-all" onclick="filterMembers('all',this)">הכל (441)</button>
-        <button class="tf-btn" id="mf-active" onclick="filterMembers('active',this)">פעילים</button>
-        <button class="tf-btn" id="mf-churned" onclick="filterMembers('churned',this)">עזבו</button>
-      </div>
-      <input id="ml-search" type="text" placeholder="🔍 חיפוש שם / אימייל / טלפון..." 
-        style="flex:1;min-width:200px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;color:var(--text);font-size:12px;font-family:var(--font);outline:none;"
-        oninput="renderMembers()">
-      <select id="ml-sort" onchange="renderMembers()" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;color:var(--text);font-size:12px;font-family:var(--font);outline:none;">
-        <option value="last-desc">תאריך אחרון ↓</option>
-        <option value="last-asc">תאריך אחרון ↑</option>
-        <option value="rev-desc">הכנסה ↓</option>
-        <option value="lt-desc">חיים ↓</option>
-        <option value="pay-desc">תשלומים ↓</option>
-      </select>
+  <div class="kpi-row kpi-row-3">
+    <div class="kpi green">
+      <div class="kpi-top"><div class="kpi-ico">✅</div></div>
+      <div class="kpi-lbl">פעילים</div>
+      <div class="kpi-val" id="ml-active-count">285</div>
+      <div class="kpi-sub">תשלום ב-35 ימים אחרונים</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-top"><div class="kpi-ico">❌</div></div>
+      <div class="kpi-lbl">עזבו</div>
+      <div class="kpi-val" id="ml-churned-count">157</div>
+      <div class="kpi-sub">לא שילמו 35+ יום</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-top"><div class="kpi-ico">💰</div></div>
+      <div class="kpi-lbl">הכנסה כוללת</div>
+      <div class="kpi-val sm" id="ml-rev-total">₪41,833</div>
+      <div class="kpi-sub">קארדקום YTD</div>
     </div>
   </div>
 
-  <!-- TABLE -->
-  <div class="cc" style="padding:0;overflow:hidden;">
-    <div style="overflow-x:auto;">
+  <div class="filter-bar">
+    <div class="filter-tf">
+      <button class="filter-btn active" id="mf-all" onclick="filterMembers('all',this)">הכל (441)</button>
+      <button class="filter-btn" id="mf-active" onclick="filterMembers('active',this)">פעילים</button>
+      <button class="filter-btn" id="mf-churned" onclick="filterMembers('churned',this)">עזבו</button>
+    </div>
+    <input id="ml-search" class="filter-search" type="text" placeholder="🔍 חיפוש שם / אימייל / טלפון..." oninput="renderMembers()">
+    <select id="ml-sort" class="filter-select" onchange="renderMembers()">
+      <option value="last-desc">תאריך אחרון ↓</option>
+      <option value="last-asc">תאריך אחרון ↑</option>
+      <option value="rev-desc">הכנסה ↓</option>
+      <option value="lt-desc">חיים ↓</option>
+      <option value="pay-desc">תשלומים ↓</option>
+    </select>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="overflow-x:auto">
       <table class="dt" id="ml-table">
-        <thead>
-          <tr>
-            <th style="padding-right:16px;">#</th>
-            <th>שם</th>
-            <th>סטטוס</th>
-            <th>הצטרף</th>
-            <th>תשלום אחרון</th>
-            <th>ימי חיים</th>
-            <th>תשלומים</th>
-            <th>הכנסה כוללת</th>
-            <th>ימים מאז</th>
-            <th>טלפון</th>
-          </tr>
-        </thead>
+        <thead><tr>
+          <th style="padding-right:20px">#</th>
+          <th>שם</th><th>סטטוס</th><th>הצטרף</th>
+          <th>תשלום אחרון</th><th>ימי חיים</th>
+          <th>תשלומים</th><th>הכנסה</th><th>ימים מאז</th><th>טלפון</th>
+        </tr></thead>
         <tbody id="ml-tbody"></tbody>
       </table>
     </div>
-    <div id="ml-pagination" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);">
+    <div class="pagination">
       <span id="ml-count-label"></span>
-      <div style="display:flex;gap:6px;">
-        <button onclick="mlPage(-1)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 12px;color:var(--text);cursor:pointer;font-size:11px;">◄ הקודם</button>
-        <span id="ml-page-info" style="padding:4px 10px;"></span>
-        <button onclick="mlPage(1)" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 12px;color:var(--text);cursor:pointer;font-size:11px;">הבא ►</button>
+      <div class="page-btns">
+        <button class="page-btn" onclick="mlPage(-1)">◄ הקודם</button>
+        <span id="ml-page-info" style="padding:5px 12px;font-size:11px;color:var(--muted)"></span>
+        <button class="page-btn" onclick="mlPage(1)">הבא ►</button>
       </div>
     </div>
   </div>
 
 </div><!-- /members-list -->
 
-
 </main>
 </div>
 
 <script>
-// ── DATA ──
+// ── STATIC DATA ──
 const D = {
   months:['ינואר','פברואר','מרץ','אפריל','מאי'],
   cardcom:[0,8487,15534,12375,5437],
@@ -521,7 +745,6 @@ const D = {
   combined:[23650,31887,41295,27645,16617],
   newM:[0,87,108,46,17],
   churned:[0,12,45,72,28],
-  recurring:[0,52,162,213,78],
   weekly:{
     labels:['W11','W12','W13','W14','W15','W16','W17','W18'],
     rev:[4413,2754,4079,2700,2474,1997,5119,1541],
@@ -538,84 +761,81 @@ const D = {
     counts:[505,258,43,10,14,30,7,8,6]
   },
   hm:{
-    weeks:['W06','W07','W08','W09','W10','W11','W12','W13'],
+    weeks:['W-7','W-6','W-5','W-4','W-3','W-2','W-1','W0'],
     days:['א','ב','ג','ד','ה','ו','ש'],
     data:[[5,3,4,6,2,3,4],[7,5,6,7,3,4,5],[4,7,5,4,5,6,7],[3,5,8,9,7,5,6],[6,4,3,5,4,3,4],[4,5,3,4,3,2,3],[5,4,6,5,4,3,4],[3,3,2,4,3,2,3]]
   }
 };
 
 // ── CHART DEFAULTS ──
-const C={indigo:'#6366f1',cyan:'#06b6d4',green:'#10b981',yellow:'#f59e0b',red:'#ef4444',pink:'#ec4899',purple:'#8b5cf6',muted:'#64748b',border:'rgba(255,255,255,0.06)'};
-Chart.defaults.color=C.muted;Chart.defaults.borderColor=C.border;Chart.defaults.font.family="'IBM Plex Mono',monospace";Chart.defaults.font.size=10;
-const tt={backgroundColor:'#131927',borderColor:'rgba(255,255,255,0.12)',borderWidth:1,titleColor:'#e8edf5',bodyColor:'#94a3b8',padding:9,cornerRadius:7};
-const ttILS={...tt,callbacks:{label:c=>` ${c.dataset.label}: ₪${(c.parsed.y??c.parsed).toLocaleString()}`}};
-const ttN={...tt,callbacks:{label:c=>` ${c.dataset.label}: ${(c.parsed.y??c.parsed).toLocaleString()}`}};
-const gr={color:'rgba(255,255,255,0.04)',drawBorder:false};
+const C={purple:'#7c3aed',blue:'#2563eb',green:'#059669',orange:'#ea580c',red:'#dc2626',cyan:'#0891b2',pink:'#db2777',yellow:'#d97706',muted:'#94a3b8',border:'#e2e8f0'};
+Chart.defaults.color=C.muted;Chart.defaults.borderColor=C.border;Chart.defaults.font.family="'Poppins',sans-serif";Chart.defaults.font.size=11;
+const tt={backgroundColor:'#1e293b',borderColor:'#334155',borderWidth:1,titleColor:'#f1f5f9',bodyColor:'#94a3b8',padding:10,cornerRadius:8};
+const ttILS={...tt,callbacks:{label:ctx=>` ${ctx.dataset.label||''}: ₪${(ctx.parsed.y??ctx.parsed).toLocaleString()}`}};
+const ttN={...tt,callbacks:{label:ctx=>` ${ctx.dataset.label||''}: ${(ctx.parsed.y??ctx.parsed).toLocaleString()}`}};
+const gr={color:'rgba(0,0,0,0.04)',drawBorder:false};
 const chs={};
 
 function initCharts(){
-  // Monthly stacked
+  // Monthly stacked bars
   chs.monthly=new Chart(document.getElementById('ch-monthly'),{type:'bar',data:{labels:D.months,datasets:[
-    {label:'קארדקום',data:D.cardcom,backgroundColor:C.indigo+'cc',borderRadius:5,borderSkipped:false},
-    {label:'יופי',data:D.yofi,backgroundColor:C.cyan+'cc',borderRadius:5,borderSkipped:false}
+    {label:'קארדקום',data:D.cardcom,backgroundColor:C.purple+'cc',borderRadius:6,borderSkipped:false},
+    {label:'יופי',data:D.yofi,backgroundColor:C.cyan+'cc',borderRadius:6,borderSkipped:false}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttILS},scales:{x:{stacked:true,grid:gr},y:{stacked:true,grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
 
-  // Churn vs New
-  chs.churn=new Chart(document.getElementById('ch-churn'),{type:'bar',data:{labels:D.months.slice(1),datasets:[
-    {label:'חדשים',data:D.newM.slice(1),backgroundColor:C.green+'bb',borderRadius:4},
-    {label:'שחיקה',data:D.churned.slice(1),backgroundColor:C.red+'bb',borderRadius:4}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:8,padding:10}},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
+  // Status donut
+  chs.status=new Chart(document.getElementById('ch-status'),{type:'doughnut',data:{labels:['פעילים','עזבו'],datasets:[{data:[285,157],backgroundColor:[C.green,C.red],borderWidth:3,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
 
-  // Member status donut
-  chs.status=new Chart(document.getElementById('ch-status'),{type:'doughnut',data:{labels:['פעילים','עזבו'],datasets:[{data:[285,157],backgroundColor:[C.green+'dd',C.red+'dd'],borderWidth:0,hoverOffset:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
+  // Member status donut (members page)
+  chs.memberDonut=new Chart(document.getElementById('ch-member-donut'),{type:'doughnut',data:{labels:['פעילים','עזבו'],datasets:[{data:[285,157],backgroundColor:[C.green,C.red],borderWidth:3,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
 
-  // New monthly
-  chs.newmo=new Chart(document.getElementById('ch-newmo'),{type:'line',data:{labels:D.months.slice(1),datasets:[{label:'חברים חדשים',data:D.newM.slice(1),borderColor:C.green,backgroundColor:C.green+'22',tension:0.4,fill:true,pointBackgroundColor:C.green,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
+  // New monthly line
+  chs.newmo=new Chart(document.getElementById('ch-newmo'),{type:'line',data:{labels:D.months.slice(1),datasets:[{label:'חברים חדשים',data:D.newM.slice(1),borderColor:C.purple,backgroundColor:C.purple+'22',tension:0.4,fill:true,pointBackgroundColor:C.purple,pointRadius:5,pointHoverRadius:7}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr,beginAtZero:true}}}});
 
-  // Revenue stacked page
+  // Revenue stacked (revenue page)
   chs.revStack=new Chart(document.getElementById('ch-rev-stack'),{type:'bar',data:{labels:D.months,datasets:[
-    {label:'קארדקום',data:D.cardcom,backgroundColor:C.indigo+'cc',borderRadius:4},
+    {label:'קארדקום',data:D.cardcom,backgroundColor:C.purple+'cc',borderRadius:4},
     {label:'יופי',data:D.yofi,backgroundColor:C.cyan+'cc',borderRadius:4},
-    {label:'סה"כ',data:D.combined,type:'line',borderColor:C.yellow,backgroundColor:'transparent',tension:0.4,pointBackgroundColor:C.yellow,pointRadius:4,borderWidth:2}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:8,padding:12}},tooltip:ttILS},scales:{x:{stacked:true,grid:gr},y:{stacked:false,grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
+    {label:'סה"כ',data:D.combined,type:'line',borderColor:C.yellow,backgroundColor:'transparent',tension:0.4,pointBackgroundColor:C.yellow,pointRadius:5,borderWidth:2.5}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10,padding:14,usePointStyle:true}},tooltip:ttILS},scales:{x:{stacked:true,grid:gr},y:{stacked:false,grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
 
   // Revenue split donut
-  chs.split=new Chart(document.getElementById('ch-split'),{type:'doughnut',data:{labels:['קארדקום','יופי'],datasets:[{data:[41833,99261],backgroundColor:[C.indigo+'dd',C.cyan+'dd'],borderWidth:0,hoverOffset:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>` ${c.label}: ₪${c.parsed.toLocaleString()}`}}}}});
+  chs.split=new Chart(document.getElementById('ch-split'),{type:'doughnut',data:{labels:['קארדקום','יופי'],datasets:[{data:[41833,99261],backgroundColor:[C.purple,C.cyan],borderWidth:3,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>` ${c.label}: ₪${c.parsed.toLocaleString()}`}}}}});
 
-  // Weekly revenue
-  chs.weeklyRev=new Chart(document.getElementById('ch-weekly-rev'),{type:'line',data:{labels:D.weekly.labels,datasets:[{label:'הכנסות',data:D.weekly.rev,borderColor:C.indigo,backgroundColor:C.indigo+'22',tension:0.4,fill:true,pointBackgroundColor:C.indigo,pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttILS},scales:{x:{grid:gr},y:{grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(1)+'K'}}}}});
+  // Weekly revenue line
+  chs.weeklyRev=new Chart(document.getElementById('ch-weekly-rev'),{type:'line',data:{labels:D.weekly.labels,datasets:[{label:'הכנסות',data:D.weekly.rev,borderColor:C.purple,backgroundColor:C.purple+'22',tension:0.4,fill:true,pointBackgroundColor:C.purple,pointRadius:5,pointHoverRadius:7}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttILS},scales:{x:{grid:gr},y:{grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(1)+'K'}}}}});
 
   // Products bar
-  const pColors=[C.indigo,C.cyan,C.green,C.purple,C.yellow,C.pink,C.red,C.indigo+'99',C.cyan+'99'];
-  chs.prods=new Chart(document.getElementById('ch-prods'),{type:'bar',data:{labels:D.prods.labels,datasets:[{label:'כמות עסקאות',data:D.prods.counts,backgroundColor:pColors.map(c=>c+'dd'),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
+  const pColors=[C.purple,C.blue,C.green,C.orange,C.pink,C.cyan,C.red,C.purple+'99',C.cyan+'99'];
+  chs.prods=new Chart(document.getElementById('ch-prods'),{type:'bar',data:{labels:D.prods.labels,datasets:[{label:'כמות',data:D.prods.counts,backgroundColor:pColors,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
 
-  // DOW new members
-  chs.dowNew=new Chart(document.getElementById('ch-dow-new'),{type:'bar',data:{labels:D.dow.labels,datasets:[{label:'חברים חדשים',data:D.dow.new,backgroundColor:D.dow.new.map(v=>`rgba(99,102,241,${.25+v/Math.max(...D.dow.new)*.75})`),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
+  // DOW new
+  chs.dowNew=new Chart(document.getElementById('ch-dow-new'),{type:'bar',data:{labels:D.dow.labels,datasets:[{label:'חברים חדשים',data:D.dow.new,backgroundColor:D.dow.new.map(v=>{const r=v/Math.max(...D.dow.new);return `rgba(124,58,237,${.25+r*.75})`;}),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
 
   // DOW revenue
-  chs.dowRev=new Chart(document.getElementById('ch-dow-rev'),{type:'bar',data:{labels:D.dow.labels,datasets:[{label:'הכנסות',data:D.dow.rev,backgroundColor:D.dow.rev.map(v=>`rgba(6,182,212,${.25+v/Math.max(...D.dow.rev)*.75})`),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttILS},scales:{x:{grid:gr},y:{grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
+  chs.dowRev=new Chart(document.getElementById('ch-dow-rev'),{type:'bar',data:{labels:D.dow.labels,datasets:[{label:'הכנסות',data:D.dow.rev,backgroundColor:D.dow.rev.map(v=>{const r=v/Math.max(...D.dow.rev);return `rgba(8,145,178,${.25+r*.75})`;}),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttILS},scales:{x:{grid:gr},y:{grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
 
-  // Weekly new
+  // Weekly grouped
   chs.wkNew=new Chart(document.getElementById('ch-wk-new'),{type:'bar',data:{labels:D.weekly.labels,datasets:[
     {label:'חדשים',data:D.weekly.newM,backgroundColor:C.green+'cc',borderRadius:4},
-    {label:'חידושים',data:D.weekly.rec,backgroundColor:C.indigo+'cc',borderRadius:4}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:8,padding:10}},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
+    {label:'חידושים',data:D.weekly.rec,backgroundColor:C.purple+'cc',borderRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,usePointStyle:true}},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
 }
 
 // ── HEATMAP ──
-function buildHeatmap(){
-  const el=document.getElementById('hm');
-  const {weeks,days,data}=D.hm;
-  const maxV=Math.max(...data.flat());
+function buildHeatmap(hmData){
+  const el=document.getElementById('hm');if(!el)return;
+  const {weeks,days,data}=hmData||D.hm;
+  const maxV=Math.max(1,...data.flat());
   el.innerHTML='<div></div>'+days.map(d=>`<div class="hm-hdr">${d}</div>`).join('');
   weeks.forEach((w,wi)=>{
     el.innerHTML+=`<div class="hm-lbl">${w}</div>`;
     days.forEach((_,di)=>{
-      const v=data[wi][di];
-      const r=v/maxV;
-      const bg=`rgba(99,102,241,${.12+r*.88})`;
-      const fc=r>.5?'#fff':'#94a3b8';
-      el.innerHTML+=`<div class="hm-cell" style="background:${bg};color:${fc}" title="${w} ${days[di]}: ${v}">${v}</div>`;
+      const v=data[wi][di];const r=v/maxV;
+      const alpha=.1+r*.9;
+      const bg=`rgba(124,58,237,${alpha})`;
+      const fc=r>.45?'#fff':'#5b21b6';
+      el.innerHTML+=`<div class="hm-cell" style="background:${bg};color:${fc}" title="${v} חברים חדשים">${v||''}</div>`;
     });
   });
 }
@@ -624,7 +844,7 @@ function buildHeatmap(){
 const TITLES={overview:'סקירה כללית',members:'חברים ושחיקה',revenue:'הכנסות ו-MRR',products:'מוצרים ומכירות',acquisition:'גיוס ו-CAC','members-list':'רשימת חברים'};
 function go(id,btn){
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
   document.getElementById('pg-'+id).classList.add('active');
   btn.classList.add('active');
   document.getElementById('pg-title').textContent=TITLES[id];
@@ -635,15 +855,12 @@ function go(id,btn){
 function setTF(tf,btn){
   document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const map={m:{rev:'₪16,617',act:'285',mrr:'₪11,565'},w:{rev:'₪1,541',act:'285',mrr:'₪11,565'},a:{rev:'₪141,094',act:'285',mrr:'₪138,780'}};
-  const v=map[tf];
-  document.getElementById('k-rev').textContent=v.rev;
-  document.getElementById('k-act').textContent=v.act;
-  document.getElementById('k-mrr').textContent=v.mrr;
+  const m={m:{rev:'₪16,617',mrr:'₪11,565',eom:'₪57,236'},w:{rev:'₪1,541',mrr:'₪11,565',eom:'—'},a:{rev:'₪141,094',mrr:'₪138,780',eom:'—'}};
+  const v=m[tf];
+  const s=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val;};
+  s('k-rev',v.rev);s('k-mrr',v.mrr);s('k-eom',v.eom);
 }
 
-
-// ── MEMBER LIST DATA ──
 const MEMBERS = [{"n":"נאוה חביב","e":"navnuv1997@gmail.com","ph":"0536221967","f":"2026-03-04","l":"2026-04-04","lt":31,"rev":57,"pay":2,"s":"active","ds":35,"ea":10,"la":47},
 {"n":"דותן אלינור","e":"elinor.dotan@gmail.com","ph":"0522212116","f":"2026-03-04","l":"2026-04-04","lt":31,"rev":57,"pay":2,"s":"active","ds":35,"ea":10,"la":47},
 {"n":"אתי לזרי","e":"ettyln@gmail.com","ph":"0503939773","f":"2026-04-04","l":"2026-04-04","lt":1,"rev":69,"pay":1,"s":"active","ds":35,"ea":69,"la":69},
@@ -1086,104 +1303,75 @@ const MEMBERS = [{"n":"נאוה חביב","e":"navnuv1997@gmail.com","ph":"05362
 {"n":"קרן ברנד","e":"karnuna2@gmail.com","ph":"0547923477","f":"2026-03-03","l":"2026-04-03","lt":31,"rev":57,"pay":2,"s":"churned","ds":36,"ea":10,"la":47},
 {"n":"אולגה איסייב","e":"olgash1988@gmail.com","ph":"0543285494","f":"2026-04-03","l":"2026-04-03","lt":1,"rev":10,"pay":1,"s":"churned","ds":36,"ea":10,"la":10}];
 
-let mlFilter = 'all';
-let mlCurrentPage = 1;
-const ML_PER_PAGE = 50;
+let mlFilter='all',mlCurrentPage=1;
+const ML_PER_PAGE=50;
 
-function filterMembers(f, btn) {
-  mlFilter = f;
-  mlCurrentPage = 1;
-  document.querySelectorAll('#mf-all,#mf-active,#mf-churned').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderMembers();
+function filterMembers(f,btn){
+  mlFilter=f;mlCurrentPage=1;
+  document.querySelectorAll('#mf-all,#mf-active,#mf-churned').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderMembers();
 }
 
-function renderMembers() {
-  const search = (document.getElementById('ml-search')?.value || '').toLowerCase();
-  const sort = document.getElementById('ml-sort')?.value || 'last-desc';
-
-  let list = MEMBERS.filter(m => {
-    if (mlFilter === 'active' && m.s !== 'active') return false;
-    if (mlFilter === 'churned' && m.s !== 'churned') return false;
-    if (search) {
-      const hay = (m.n + m.e + m.ph).toLowerCase();
-      if (!hay.includes(search)) return false;
-    }
+function renderMembers(){
+  const search=(document.getElementById('ml-search')?.value||'').toLowerCase();
+  const sort=document.getElementById('ml-sort')?.value||'last-desc';
+  let list=MEMBERS.filter(m=>{
+    if(mlFilter==='active'&&m.s!=='active')return false;
+    if(mlFilter==='churned'&&m.s!=='churned')return false;
+    if(search&&!(m.n+m.e+m.ph).toLowerCase().includes(search))return false;
     return true;
   });
-
-  // Sort
-  list.sort((a, b) => {
-    if (sort === 'last-desc') return b.l.localeCompare(a.l);
-    if (sort === 'last-asc') return a.l.localeCompare(b.l);
-    if (sort === 'rev-desc') return b.rev - a.rev;
-    if (sort === 'lt-desc') return b.lt - a.lt;
-    if (sort === 'pay-desc') return b.pay - a.pay;
+  list.sort((a,b)=>{
+    if(sort==='last-desc')return b.l.localeCompare(a.l);
+    if(sort==='last-asc')return a.l.localeCompare(b.l);
+    if(sort==='rev-desc')return b.rev-a.rev;
+    if(sort==='lt-desc')return b.lt-a.lt;
+    if(sort==='pay-desc')return b.pay-a.pay;
     return 0;
   });
-
-  const total = list.length;
-  const totalPages = Math.ceil(total / ML_PER_PAGE);
-  mlCurrentPage = Math.min(mlCurrentPage, Math.max(1, totalPages));
-  const start = (mlCurrentPage - 1) * ML_PER_PAGE;
-  const page = list.slice(start, start + ML_PER_PAGE);
-
-  // Update KPI
-  const active = MEMBERS.filter(m => m.s === 'active').length;
-  const churned = MEMBERS.filter(m => m.s === 'churned').length;
-  const totalRev = MEMBERS.reduce((s, m) => s + m.rev, 0);
-  const e1 = document.getElementById('ml-active-count');
-  const e2 = document.getElementById('ml-churned-count');
-  const e3 = document.getElementById('ml-rev-total');
-  if (e1) e1.textContent = active;
-  if (e2) e2.textContent = churned;
-  if (e3) e3.textContent = '₪' + totalRev.toLocaleString();
-
-  // Render rows
-  const tbody = document.getElementById('ml-tbody');
-  if (!tbody) return;
-  tbody.innerHTML = page.map((m, i) => {
-    const isActive = m.s === 'active';
-    const statusPill = isActive
-      ? '<span class="pill pg">פעיל</span>'
-      : '<span class="pill pr">עזב</span>';
-    const revColor = m.rev >= 100 ? '#10b981' : m.rev < 47 ? '#ef4444' : '#e8edf5';
-    const ltColor = m.lt > 30 ? '#10b981' : m.lt < 5 ? '#ef4444' : '#f59e0b';
-    const dsStyle = !isActive && m.ds > 60 ? 'color:#ef4444' : '';
-    return \`<tr>
-      <td style="color:var(--muted);font-family:var(--mono);padding-right:16px;">\${start + i + 1}</td>
-      <td style="font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="\${m.e}">\${m.n || '—'}</td>
-      <td>\${statusPill}</td>
-      <td style="font-family:var(--mono);font-size:10px;">\${m.f}</td>
-      <td style="font-family:var(--mono);font-size:10px;">\${m.l}</td>
-      <td style="font-family:var(--mono);color:\${ltColor}">\${m.lt}</td>
-      <td style="font-family:var(--mono);">\${m.pay}</td>
-      <td style="font-family:var(--mono);font-weight:700;color:\${revColor};">₪\${m.rev.toLocaleString()}</td>
-      <td style="font-family:var(--mono);\${dsStyle}">\${m.ds}d</td>
-      <td style="font-size:10px;color:var(--muted);">\${m.ph || '—'}</td>
-    </tr>\`;
+  const total=list.length;
+  const totalPages=Math.ceil(total/ML_PER_PAGE);
+  mlCurrentPage=Math.min(mlCurrentPage,Math.max(1,totalPages));
+  const start=(mlCurrentPage-1)*ML_PER_PAGE;
+  const page=list.slice(start,start+ML_PER_PAGE);
+  const active=MEMBERS.filter(m=>m.s==='active').length;
+  const churned=MEMBERS.filter(m=>m.s==='churned').length;
+  const totalRev=MEMBERS.reduce((s,m)=>s+m.rev,0);
+  const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  s('ml-active-count',active);s('ml-churned-count',churned);s('ml-rev-total','₪'+totalRev.toLocaleString());
+  const tbody=document.getElementById('ml-tbody');if(!tbody)return;
+  tbody.innerHTML=page.map((m,i)=>{
+    const isActive=m.s==='active';
+    const pill=isActive?'<span class="pill pg">פעיל</span>':'<span class="pill pr">עזב</span>';
+    const rc=m.rev>=100?'#059669':m.rev<47?'#dc2626':C.muted;
+    return `<tr>
+      <td style="color:var(--muted);padding-right:20px">${start+i+1}</td>
+      <td style="font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m.e}">${m.n||'—'}</td>
+      <td>${pill}</td>
+      <td style="font-size:11px;color:var(--muted)">${m.f}</td>
+      <td style="font-size:11px;color:var(--muted)">${m.l}</td>
+      <td style="font-weight:600;color:${m.lt>30?C.green:m.lt<5?C.red:C.orange}">${m.lt}</td>
+      <td>${m.pay}</td>
+      <td style="font-weight:700;color:${rc}">₪${m.rev.toLocaleString()}</td>
+      <td style="color:${!isActive&&m.ds>60?C.red:C.muted}">${m.ds}d</td>
+      <td style="font-size:11px;color:var(--muted)">${m.ph||'—'}</td>
+    </tr>`;
   }).join('');
-
-  // Pagination info
-  const countLabel = document.getElementById('ml-count-label');
-  const pageInfo = document.getElementById('ml-page-info');
-  if (countLabel) countLabel.textContent = \`מציג \${start+1}–\${Math.min(start+ML_PER_PAGE, total)} מתוך \${total} חברים\`;
-  if (pageInfo) pageInfo.textContent = \`עמוד \${mlCurrentPage} / \${totalPages}\`;
+  s('ml-count-label',`מציג ${start+1}–${Math.min(start+ML_PER_PAGE,total)} מתוך ${total}`);
+  s('ml-page-info',`עמוד ${mlCurrentPage} / ${totalPages}`);
 }
 
-function mlPage(dir) {
-  const search = (document.getElementById('ml-search')?.value || '').toLowerCase();
-  let list = MEMBERS.filter(m => {
-    if (mlFilter === 'active' && m.s !== 'active') return false;
-    if (mlFilter === 'churned' && m.s !== 'churned') return false;
-    if (search) return (m.n + m.e + m.ph).toLowerCase().includes(search);
+function mlPage(dir){
+  const search=(document.getElementById('ml-search')?.value||'').toLowerCase();
+  let list=MEMBERS.filter(m=>{
+    if(mlFilter==='active'&&m.s!=='active')return false;
+    if(mlFilter==='churned'&&m.s!=='churned')return false;
+    if(search)return(m.n+m.e+m.ph).toLowerCase().includes(search);
     return true;
   });
-  const totalPages = Math.ceil(list.length / ML_PER_PAGE);
-  mlCurrentPage = Math.max(1, Math.min(totalPages, mlCurrentPage + dir));
+  mlCurrentPage=Math.max(1,Math.min(Math.ceil(list.length/ML_PER_PAGE),mlCurrentPage+dir));
   renderMembers();
 }
-
 
 // ═══════════════════════════════════════════
 //  LIVE CARDCOM FETCH SYSTEM
@@ -1673,8 +1861,15 @@ function showFallbackData() {
   });
 }
 
+
+
 // ── BOOT ──
-document.addEventListener('DOMContentLoaded',()=>{initCharts();buildHeatmap();setTimeout(renderMembers,100);fetchCardcomData();});
+document.addEventListener('DOMContentLoaded',()=>{
+  initCharts();
+  buildHeatmap();
+  setTimeout(renderMembers,100);
+  fetchCardcomData();
+});
 </script>
 </body>
 </html>
