@@ -1316,6 +1316,26 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
 </div>
 
 <script>
+// ── GLOBAL DATE CONSTANTS (available to all functions) ──
+const TODAY = new Date();
+const TODAY_DAY   = TODAY.getDate();
+const TODAY_YEAR  = TODAY.getFullYear();
+const TODAY_MONTH = TODAY.getMonth(); // 0-indexed
+
+function _localMonthStr(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+function _prevMonthStr(d) {
+  const m = d.getMonth();
+  return m === 0
+    ? (d.getFullYear()-1) + '-12'
+    : d.getFullYear() + '-' + String(m).padStart(2,'0');
+}
+
+const CURRENT_MONTH_GLOBAL = _localMonthStr(TODAY);
+const PREV_MONTH_GLOBAL    = _prevMonthStr(TODAY);
+const DAYS_IN_MONTH_GLOBAL = new Date(TODAY_YEAR, TODAY_MONTH+1, 0).getDate();
+
 // ── STATIC DATA ──
 const D = {
   months:['ינואר','פברואר','מרץ','אפריל','מאי'],
@@ -2079,6 +2099,8 @@ const YOFI_TX = [
 
 // ── PROCESS TRANSACTIONS ──
 function processTransactions(txns) {
+  // Safe _today reference — global defined at module scope
+  const _today = (typeof TODAY !== "undefined") ? _today : new Date();
   const valid = txns.filter(t => !t.IsRefund && t.Amount > 1);
 
   // Member lifecycle
@@ -2096,7 +2118,7 @@ function processTransactions(txns) {
     const firstDt = new Date(first.CreateDate);
     const lastDt = new Date(last.CreateDate);
     const lifeDays = Math.max(1, Math.round((lastDt-firstDt)/(1000*60*60*24))+1);
-    const daysSince = Math.round((TODAY-lastDt)/(1000*60*60*24));
+    const daysSince = Math.round((_today-lastDt)/(1000*60*60*24));
     const isActive = daysSince <= 35;
     return {
       n: m.name||'—', e: m.email||'', ph: m.phone||'',
@@ -2122,7 +2144,7 @@ function processTransactions(txns) {
   }
 
   // MTD stats
-  const mtdTxns = valid.filter(t => t.CreateDate.startsWith(CURRENT_MONTH));
+  const mtdTxns = valid.filter(t => t.CreateDate.startsWith(CURRENT_MONTH_GLOBAL));
   const mtdRev = mtdTxns.reduce((s,t) => s+t.Amount, 0);
   const mtdNew = mtdTxns.filter(t => t.Amount===10).length;
   const mtdRecurring = mtdTxns.filter(t => RECURRING_AMOUNTS.has(t.Amount)).length;
@@ -2185,7 +2207,7 @@ function processTransactions(txns) {
   }
 
   // Yofi combined
-  const yofiMTD = YOFI_TX.filter(y => y.date.startsWith(CURRENT_MONTH)).reduce((s,y) => s+y.amount, 0);
+  const yofiMTD = YOFI_TX.filter(y => y.date.startsWith(CURRENT_MONTH_GLOBAL)).reduce((s,y) => s+y.amount, 0);
   const yofiYTD = YOFI_TX.reduce((s,y) => s+y.amount, 0);
 
   // Monthly combined for charts
@@ -2201,7 +2223,7 @@ function processTransactions(txns) {
 
   // New members list for member tab
   const newMembersThisMonth = valid
-    .filter(t => t.Amount===10 && t.CreateDate.startsWith(CURRENT_MONTH))
+    .filter(t => t.Amount===10 && t.CreateDate.startsWith(CURRENT_MONTH_GLOBAL))
     .map(t => ({name: t.CardOwnerName, date: t.CreateDate.slice(0,10)}));
 
   return {
@@ -2245,8 +2267,8 @@ function buildHeatmapData(txns) {
     const weekData = [];
     const weekLabel = `W-${w}`;
     for (let d=0; d<7; d++) {
-      const dt = new Date(TODAY);
-      dt.setDate(TODAY.getDate() - (w*7) - (TODAY.getDay()-d+7)%7);
+      const dt = new Date(_today);
+      dt.setDate(_today.getDate() - (w*7) - (_today.getDay()-d+7)%7);
       const key = dt.toISOString().slice(0,10);
       weekData.push(dayMap[key]||0);
     }
