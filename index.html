@@ -1910,12 +1910,11 @@ function mlPage(dir){
 //  Credentials: Terminal 141682
 // ═══════════════════════════════════════════
 
-const CARDCOM_API = "https://secure.cardcom.solutions/api/v11/Transactions/ListTransactions";
-const CARDCOM_CREDS = {
-  ApiName: "ecmZEnSnDHMOdfaOGqco",
-  ApiPassword: "6c94Dyc2Sdok2qs3t27l",
-  TerminalNumber: "141682"
-};
+// Make webhook proxy — routes to Cardcom server-side, returns CORS-safe JSON
+// Scenario 5172543 "SSC Dashboard - Live Cardcom Data"
+const MAKE_WEBHOOK_PAGE1 = "https://hook.eu1.make.com/v4s0rnwo4sm1a4rizz7ktm23ez9if5j4";
+// Scenario 5172561 "SSC Dashboard - Claude AI Proxy" for page 2
+const MAKE_WEBHOOK_PAGE2 = "https://hook.eu1.make.com/wt5ixzkovgjb848yj3lihri7l2e8ghol";
 
 // Today and year start for dynamic date ranges
 function getDateStr(d) {
@@ -2191,54 +2190,86 @@ function buildHeatmapData(txns) {
 }
 
 // ── FETCH FROM CARDCOM ──
-async function fetchCardcomData() {
+ async function fetchCardcomData() {
   showLoadingState();
-  
-  try {
-    // Fetch YTD (page 1)
-    const body1 = JSON.stringify({
-      ApiName: CARDCOM_CREDS.ApiName,
-      ApiPassword: CARDCOM_CREDS.ApiPassword,
-      FromDate: YEAR_START_STR,
-      ToDate: TODAY_STR,
-      Page: "1",
-      Page_size: "500"
+
+  // Make webhook proxies to Cardcom server-side (CORS-safe)
+  // Scenario 5172543: SSC Dashboard - Live Cardcom Data
+  const WEBHOOK = "https://hook.eu1.make.com/v4s0rnwo4sm1a4rizz7ktm23ez9if5j4";
+
+  function dateStr(d) {
+    // Cardcom format: DDMMYYYY
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    return dd + mm + d.getFullYear();
+  }
+
+  const now = new Date();
+  const toDate = dateStr(now);
+
+  // Fetch 2 windows in parallel:
+  // Window A: Start of year → end of previous month (YTD history for charts/cohorts)
+  // Window B: Start of previous month → today (live member data, always fresh)
+  const yearStart = new Date(now.getFullYear(), 0, 1);
+  const prevMonthStart = new Date(now.getFullYear(), now.getMonth()-1, 1);
+
+  async function fetchWindow(fromDate, page) {
+    const r = await fetch(WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fromDate, toDate, page: String(page), pageSize: "500" })
     });
+    if (!r.ok) throw new Error(`Webhook error: ${r.status}`);
+    const d = await r.json();
+    return d?.Tranzactions || d?.data?.Tranzactions || [];
+  }
 
-    const [r1, r2] = await Promise.all([
-      fetch(CARDCOM_API, {method:'POST', headers:{'Content-Type':'application/json'}, body: body1}),
-      fetch(CARDCOM_API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
-        ApiName: CARDCOM_CREDS.ApiName,
-        ApiPassword: CARDCOM_CREDS.ApiPassword,
-        FromDate: YEAR_START_STR,
-        ToDate: TODAY_STR,
-        Page: "2",
-        Page_size: "500"
-      })})
-    ]);
+  try {
+    // Fetch prev month → today (member logic window) — always fits in 500
+    const recent = await fetchWindow(dateStr(prevMonthStart), 1);
+    console.log(`Cardcom recent (prev month→today): ${recent.length} txns`);
 
-    const [d1, d2] = await Promise.all([r1.json(), r2.json()]);
-    
-    const allTxns = [...(d1.Tranzactions||[]), ...(d2.Tranzactions||[])];
-    
-    // Deduplicate by TranzactionId
+    // Fetch start of year → prev month start (history for YTD charts)
+    const history = await fetchWindow(dateStr(yearStart), 1);
+    console.log(`Cardcom history (YTD page 1): ${history.length} txns`);
+
+    // If history is full, get page 2
+    let history2 = [];
+    if (history.length >= 500) {
+      history2 = await fetchWindow(dateStr(yearStart), 2);
+      console.log(`Cardcom history page 2: ${history2.length} txns`);
+    }
+
+    // Combine all, deduplicate
+    const all = [...history, ...history2, ...recent];
     const seen = new Set();
-    const unique = allTxns.filter(t => {
-      if (seen.has(t.TranzactionId)) return false;
+    const unique = all.filter(t => {
+      if (!t.TranzactionId || seen.has(t.TranzactionId)) return false;
       seen.add(t.TranzactionId);
       return true;
     });
 
+    console.log(`Cardcom total unique: ${unique.length} transactions`);
+
+    if (unique.length === 0) {
+      console.warn('No transactions returned from webhook');
+      showFallbackData();
+      return;
+    }
+
     const computed = processTransactions(unique);
+    updateDateLabels();
     updateDashboard(computed);
     updateMemberList(computed.members);
     updateLastRefresh();
-    
+
   } catch(err) {
-    console.error('Cardcom fetch failed:', err);
+    console.error('Cardcom fetch failed:', err.message);
     showFallbackData();
   }
 }
+
+
 
 function showLoadingState() {
   const loadEls = ['k-rev','k-act','k-mrr','k-eom','k-churn','k-renew','k-ytd','k-ltv'];
