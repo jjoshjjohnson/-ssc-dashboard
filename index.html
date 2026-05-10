@@ -260,6 +260,7 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <button class="sb-item" onclick="go('acquisition',this)"><div class="sb-icon">🎯</div>גיוס ו-CAC</button>
     <div class="sb-section">נתונים</div>
     <button class="sb-item" onclick="go('members-list',this)"><div class="sb-icon">📋</div>רשימת חברים</button>
+    <button class="sb-item" onclick="go('cohorts',this)"><div class="sb-icon">🔬</div>ניתוח קוהורטים</button>
   </nav>
   <div class="sb-footer">
     <div class="sb-live"><div class="sb-live-dot"></div><span id="last-refresh">טוען נתונים...</span></div>
@@ -828,6 +829,95 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
 
 </div><!-- /members-list -->
 
+
+
+<!-- ══════════════ COHORTS ══════════════ -->
+<div class="page" id="pg-cohorts">
+
+  <div class="kpi-row kpi-row-3">
+    <div class="kpi purple">
+      <div class="kpi-top"><div class="kpi-ico">🔬</div><span class="kpi-badge">כל הזמנים</span></div>
+      <div class="kpi-lbl">סה"כ ניסיונות (₪10)</div>
+      <div class="kpi-val" id="co-total-trials">253</div>
+      <div class="kpi-sub">כל החברים שהצטרפו</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-top"><div class="kpi-ico">✅</div><span class="kpi-badge">58.1%</span></div>
+      <div class="kpi-lbl">המירו לחוזר</div>
+      <div class="kpi-val" id="co-total-conv">147</div>
+      <div class="kpi-sub">שילמו ₪47 בחודש שלאחר מכן</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-top"><div class="kpi-ico">💨</div><span class="kpi-badge">41.9%</span></div>
+      <div class="kpi-lbl">נטשו אחרי Trial</div>
+      <div class="kpi-val" id="co-total-churn">106</div>
+      <div class="kpi-sub">לא המירו בחודש הבא</div>
+    </div>
+  </div>
+
+  <!-- COHORT CONVERSION TABLE -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-hd">
+      <div><div class="card-title">המרה לפי קוהורט — חודש הצטרפות</div><div class="card-sub">כמה מה-₪10 שילמו ₪47 בחודש שלאחר מכן</div></div>
+    </div>
+    <table class="dt">
+      <thead>
+        <tr>
+          <th>חודש הצטרפות</th>
+          <th>הצטרפו</th>
+          <th>המירו</th>
+          <th>נטשו</th>
+          <th>שיעור המרה</th>
+          <th>ויזואלי</th>
+        </tr>
+      </thead>
+      <tbody id="co-cohort-table">
+        <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">טוען נתונים...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- APRIL COHORT DAILY BREAKDOWN -->
+  <div class="card">
+    <div class="card-hd">
+      <div>
+        <div class="card-title">קוהורט אפריל — פירוט יומי</div>
+        <div class="card-sub">45 חברים שהצטרפו באפריל · מועד חידוש = אותו יום בחודש מאי</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="card-badge badge-green" id="co-apr-conv-badge">5 המירו</span>
+        <span class="card-badge badge-red" id="co-apr-churn-badge">7 נטשו</span>
+        <span class="card-badge badge-blue" id="co-apr-pend-badge">33 ממתין</span>
+      </div>
+    </div>
+
+    <!-- Filter buttons -->
+    <div style="display:flex;gap:6px;margin-bottom:14px">
+      <button class="filter-btn active" onclick="filterCohort('all',this)" style="background:var(--purple);color:#fff;padding:5px 14px;border-radius:999px;border:none;font-size:11px;font-weight:600;cursor:pointer">הכל</button>
+      <button class="filter-btn" onclick="filterCohort('converted',this)" style="background:#d1fae5;color:#065f46;padding:5px 14px;border-radius:999px;border:none;font-size:11px;font-weight:600;cursor:pointer">✅ המירו</button>
+      <button class="filter-btn" onclick="filterCohort('churned',this)" style="background:#fee2e2;color:#991b1b;padding:5px 14px;border-radius:999px;border:none;font-size:11px;font-weight:600;cursor:pointer">🔴 נטשו</button>
+      <button class="filter-btn" onclick="filterCohort('pending',this)" style="background:#dbeafe;color:#1e40af;padding:5px 14px;border-radius:999px;border:none;font-size:11px;font-weight:600;cursor:pointer">⏳ ממתין</button>
+    </div>
+
+    <table class="dt" id="co-apr-table">
+      <thead>
+        <tr>
+          <th>שם</th>
+          <th>הצטרף</th>
+          <th>יום הצטרפות</th>
+          <th>מועד חידוש</th>
+          <th>סטטוס</th>
+          <th>הכנסה</th>
+        </tr>
+      </thead>
+      <tbody id="co-apr-tbody">
+        <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">טוען...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /cohorts -->
+
 </main>
 </div>
 
@@ -936,7 +1026,7 @@ function buildHeatmap(hmData){
 }
 
 // ── NAVIGATION ──
-const TITLES={overview:'סקירה כללית',members:'חברים ושחיקה',revenue:'הכנסות ו-MRR',products:'מוצרים ומכירות',acquisition:'גיוס ו-CAC','members-list':'רשימת חברים'};
+const TITLES={overview:'סקירה כללית',members:'חברים ושחיקה',revenue:'הכנסות ו-MRR',products:'מוצרים ומכירות',acquisition:'גיוס ו-CAC','members-list':'רשימת חברים',cohorts:'ניתוח קוהורטים'};
 function go(id,btn){
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
@@ -1860,6 +1950,7 @@ function updateDashboard(c) {
   // Rebuild charts with live data
   rebuildCharts(c);
   updateRecurringWidget(c);
+  updateCohorts(c.txns);
 }
 
 function rebuildCharts(c) {
@@ -2107,6 +2198,182 @@ function updateRecurringWidget(c) {
   s('dl-new', newMembers.length);
   s('m-active', totalActive);
   s('ml-active-count', totalActive);
+}
+
+
+// ══ COHORT ANALYSIS ══
+let cohortData = null;
+let cohortFilter = 'all';
+
+function buildCohortData(txns) {
+  const RECURRING = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
+  const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+  const todayDay = TODAY.getDate();
+  const CURR_MONTH = TODAY.toISOString().slice(0,7);
+
+  // Build member map
+  const mmap = {};
+  for (const t of [...txns].sort((a,b) => a.CreateDate.localeCompare(b.CreateDate))) {
+    const key = t.Token || t.CardOwnerEmail || t.CardOwnerPhone;
+    if (!key) continue;
+    if (!mmap[key]) mmap[key] = { name: t.CardOwnerName || '—', pays: [] };
+    mmap[key].pays.push(t);
+  }
+
+  function nextMonth(y, m) { return m === 12 ? [y+1, 1] : [y, m+1]; }
+  function monthStr(y, m) { return `${y}-${String(m).padStart(2,'0')}`; }
+
+  // Build cohorts — group by month of first ₪10 payment
+  const cohorts = {};
+  for (const [token, m] of Object.entries(mmap)) {
+    const trials = m.pays.filter(t => t.Amount === 10);
+    if (!trials.length) continue;
+    const first = trials.reduce((a,b) => a.CreateDate < b.CreateDate ? a : b);
+    const joinDt = new Date(first.CreateDate);
+    const joinMonth = monthStr(joinDt.getFullYear(), joinDt.getMonth()+1);
+    const joinDay = joinDt.getDate();
+    const [ny, nm] = nextMonth(joinDt.getFullYear(), joinDt.getMonth()+1);
+    const renewalMonth = monthStr(ny, nm);
+
+    // Did they pay recurring in renewal month?
+    const renewalPays = m.pays.filter(t =>
+      t.CreateDate.startsWith(renewalMonth) && RECURRING.has(t.Amount)
+    );
+    const converted = renewalPays.length > 0;
+    const renewalPay = converted ? renewalPays.reduce((a,b) => a.CreateDate > b.CreateDate ? a : b) : null;
+
+    // Status for current display
+    let status;
+    if (renewalMonth > CURR_MONTH) {
+      // Renewal month hasn't come yet
+      status = 'future';
+    } else if (converted) {
+      status = 'converted';
+    } else if (renewalMonth === CURR_MONTH) {
+      // Renewal is this month — overdue only if day has passed AND month not over
+      const daysInMonth = new Date(TODAY.getFullYear(), TODAY.getMonth()+1, 0).getDate();
+      const isMonthEnd = todayDay >= daysInMonth;
+      if (joinDay <= todayDay && !isMonthEnd) status = 'late';
+      else if (isMonthEnd) status = 'churned';
+      else status = 'pending';
+    } else {
+      // Renewal month is in the past and not converted = churned
+      status = 'churned';
+    }
+
+    if (!cohorts[joinMonth]) cohorts[joinMonth] = [];
+    cohorts[joinMonth].push({
+      token, name: m.name,
+      joinDate: first.CreateDate.slice(0,10),
+      joinDay, joinMonth, renewalMonth,
+      converted, status,
+      revenue: renewalPay ? renewalPay.Amount : 0,
+    });
+  }
+
+  return cohorts;
+}
+
+function renderCohortTable(cohorts) {
+  const tbody = document.getElementById('co-cohort-table');
+  if (!tbody) return;
+
+  const months = Object.keys(cohorts).sort();
+  const MONTH_NAMES = {
+    '2026-01':'ינואר','2026-02':'פברואר','2026-03':'מרץ',
+    '2026-04':'אפריל','2026-05':'מאי','2026-06':'יוני',
+  };
+
+  let html = '';
+  let totalTrials = 0, totalConv = 0;
+  for (const month of months) {
+    const cohort = cohorts[month];
+    const conv = cohort.filter(m => m.converted).length;
+    const churn = cohort.filter(m => m.status === 'churned').length;
+    const pct = Math.round(conv / cohort.length * 100);
+    totalTrials += cohort.length;
+    totalConv += conv;
+
+    html += `<tr>
+      <td><strong>${MONTH_NAMES[month] || month}</strong></td>
+      <td>${cohort.length}</td>
+      <td><span class="pill pg">${conv}</span></td>
+      <td><span class="pill pr">${churn}</span></td>
+      <td style="font-weight:700;color:${pct>=70?'var(--green)':pct>=50?'var(--orange)':'var(--red)'}">${pct}%</td>
+      <td style="min-width:120px">
+        <div style="height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden">
+          <div style="height:100%;background:${pct>=70?'var(--green)':pct>=50?'var(--orange)':'var(--red)'};width:${pct}%;border-radius:999px"></div>
+        </div>
+      </td>
+    </tr>`;
+  }
+
+  tbody.innerHTML = html;
+
+  // Update KPIs
+  const s = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  s('co-total-trials', totalTrials);
+  s('co-total-conv', totalConv);
+  s('co-total-churn', totalTrials - totalConv);
+}
+
+function renderAprCohort(cohorts) {
+  const apr = (cohorts['2026-04'] || []).sort((a,b) => a.joinDay - b.joinDay);
+  const filtered = cohortFilter === 'all' ? apr
+    : cohortFilter === 'converted' ? apr.filter(m => m.converted)
+    : cohortFilter === 'churned' ? apr.filter(m => m.status === 'churned' || m.status === 'late')
+    : apr.filter(m => m.status === 'pending' || m.status === 'future');
+
+  const STATUS_MAP = {
+    converted: { label: '✅ המיר', color: 'var(--green)', bg: '#d1fae5' },
+    churned:   { label: '🔴 נטש', color: 'var(--red)',   bg: '#fee2e2' },
+    late:      { label: '⚠️ באיחור', color: 'var(--orange)', bg: '#ffedd5' },
+    pending:   { label: '⏳ ממתין', color: 'var(--blue)',  bg: '#dbeafe' },
+    future:    { label: '📅 עתידי', color: 'var(--muted)', bg: '#f3f4f6' },
+  };
+
+  const tbody = document.getElementById('co-apr-tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = filtered.map(m => {
+    const st = STATUS_MAP[m.status] || STATUS_MAP.pending;
+    const renewalDay = `${m.renewalMonth.slice(5)}-${String(m.joinDay).padStart(2,'0')}`;
+    const renewalLabel = `מאי ${String(m.joinDay).padStart(2,'0')}`;
+    return `<tr>
+      <td style="font-weight:600">${m.name}</td>
+      <td style="font-size:11px;color:var(--muted)">${m.joinDate}</td>
+      <td style="font-weight:700;color:var(--purple)">יום ${m.joinDay}</td>
+      <td style="font-size:11px">${renewalLabel}</td>
+      <td><span style="background:${st.bg};color:${st.color};padding:3px 10px;border-radius:999px;font-size:10px;font-weight:700">${st.label}</span></td>
+      <td style="font-weight:700;color:${m.revenue?'var(--green)':'var(--muted)'}">${m.revenue ? '₪'+m.revenue : '—'}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px">אין תוצאות</td></tr>';
+
+  // Update badges
+  const conv  = apr.filter(m => m.converted).length;
+  const churn = apr.filter(m => m.status === 'churned' || m.status === 'late').length;
+  const pend  = apr.filter(m => m.status === 'pending' || m.status === 'future').length;
+  const s = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  s('co-apr-conv-badge',  conv  + ' המירו');
+  s('co-apr-churn-badge', churn + ' נטשו');
+  s('co-apr-pend-badge',  pend  + ' ממתין');
+}
+
+function filterCohort(f, btn) {
+  cohortFilter = f;
+  document.querySelectorAll('#pg-cohorts .filter-btn').forEach(b => {
+    b.style.background = '';
+    b.style.color = 'var(--muted)';
+  });
+  btn.style.background = 'var(--purple)';
+  btn.style.color = '#fff';
+  if (cohortData) renderAprCohort(cohortData);
+}
+
+function updateCohorts(txns) {
+  cohortData = buildCohortData(txns);
+  renderCohortTable(cohortData);
+  renderAprCohort(cohortData);
 }
 
 // ── BOOT ──
