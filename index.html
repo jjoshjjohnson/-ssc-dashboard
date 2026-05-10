@@ -2054,7 +2054,29 @@ function buildHeatmapData(txns) {
         body: JSON.stringify({ fromDate, toDate })
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const d = await r.json();
+
+      // Make webhook may return: proper JSON, stringified JSON, or nested string
+      // Try all strategies
+      const text = await r.text();
+      console.log(`Cardcom ${label} raw (first 200):`, text.slice(0,200));
+
+      let d = null;
+      // Strategy 1: direct parse
+      try { d = JSON.parse(text); } catch(e) {}
+
+      // Strategy 2: if d is a string (double-encoded), parse again
+      if (typeof d === 'string') {
+        try { d = JSON.parse(d); } catch(e) {}
+      }
+
+      // Strategy 3: extract Tranzactions array anywhere in the text
+      if (!d?.Tranzactions && text.includes('TranzactionId')) {
+        const match = text.match(/"Tranzactions"\s*:\s*(\[[\s\S]*\])/);
+        if (match) {
+          try { d = { Tranzactions: JSON.parse(match[1]) }; } catch(e) {}
+        }
+      }
+
       const txns = d?.Tranzactions || d?.data?.Tranzactions || [];
       console.log(`Cardcom ${label}: ${txns.length} txns`);
       return txns;
