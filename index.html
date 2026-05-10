@@ -371,6 +371,28 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
   .kpi-val { font-size: 22px !important; }
 }
 
+
+.check-btn {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  transition: all .15s;
+  flex-shrink: 0;
+  margin: 0 auto;
+}
+.check-btn:hover { border-color: var(--red); background: #fee2e2; }
+.check-btn.cancelled { background: #fee2e2; border-color: var(--red); }
+.status-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
 </style>
 </head>
 <body>
@@ -1213,6 +1235,83 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
 
 </div><!-- /cohorts -->
 
+
+<!-- ══════════════ PENDING PAYMENT ══════════════ -->
+<div class="page" id="pg-pending">
+
+  <!-- KPI row -->
+  <div class="kpi-row kpi-row-3" style="margin-top:4px">
+    <div class="kpi blue">
+      <div class="kpi-top"><div class="kpi-ico">⏳</div><span class="kpi-badge" id="pnd-count-badge">151 חברים</span></div>
+      <div class="kpi-lbl">ממתינים לחיוב</div>
+      <div class="kpi-val" id="pnd-total-count">151</div>
+      <div class="kpi-sub">יום החיוב טרם הגיע</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-ico">💰</div>
+      <div class="kpi-lbl">הכנסה צפויה</div>
+      <div class="kpi-val sm" id="pnd-expected-rev">₪7,097</div>
+      <div class="kpi-sub">אם כולם יחוייבו</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-ico">❌</div>
+      <div class="kpi-lbl">אושרו כמבוטלים</div>
+      <div class="kpi-val" id="pnd-confirmed-cancelled">0</div>
+      <div class="kpi-sub">סומנו ידנית</div>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="filter-bar" style="margin-bottom:12px">
+    <div class="filter-tf">
+      <button class="filter-btn active" onclick="filterPending('all',this)">הכל (<span id="pnd-all-count">151</span>)</button>
+      <button class="filter-btn" onclick="filterPending('recurring',this)">מנויים חוזרים</button>
+      <button class="filter-btn" onclick="filterPending('trial',this)">Trial</button>
+      <button class="filter-btn" onclick="filterPending('cancelled',this)">❌ מבוטלים</button>
+    </div>
+    <input id="pnd-search" class="filter-search" type="text" placeholder="🔍 חיפוש שם..." oninput="renderPending()">
+    <select id="pnd-sort" class="filter-select" onchange="renderPending()">
+      <option value="day-asc">יום קרוב ראשון</option>
+      <option value="day-desc">יום רחוק ראשון</option>
+      <option value="alpha">אלפביתי</option>
+    </select>
+  </div>
+
+  <!-- Legend -->
+  <div style="display:flex;gap:16px;font-size:11px;color:var(--muted);margin-bottom:12px;padding:0 2px">
+    <span>✅ = חוייב בפועל (Cardcom)</span>
+    <span>☑️ = אושר ידנית כמבוטל</span>
+    <span>⏳ = ממתין לחיוב</span>
+  </div>
+
+  <!-- Table -->
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="overflow-x:auto">
+      <table class="dt" id="pnd-table">
+        <thead><tr>
+          <th style="width:44px;text-align:center">סטטוס</th>
+          <th>שם</th>
+          <th>סוג</th>
+          <th>יום חיוב</th>
+          <th>ימים</th>
+          <th>סכום</th>
+          <th style="width:44px;text-align:center">בוטל</th>
+        </tr></thead>
+        <tbody id="pnd-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span id="pnd-count-label"></span>
+      <div class="page-btns">
+        <button class="page-btn" onclick="pndPage(-1)">◄</button>
+        <span id="pnd-page-info" style="padding:5px 10px;font-size:11px;color:var(--muted)"></span>
+        <button class="page-btn" onclick="pndPage(1)">►</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /pending -->
+
 </main>
 </div>
 
@@ -1320,7 +1419,7 @@ function buildHeatmap(hmData){
 }
 
 // ── NAVIGATION ──
-const TITLES={overview:'סקירה כללית',members:'חברים ושחיקה',revenue:'הכנסות ו-MRR',products:'מוצרים ומכירות',acquisition:'גיוס ו-CAC','members-list':'רשימת חברים',cohorts:'ניתוח קוהורטים'};
+const TITLES={overview:'סקירה כללית',members:'חברים ושחיקה',revenue:'הכנסות ו-MRR',products:'מוצרים ומכירות',acquisition:'גיוס ו-CAC','members-list':'רשימת חברים',cohorts:'ניתוח קוהורטים',pending:'ממתינים לתשלום'};
 function go(id,btn){
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(e=>e.classList.remove('active'));
@@ -3040,6 +3139,194 @@ function hideToast() {
   document.getElementById('toast')?.classList.remove('show');
 }
 
+
+// ══ PENDING PAYMENT LIST ══
+const PENDING_SEED = [{"token":"316947b8-a616-4daf-b","name":"תקוה אליאנורה צרפתי","email":"","phone":"","dueDay":11,"amount":47,"type":"recurring"},{"token":"0ef12e81-8229-4f9e-a","name":"מיכל שני נדלר","email":"","phone":"","dueDay":11,"amount":47,"type":"recurring"},{"token":"2aede5c1-6f92-4d2f-8","name":"טל בן חמו","email":"","phone":"","dueDay":11,"amount":47,"type":"recurring"},{"token":"5a32ea35-ea86-4183-8","name":"סאלי טלבי","email":"","phone":"","dueDay":11,"amount":47,"type":"recurring"},{"token":"d928e11b-8fea-4b60-a","name":"חנה קופר","email":"","phone":"","dueDay":11,"amount":47,"type":"recurring"},{"token":"b1802590-b7dc-46f8-b","name":"הגר אלון","email":"","phone":"","dueDay":11,"amount":47,"type":"recurring"},{"token":"bc35e84c-ead3-4e44-9","name":"אהובה מורטוב","email":"","phone":"","dueDay":11,"amount":47,"type":"recurring"},{"token":"9fa49a59-2a2d-4f34-8","name":"ענבר הוכברג","email":"","phone":"","dueDay":11,"amount":47,"type":"recurring"},{"token":"b4103eb5-d4a8-45d9-b","name":"נעמה שקד לוי","email":"","phone":"","dueDay":11,"amount":47,"type":"recurring"},{"token":"d65c510d-b634-4e5a-b","name":"מאיה גליקמן","email":"","phone":"","dueDay":11,"amount":47,"type":"recurring"},{"token":"030d355a-83dc-4ce5-a","name":"טלי אלעזרה","email":"","phone":"","dueDay":12,"amount":47,"type":"recurring"},{"token":"fb71fed2-3b8e-4c59-9","name":"תמר שייביץ בן אבי","email":"","phone":"","dueDay":12,"amount":47,"type":"recurring"},{"token":"894b1e3f-4262-46bc-a","name":"רונית מנשורי","email":"","phone":"","dueDay":12,"amount":47,"type":"recurring"},{"token":"68fcea3b-8d1b-4657-9","name":"אביה הרנוי","email":"","phone":"","dueDay":12,"amount":47,"type":"recurring"},{"token":"1c0a63b0-29b5-4a58-a","name":"ניצן רחמים","email":"","phone":"","dueDay":12,"amount":47,"type":"recurring"},{"token":"7ad59fa0-940c-4dbd-8","name":"יעל קלירס","email":"","phone":"","dueDay":12,"amount":47,"type":"recurring"},{"token":"b97aa932-d1ed-4249-a","name":"אלעד שליו","email":"","phone":"","dueDay":12,"amount":47,"type":"recurring"},{"token":"dafinuma@gmail.com","name":"Dafna Numa Rosenzwaig","email":"dafinuma@gmail.com","phone":"0524624024","dueDay":12,"amount":39,"type":"recurring"},{"token":"Rotemrub@gmail.com","name":"רותם רובינשטיין","email":"Rotemrub@gmail.com","phone":"0528642070","dueDay":12,"amount":39,"type":"recurring"},{"token":"Ilanit@arttech.co.il","name":"Eran","email":"Ilanit@arttech.co.il","phone":"0522951177","dueDay":12,"amount":39,"type":"recurring"},{"token":"8ccae5f0-e147-4e5e-b","name":"בלה טל","email":"bella@tal-cpa.com","phone":"0543056759","dueDay":13,"amount":39,"type":"recurring"},{"token":"f5ed2021-8359-4814-8","name":"הילה ברוך","email":"","phone":"","dueDay":13,"amount":47,"type":"recurring"},{"token":"c6f936fa-d0d1-44f7-b","name":"יניב אסולין","email":"","phone":"","dueDay":14,"amount":47,"type":"recurring"},{"token":"bfa34412-ea98-470c-8","name":"ליאת ברנשטיין","email":"liatbern@gmail.com","phone":"0544242659","dueDay":14,"amount":297,"type":"recurring"},{"token":"0a757ef6-62ac-4133-9","name":"חופית סיבוני וולף","email":"hofsib26@gmail.com","phone":"0526469649","dueDay":14,"amount":39,"type":"recurring"},{"token":"40da469a-3ad4-4f0b-9","name":"ליאן אורבך","email":"lianorbach@gmail.com","phone":"0522791724","dueDay":15,"amount":39,"type":"recurring"},{"token":"3a87b83e-0252-4a61-b","name":"לימור פינק מהדיטש","email":"lim2fink@gmail.com","phone":"0546759590","dueDay":15,"amount":39,"type":"recurring"},{"token":"97784082-05b9-4ce9-b","name":"רותם רובינשטיין","email":"Rotemrub@gmail.com","phone":"0528642070","dueDay":15,"amount":39,"type":"recurring"},{"token":"evenshosh5@gmail.com","name":"שוש אבן","email":"evenshosh5@gmail.com","phone":"0508800426","dueDay":15,"amount":39,"type":"recurring"},{"token":"1ab1db6e-0055-4a02-9","name":"שוש אבן","email":"","phone":"","dueDay":15,"amount":47,"type":"recurring"},{"token":"addff3fe-f5cc-48a7-a","name":"אודליה שרגא","email":"","phone":"","dueDay":15,"amount":47,"type":"recurring"},{"token":"000f2457-7ca3-46fd-9","name":"קרינה חברה","email":"","phone":"","dueDay":15,"amount":47,"type":"recurring"},{"token":"4bb383c4-5501-4579-8","name":"Masha Bar Borchenko","email":"","phone":"","dueDay":15,"amount":47,"type":"recurring"},{"token":"H2design.3d@gmail.co","name":"חני הרמן","email":"H2design.3d@gmail.com","phone":"0509170140","dueDay":15,"amount":39,"type":"recurring"},{"token":"e98863da-a49a-4586-a","name":"דקלה שלום","email":"babysmiles.info@gmail.com","phone":"0545950373","dueDay":15,"amount":39,"type":"recurring"},{"token":"Sharonsagie76@gmail.","name":"שרון שגיא","email":"Sharonsagie76@gmail.com","phone":"0523724032","dueDay":15,"amount":39,"type":"recurring"},{"token":"dbc7ec4a-dda7-475f-9","name":"דפנה נומה רוזנצויג","email":"dafinuma@gmail.com","phone":"0524624024","dueDay":15,"amount":69,"type":"recurring"},{"token":"6b37ad57-f99b-4c75-a","name":"מתילדה כהן","email":"matycohen18@gmail.com","phone":"0522543185","dueDay":15,"amount":69,"type":"recurring"},{"token":"98797241-bc74-46d1-9","name":"חן מקייטן","email":"","phone":"","dueDay":16,"amount":47,"type":"recurring"},{"token":"23167999-b6f7-4786-9","name":"אנה לימאי כץ","email":"","phone":"","dueDay":16,"amount":47,"type":"recurring"},{"token":"8389ed10-d69c-4c36-8","name":"ענבל רוזנצויג","email":"","phone":"","dueDay":16,"amount":47,"type":"recurring"},{"token":"a704110f-eb08-4693-9","name":"יעל אורלינסקי","email":"","phone":"","dueDay":16,"amount":47,"type":"recurring"},{"token":"d57cd907-100d-4b2f-b","name":"חן לוי","email":"","phone":"","dueDay":16,"amount":47,"type":"recurring"},{"token":"nofar.simpson@gmail.","name":"נופר סימפסון","email":"nofar.simpson@gmail.com","phone":"0549732083","dueDay":16,"amount":69,"type":"recurring"},{"token":"avitalaaa@gmail.com","name":"אביטל","email":"avitalaaa@gmail.com","phone":"0542280003","dueDay":16,"amount":69,"type":"recurring"},{"token":"88555e04-9626-4f59-b","name":"Keren Chen","email":"","phone":"","dueDay":17,"amount":47,"type":"recurring"},{"token":"1d7bd058-b00f-4edd-a","name":"טל אבן חן","email":"","phone":"","dueDay":17,"amount":47,"type":"recurring"},{"token":"2713ae4c-fa7a-4504-8","name":"טל בלכר","email":"","phone":"","dueDay":17,"amount":47,"type":"recurring"},{"token":"f6c89060-ec92-4015-a","name":"רינת חלבי עוז","email":"","phone":"","dueDay":17,"amount":47,"type":"recurring"},{"token":"c8e884cb-5ede-4149-9","name":"אסתר עבו","email":"","phone":"","dueDay":17,"amount":47,"type":"recurring"},{"token":"b7403818-9acf-4c7c-a","name":"נועה ממן","email":"","phone":"","dueDay":17,"amount":47,"type":"recurring"},{"token":"f1dd5e0e-b551-44d7-a","name":"יפעת שבת","email":"","phone":"","dueDay":17,"amount":47,"type":"recurring"},{"token":"727a5287-580d-4b88-9","name":"אתי רפאלי","email":"","phone":"","dueDay":18,"amount":47,"type":"recurring"},{"token":"879cab49-00c2-4025-b","name":"שאטל לוי חנה","email":"","phone":"","dueDay":18,"amount":47,"type":"recurring"},{"token":"cf213ce5-99a3-430d-9","name":"קרן חמו","email":"","phone":"","dueDay":18,"amount":47,"type":"recurring"},{"token":"khirmanb@gmail.com","name":"ברוני חירמן","email":"khirmanb@gmail.com","phone":"0506212628","dueDay":18,"amount":69,"type":"recurring"},{"token":"0b7c96cf-f032-45ab-a","name":"גליה גביש","email":"galiagavish11@gmail.com","phone":"0504333007","dueDay":18,"amount":39,"type":"recurring"},{"token":"5fe23c1a-350b-485a-8","name":"לימור אפורי","email":"","phone":"","dueDay":19,"amount":47,"type":"recurring"},{"token":"db0a6b10-0c19-4435-b","name":"ליאור אביסדריס","email":"","phone":"","dueDay":19,"amount":47,"type":"recurring"},{"token":"4f467379-ea69-447f-9","name":"Sarit Ron","email":"","phone":"","dueDay":19,"amount":47,"type":"recurring"},{"token":"b85f2ff8-074e-492e-b","name":"מירב אשל עבדה","email":"","phone":"","dueDay":20,"amount":47,"type":"recurring"},{"token":"9573229f-0ed3-4851-9","name":"עדן עמר","email":"","phone":"","dueDay":20,"amount":47,"type":"recurring"},{"token":"52d7eae2-b6e3-416f-a","name":"תמנע פרנקל","email":"","phone":"","dueDay":20,"amount":47,"type":"recurring"},{"token":"dedaaa81-e291-4cbb-b","name":"רותי סספורטס","email":"","phone":"","dueDay":20,"amount":47,"type":"recurring"},{"token":"73f9198e-5843-4c47-9","name":"דידי","email":"didi.m3i@gmail.com","phone":"585350033","dueDay":20,"amount":59,"type":"recurring"},{"token":"261c85f0-dfd0-4819-9","name":"שירה אילן","email":"far@zahav.net.il","phone":"0506481364","dueDay":20,"amount":39,"type":"recurring"},{"token":"82f192d7-6019-4fa5-9","name":"מיקי מנור","email":"","phone":"","dueDay":21,"amount":47,"type":"recurring"},{"token":"77ed3eb6-6eca-4c83-9","name":"הילה בת ציון מור זהבי","email":"","phone":"","dueDay":21,"amount":47,"type":"recurring"},{"token":"b9c98024-3ffd-4362-b","name":"Shelly williams","email":"","phone":"","dueDay":21,"amount":47,"type":"recurring"},{"token":"aba68d5c-196a-4054-9","name":"אורלי אלמוג","email":"","phone":"","dueDay":21,"amount":47,"type":"recurring"},{"token":"f30bbdb7-21d2-4532-a","name":"Lilia Porat","email":"","phone":"","dueDay":21,"amount":47,"type":"recurring"},{"token":"430ab70b-8018-4b9d-b","name":"רותם רובינשטיין","email":"","phone":"","dueDay":21,"amount":47,"type":"recurring"},{"token":"da17815a-63ab-401f-9","name":"דנה רוזן","email":"danabyr1@gmail.com","phone":"0542473074","dueDay":22,"amount":47,"type":"recurring"},{"token":"07824375-ba3c-418c-9","name":"אסתי מנחם","email":"","phone":"","dueDay":22,"amount":47,"type":"recurring"},{"token":"4c42c30a-0c9d-4eb2-9","name":"יעל יוסף","email":"","phone":"","dueDay":22,"amount":47,"type":"recurring"},{"token":"6c64ed30-02b4-4450-a","name":"אשרת סולומון","email":"","phone":"","dueDay":22,"amount":47,"type":"recurring"},{"token":"65cf2e6b-f8e5-431b-9","name":"ג'ני שמעון ויסברג","email":"","phone":"","dueDay":22,"amount":47,"type":"recurring"},{"token":"e856d7fe-b2ac-43f2-a","name":"Lilac fuchs","email":"","phone":"","dueDay":22,"amount":47,"type":"recurring"},{"token":"48218062-0546-4769-b","name":"אפרת אזולאי אפרים","email":"","phone":"","dueDay":22,"amount":47,"type":"recurring"},{"token":"39c259e6-2a6b-4745-8","name":"נטלי רבני","email":"","phone":"","dueDay":22,"amount":47,"type":"recurring"},{"token":"87e7cfdb-f81e-406a-b","name":"Adi kahanan","email":"","phone":"","dueDay":22,"amount":47,"type":"recurring"},{"token":"12c01577-0723-4387-a","name":"שרה קבילו","email":"","phone":"","dueDay":22,"amount":47,"type":"recurring"},{"token":"7595cd35-cfb0-41b5-b","name":"רוזני בראון","email":"","phone":"","dueDay":22,"amount":47,"type":"recurring"},{"token":"32b25054-19b1-4f72-a","name":"נטלי אביקסיס","email":"nataliaviksis2@gmail.com","phone":"0546084440","dueDay":22,"amount":39,"type":"recurring"},{"token":"anatbar20051961@gmai","name":"ענת בר","email":"anatbar20051961@gmail.com","phone":"0505328703","dueDay":22,"amount":39,"type":"recurring"},{"token":"2f959a50-06dd-470d-8","name":"מיכל דגן - הורות מהלב","email":"","phone":"","dueDay":23,"amount":47,"type":"recurring"},{"token":"0f68fcf5-71e7-46d0-8","name":"‪Ninet Ben Eliyahu‬‏","email":"","phone":"","dueDay":23,"amount":47,"type":"recurring"},{"token":"4ff30ca0-c751-4c6f-b","name":"ליבנת בורג","email":"","phone":"","dueDay":23,"amount":47,"type":"recurring"},{"token":"e8037542-a625-4fca-9","name":"רותם וורסקיין","email":"","phone":"","dueDay":23,"amount":47,"type":"recurring"},{"token":"598f5f03-5735-45e4-8","name":"Maria Shehadeh","email":"","phone":"","dueDay":24,"amount":47,"type":"recurring"},{"token":"073051bc-7a1a-4ee2-a","name":"גאדה די אמברוסיו","email":"","phone":"","dueDay":24,"amount":47,"type":"recurring"},{"token":"fa97b1c8-08ef-4a45-9","name":"רוני הלוי","email":"","phone":"","dueDay":24,"amount":47,"type":"recurring"},{"token":"8206256e-82eb-4bad-a","name":"חיה קניגסברג","email":"","phone":"","dueDay":25,"amount":47,"type":"recurring"},{"token":"5f5c9a45-87f1-4483-b","name":"שירלי סימון","email":"","phone":"","dueDay":25,"amount":47,"type":"recurring"},{"token":"45889e00-8401-41a9-8","name":"בוריס אקסנפלד","email":"","phone":"","dueDay":26,"amount":47,"type":"recurring"},{"token":"3b325756-be38-4df5-a","name":"מיכל שלזינגר","email":"","phone":"","dueDay":26,"amount":47,"type":"recurring"},{"token":"633c4821-8be5-469f-9","name":"רחלי צפרי","email":"","phone":"","dueDay":26,"amount":47,"type":"recurring"},{"token":"ee8f655a-be13-4f83-9","name":"עמית חכם","email":"","phone":"","dueDay":27,"amount":47,"type":"recurring"},{"token":"b09266f3-173f-4325-8","name":"שניאל","email":"","phone":"","dueDay":27,"amount":47,"type":"recurring"},{"token":"b7cc88b8-4b04-4613-9","name":"אורטל","email":"","phone":"","dueDay":27,"amount":47,"type":"recurring"},{"token":"50596de7-3f3e-477e-8","name":"דינה ניב","email":"","phone":"","dueDay":27,"amount":47,"type":"recurring"},{"token":"490bd834-803a-49e2-8","name":"תם מוזס כהן","email":"Tomik0608@gmail.com","phone":"0509949992","dueDay":27,"amount":39,"type":"recurring"},{"token":"8becd701-6ebe-40ba-8","name":"דורין","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"8fcb3a38-fa90-4e8b-a","name":"טל אילון - עיצוב פנים","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"91546020-d803-4703-b","name":"שרון שגיא","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"9b75149a-403f-4c24-8","name":"רזניק דורון","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"da74201f-87b6-45c8-8","name":"גיא צ.א בעמ","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"7f2d222c-fb28-4079-a","name":"רעות זמטר","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"60047943-ac08-4d55-9","name":"אביטל גרוסמן","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"769cfb2f-14c7-4f86-8","name":"סימה גזית","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"ec02c54d-e2c6-4076-a","name":"כלנית טחן","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"bec8a720-25fb-4f0b-9","name":"קארין בראונר","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"80b0a61d-3c4e-4cf3-a","name":"Mor Naftaly","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"1bfda4a9-cfd4-4b5f-a","name":"אילת בן פזי שטיינר","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"e7738a58-ad6d-4bd9-b","name":"אביטל רוט","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"64772dd6-c80c-4848-b","name":"Chen Yehezkel","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"cd2cfc3f-901b-49b0-8","name":"ליאת שחם","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"ddb1340f-9c7f-4b45-8","name":"טל בועז","email":"talsh954@gmail.com","phone":"0538323445","dueDay":28,"amount":39,"type":"recurring"},{"token":"nanib46@gmail.com","name":"רוזני בראון","email":"nanib46@gmail.com","phone":"0523100060","dueDay":28,"amount":39,"type":"recurring"},{"token":"007553bc-5425-40c9-a","name":"dana alcaz","email":"","phone":"","dueDay":28,"amount":47,"type":"recurring"},{"token":"2f4454fb-d4f4-4084-9","name":"חני הרמן","email":"","phone":"","dueDay":29,"amount":47,"type":"recurring"},{"token":"914dd1a8-3546-459b-8","name":"דרורית לטם ניצן","email":"drorite13@gmail.com","phone":"0503100129","dueDay":11,"amount":10,"type":"trial"},{"token":"733805c3-03ae-48cc-a","name":"עדי אידל","email":"dafnaidel@gmail.com","phone":"0526366425","dueDay":11,"amount":10,"type":"trial"},{"token":"4afc9b0c-2f51-441f-a","name":"שירה ברנדס","email":"shirusbrandes@gmail.com","phone":"0524623959","dueDay":11,"amount":10,"type":"trial"},{"token":"34e7ceda-5248-434a-a","name":"anna botner mironov","email":"annabotner88@gmail.com","phone":"0544988118","dueDay":13,"amount":10,"type":"trial"},{"token":"5315529e-f95b-404b-a","name":"שחף רוזן","email":"shahaf.rosen@gmail.com","phone":"0522328385","dueDay":14,"amount":10,"type":"trial"},{"token":"c8986765-4710-4e2b-8","name":"רחלי כהן","email":"rachelicohen.design@gmail.com","phone":"0525778090","dueDay":14,"amount":10,"type":"trial"},{"token":"5f833f49-06a2-4a23-8","name":"Noga Maaravi Roth","email":"hi@homebynoga.com","phone":"0509277977","dueDay":16,"amount":10,"type":"trial"},{"token":"c054d9e7-076f-4210-8","name":"קארין אינס","email":"Eineskarin1@gmail.com","phone":"0528321322","dueDay":17,"amount":10,"type":"trial"},{"token":"bb26df2a-1206-4599-9","name":"מזרחי רמה","email":"rama44204@gmail.com","phone":"0502427314","dueDay":17,"amount":10,"type":"trial"},{"token":"46247917-89d8-41e0-8","name":"שיר מזוז","email":"Shirmazuz181@gmail.com","phone":"0504474405","dueDay":17,"amount":10,"type":"trial"},{"token":"66d49531-1a09-4e98-9","name":"Aliza Culang‬‏","email":"Aliza.clinic@gmail.com","phone":"0544987922","dueDay":18,"amount":10,"type":"trial"},{"token":"8c2d3f5e-7575-4b57-b","name":"גליה גביש","email":"galiagavish11@gmail.com","phone":"0504333007","dueDay":18,"amount":10,"type":"trial"},{"token":"882c6d04-178f-4cff-8","name":"Moran Dayagi","email":"morandayagi@gmail.com","phone":"0522675188","dueDay":18,"amount":10,"type":"trial"},{"token":"f46af650-b733-4693-8","name":"איה אהרמן","email":"ayapiti@gmail.com","phone":"0534289768","dueDay":18,"amount":10,"type":"trial"},{"token":"15717dd9-a71b-4e90-8","name":"שלומית קרם ליקה","email":"shlolica@gmail.com","phone":"0509481305","dueDay":19,"amount":10,"type":"trial"},{"token":"15038aad-4c1d-43b4-b","name":"שירה תמרי","email":"","phone":"","dueDay":19,"amount":10,"type":"trial"},{"token":"80dd3568-ab89-44ae-8","name":"ליקה אנקונינה","email":"lika.milman@gmail.com","phone":"0506572127","dueDay":20,"amount":10,"type":"trial"},{"token":"fdef3005-6f32-4f06-8","name":"הגר כהן","email":"beyou.hc@gmail.com","phone":"0548163306","dueDay":20,"amount":10,"type":"trial"},{"token":"b9f58521-6c9a-4272-9","name":"נטלי אביקסיס","email":"nataliaviksis2@gmail.com","phone":"0546084440","dueDay":22,"amount":10,"type":"trial"},{"token":"6bdb1f6b-aba7-4ff4-b","name":"ענת בר","email":"anatbar20051961@gmail.com","phone":"0505328703","dueDay":22,"amount":10,"type":"trial"},{"token":"b8e185ed-b0ba-4381-8","name":"אושרה בן שושן","email":"obarushe@gmail.com","phone":"8528971341","dueDay":22,"amount":10,"type":"trial"},{"token":"76ea6b3e-daad-4f3c-8","name":"אליזבט פרי","email":"Elizabeth9177@gmail.com","phone":"0506728219","dueDay":26,"amount":10,"type":"trial"},{"token":"55f118dc-f332-4abc-a","name":"דניאל טוויג","email":"stylephoto3322@gmail.com","phone":"0546521559","dueDay":26,"amount":10,"type":"trial"},{"token":"32147c37-2f2e-4158-b","name":"אורטל כספי","email":"ortal.babchik@gmail.com","phone":"0504713030","dueDay":27,"amount":10,"type":"trial"},{"token":"9e68810b-51b4-47d5-8","name":"קטרין ויוראנו","email":"kathyvio@gmail.com","phone":"0548089669","dueDay":28,"amount":10,"type":"trial"},{"token":"a38aedd8-a70d-461a-8","name":"טל בועז","email":"talsh954@gmail.com","phone":"0538323445","dueDay":28,"amount":10,"type":"trial"},{"token":"4731df7e-2c7c-4fb5-9","name":"סיון שופיר","email":"sishdu@gmail.com","phone":"0527271993","dueDay":28,"amount":10,"type":"trial"},{"token":"9d6724f7-2fee-4b9d-9","name":"אפרת בר אור","email":"efratbaror@gmail.com","phone":"0543975663","dueDay":29,"amount":10,"type":"trial"},{"token":"730a4261-e2dc-444c-8","name":"אתי צור","email":"Shira@tzur-adv.com","phone":"0503035633","dueDay":29,"amount":10,"type":"trial"},{"token":"ca033f24-ed8e-43b6-b","name":"גוני תזהר","email":"gonishilohram@gmail.com","phone":"0506613201","dueDay":29,"amount":10,"type":"trial"}];
+const CANCELLED_SEED = [{"token":"1c9386d8-2a9b-4594-9","name":"אתי לבן","email":"","phone":"","dueDay":1,"amount":47,"type":"recurring"},{"token":"e62de675-d14b-4438-a","name":"Miri chigirinsky","email":"","phone":"","dueDay":1,"amount":47,"type":"recurring"},{"token":"c4681814-07cb-4ae9-9","name":"אמיר אלגוב","email":"","phone":"","dueDay":1,"amount":47,"type":"recurring"},{"token":"f583212b-a76d-4585-8","name":"עדנה כהן ניסן","email":"","phone":"","dueDay":1,"amount":47,"type":"recurring"},{"token":"df025ad3-ee64-4a74-a","name":"בן אדר","email":"","phone":"","dueDay":1,"amount":47,"type":"recurring"},{"token":"8a376c6a-93b4-40dc-b","name":"אור פריידין","email":"","phone":"","dueDay":1,"amount":47,"type":"recurring"},{"token":"b7e3a811-b32a-4274-9","name":"ליב","email":"","phone":"","dueDay":1,"amount":47,"type":"recurring"},{"token":"1e68a027-7af7-4053-a","name":"מיטל אזרי","email":"","phone":"","dueDay":1,"amount":47,"type":"recurring"},{"token":"60a6a1d9-f30c-430b-a","name":"יוליה דיין בורודין","email":"","phone":"","dueDay":1,"amount":47,"type":"recurring"},{"token":"c328190c-0780-48ed-9","name":"סיון מטוס","email":"","phone":"","dueDay":2,"amount":47,"type":"recurring"},{"token":"b14fbd22-89e3-421c-b","name":"איילת","email":"","phone":"","dueDay":2,"amount":47,"type":"recurring"},{"token":"d0a45645-e5c4-4d2c-b","name":"ליאת אליהו","email":"","phone":"","dueDay":2,"amount":47,"type":"recurring"},{"token":"73246cb2-a837-4de2-9","name":"עדי דויד","email":"","phone":"","dueDay":2,"amount":47,"type":"recurring"},{"token":"5ce4cf08-1826-42c5-b","name":"ענת שינדלר","email":"","phone":"","dueDay":3,"amount":47,"type":"recurring"},{"token":"7221550d-ba94-4207-9","name":"טל קנטרו","email":"","phone":"","dueDay":3,"amount":47,"type":"recurring"},{"token":"80f85ba7-1aa5-4274-a","name":"קרן ברנד","email":"","phone":"","dueDay":3,"amount":47,"type":"recurring"},{"token":"927cbc48-5c9c-4c4a-b","name":"נאוה חביב","email":"","phone":"","dueDay":4,"amount":47,"type":"recurring"},{"token":"700c5bdb-5bac-49d5-8","name":"דותן אלינור","email":"","phone":"","dueDay":4,"amount":47,"type":"recurring"},{"token":"ettyln@gmail.com","name":"אתי לזרי","email":"ettyln@gmail.com","phone":"0503939773","dueDay":4,"amount":69,"type":"recurring"},{"token":"elishevameyer@gmail.","name":"אלישבע","email":"elishevameyer@gmail.com","phone":"0542686387","dueDay":4,"amount":39,"type":"recurring"},{"token":"549c07a0-9a28-40f2-9","name":"ענבר ארד","email":"","phone":"","dueDay":5,"amount":47,"type":"recurring"},{"token":"aca65c42-d57b-48e7-b","name":"יסמין","email":"","phone":"","dueDay":5,"amount":47,"type":"recurring"},{"token":"476ef97f-63a5-441b-8","name":"ענת הודסמן","email":"","phone":"","dueDay":5,"amount":47,"type":"recurring"},{"token":"06fe46b5-5303-47e7-8","name":"מיכל מימון","email":"","phone":"","dueDay":5,"amount":47,"type":"recurring"},{"token":"5f590329-15e0-477e-9","name":"IDIT SHLINGBAUM","email":"","phone":"","dueDay":6,"amount":47,"type":"recurring"},{"token":"28f83262-351d-41ab-a","name":"דבורה רובין","email":"","phone":"","dueDay":6,"amount":47,"type":"recurring"},{"token":"06743690-42bf-4cf5-9","name":"עדי ששון","email":"","phone":"","dueDay":7,"amount":47,"type":"recurring"},{"token":"db5d855d-a7a1-4cd3-a","name":"דנית קמחי","email":"","phone":"","dueDay":7,"amount":47,"type":"recurring"},{"token":"60e1cb9f-9718-428a-b","name":"חנה סהר נחמן","email":"","phone":"","dueDay":7,"amount":47,"type":"recurring"},{"token":"dd6aa556-c368-4fa9-a","name":"שירן חיים","email":"","phone":"","dueDay":8,"amount":47,"type":"recurring"},{"token":"527350ea-dfd1-4ee9-b","name":"LIZA AMOUYAL","email":"","phone":"","dueDay":9,"amount":47,"type":"recurring"},{"token":"3d9c28f7-aff3-41ef-8","name":"אורנה הראל","email":"","phone":"","dueDay":9,"amount":47,"type":"recurring"},{"token":"38f9be19-582d-42c7-8","name":"מיכל ארד","email":"","phone":"","dueDay":9,"amount":47,"type":"recurring"},{"token":"a10ce29b-043e-4605-b","name":"יובל כשר","email":"","phone":"","dueDay":9,"amount":47,"type":"recurring"},{"token":"3df8c336-8b96-4d66-8","name":"אביבית פורמן","email":"","phone":"","dueDay":10,"amount":47,"type":"recurring"},{"token":"26e5090b-3d5e-4051-b","name":"יעל קפלן","email":"","phone":"","dueDay":10,"amount":47,"type":"recurring"},{"token":"be3a8df3-edcc-4c57-a","name":"בלה טל","email":"bella@tal-cpa.com","phone":"0543056759","dueDay":2,"amount":10,"type":"trial"},{"token":"6c077e23-39a1-462f-a","name":"ציפי אלגייב","email":"Tsipishd@gmail.com","phone":"0506309777","dueDay":2,"amount":10,"type":"trial"},{"token":"f81ab7b3-608a-4da2-9","name":"עלית אוקון","email":"alit13okoun@gmail.com","phone":"0543192322","dueDay":2,"amount":10,"type":"trial"},{"token":"fe1a4fc9-d423-4de7-b","name":"אולגה איסייב","email":"olgash1988@gmail.com","phone":"0543285494","dueDay":3,"amount":10,"type":"trial"},{"token":"caeda2f1-585d-4d8d-9","name":"‪Iris Maayan‬‏","email":"Irisms12@walla.com","phone":"0549869882","dueDay":4,"amount":10,"type":"trial"}];
+
+// Load manually confirmed cancellations from localStorage-like storage
+// Using window.pendingCancelled as in-memory store (persists in session)
+if (!window.confirmedCancelled) {
+  window.confirmedCancelled = new Set(
+    JSON.parse(sessionStorage.getItem('ssc_cancelled') || '[]')
+  );
+}
+
+let pndFilter   = 'all';
+let pndPage_num = 1;
+const PND_PER_PAGE = 50;
+
+function saveCancelled() {
+  sessionStorage.setItem('ssc_cancelled', JSON.stringify([...window.confirmedCancelled]));
+}
+
+function toggleCancel(token, btn) {
+  if (window.confirmedCancelled.has(token)) {
+    window.confirmedCancelled.delete(token);
+    btn.classList.remove('cancelled');
+    btn.textContent = '';
+    showToast('↩️ בוטל הסימון', 'info', 2000);
+  } else {
+    window.confirmedCancelled.add(token);
+    btn.classList.add('cancelled');
+    btn.textContent = '✕';
+    showToast('✅ סומן כמבוטל · הנתונים מתעדכנים', 'success', 2000);
+  }
+  saveCancelled();
+  updateCancelledCount();
+  // Re-render to reflect change
+  renderPending();
+  // Trigger full dashboard recalc
+  if (typeof recalcFromCancelled === 'function') recalcFromCancelled();
+}
+
+function updateCancelledCount() {
+  const count = window.confirmedCancelled.size;
+  const el = document.getElementById('pnd-confirmed-cancelled');
+  if (el) el.textContent = count;
+}
+
+function filterPending(f, btn) {
+  pndFilter = f;
+  pndPage_num = 1;
+  document.querySelectorAll('#pg-pending .filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderPending();
+}
+
+function renderPending() {
+  const TODAY_DAY = new Date().getDate();
+  const search = (document.getElementById('pnd-search')?.value || '').toLowerCase();
+  const sort   = document.getElementById('pnd-sort')?.value || 'day-asc';
+
+  // Combine pending + cancelled lists
+  const allItems = [
+    ...PENDING_SEED.map(m => ({ ...m, autoStatus: 'pending' })),
+    ...CANCELLED_SEED.map(m => ({ ...m, autoStatus: 'cancelled' })),
+  ];
+
+  // Mark manually confirmed
+  const enriched = allItems.map(m => ({
+    ...m,
+    manualCancelled: window.confirmedCancelled.has(m.token),
+    daysUntil: m.dueDay - TODAY_DAY,
+    isPaid: false, // will be set by live data check
+  }));
+
+  // Filter
+  let list = enriched.filter(m => {
+    if (pndFilter === 'recurring' && m.type !== 'recurring') return false;
+    if (pndFilter === 'trial'     && m.type !== 'trial')     return false;
+    if (pndFilter === 'cancelled' && !m.manualCancelled && m.autoStatus !== 'cancelled') return false;
+    if (search && !m.name.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  // Sort
+  list.sort((a,b) => {
+    if (sort === 'day-asc')  return a.dueDay - b.dueDay;
+    if (sort === 'day-desc') return b.dueDay - a.dueDay;
+    if (sort === 'alpha')    return a.name.localeCompare(b.name, 'he');
+    return 0;
+  });
+
+  const total = list.length;
+  const totalPages = Math.ceil(total / PND_PER_PAGE);
+  pndPage_num = Math.min(pndPage_num, Math.max(1, totalPages));
+  const start = (pndPage_num - 1) * PND_PER_PAGE;
+  const page  = list.slice(start, start + PND_PER_PAGE);
+
+  const tbody = document.getElementById('pnd-tbody');
+  if (!tbody) return;
+
+  const monthNames = ['','ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  const currMonthNum = new Date().getMonth() + 1;
+
+  tbody.innerHTML = page.map(m => {
+    const isCancelled = m.manualCancelled || m.autoStatus === 'cancelled';
+    const isAutoCancel = m.autoStatus === 'cancelled';
+
+    let statusChip, rowStyle = '';
+    if (isCancelled && m.manualCancelled) {
+      statusChip = '<div class="status-chip" style="background:#fee2e2">☑️</div>';
+      rowStyle = 'background:#fff5f5;';
+    } else if (isAutoCancel) {
+      statusChip = '<div class="status-chip" style="background:#fee2e2">❌</div>';
+      rowStyle = 'background:#fff5f5;';
+    } else if (m.daysUntil === 0) {
+      statusChip = '<div class="status-chip" style="background:#fef3c7">⏰</div>';
+      rowStyle = 'background:#fffbeb;';
+    } else {
+      statusChip = '<div class="status-chip" style="background:#eff6ff">⏳</div>';
+    }
+
+    const typePill = m.type === 'recurring'
+      ? '<span class="pill pb">מנוי חוזר</span>'
+      : '<span class="pill py">Trial</span>';
+
+    const daysText = isAutoCancel
+      ? '<span style="color:var(--red);font-weight:600">עבר</span>'
+      : m.daysUntil === 0
+        ? '<span style="color:var(--orange);font-weight:700">היום!</span>'
+        : `<span style="color:var(--blue)">${m.daysUntil} ימים</span>`;
+
+    const cancelBtn = isCancelled && !m.manualCancelled ? '' :
+      `<button class="check-btn ${m.manualCancelled ? 'cancelled' : ''}"
+        onclick="toggleCancel('${m.token}', this)"
+        title="${m.manualCancelled ? 'בטל סימון' : 'סמן כמבוטל'}">
+        ${m.manualCancelled ? '✕' : ''}
+      </button>`;
+
+    return `<tr style="${rowStyle}">
+      <td style="text-align:center">${statusChip}</td>
+      <td style="font-weight:600">${m.name || '—'}</td>
+      <td>${typePill}</td>
+      <td style="font-family:var(--mono);font-size:11px">${currMonthNum}/${String(m.dueDay).padStart(2,'0')}</td>
+      <td>${daysText}</td>
+      <td style="font-weight:700;color:var(--purple)">₪${m.amount}</td>
+      <td style="text-align:center">${cancelBtn}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">אין תוצאות</td></tr>';
+
+  // Update KPIs
+  const s = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  const pendingOnly = allItems.filter(m => m.autoStatus === 'pending');
+  const totalExpRev = pendingOnly.reduce((sum,m) => sum + m.amount, 0);
+  s('pnd-total-count', pendingOnly.length);
+  s('pnd-expected-rev', '₪' + totalExpRev.toLocaleString());
+  s('pnd-all-count', allItems.length);
+  s('pnd-count-badge', allItems.length + ' חברים');
+  updateCancelledCount();
+
+  // Pagination
+  s('pnd-count-label', `${start+1}–${Math.min(start+PND_PER_PAGE,total)} מתוך ${total}`);
+  s('pnd-page-info', `${pndPage_num} / ${totalPages || 1}`);
+}
+
+function pndPage(dir) {
+  const search = (document.getElementById('pnd-search')?.value || '').toLowerCase();
+  const allItems = [...PENDING_SEED, ...CANCELLED_SEED];
+  const filtered = allItems.filter(m => !search || m.name.toLowerCase().includes(search));
+  const totalPages = Math.ceil(filtered.length / PND_PER_PAGE);
+  pndPage_num = Math.max(1, Math.min(totalPages, pndPage_num + dir));
+  renderPending();
+}
+
+// Recalculate dashboard stats when cancellations are confirmed
+function recalcFromCancelled() {
+  // The manually confirmed cancellations reduce the pending count
+  const confirmed = window.confirmedCancelled.size;
+  const pendingEl = document.getElementById('ws-rec-pending');
+  if (pendingEl) {
+    const current = parseInt(pendingEl.textContent) || 0;
+    // This is approximate - full recalc happens on next live fetch
+  }
+  // Trigger live data refresh to get accurate numbers
+  if (typeof fetchCardcomData === 'function') {
+    setTimeout(fetchCardcomData, 500);
+  }
+}
+
 // ── BOOT ──
 document.addEventListener('DOMContentLoaded',()=>{
   updateDateLabels();
@@ -3064,6 +3351,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     showToast('📊 נתוני seed נטענו · מרענן מ-Cardcom...', 'info', 3000);
   }
   setTimeout(renderMembers, 100);
+  setTimeout(renderPending, 150);
   fetchCardcomData();
   startAutoRefresh();
   setInterval(checkDateRollover, 60000);
@@ -3083,6 +3371,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     <button class="mob-item" id="mob-acquisition" onclick="goMob('acquisition',this)"><span class="mob-icon">🎯</span>גיוס ו-CAC</button>
     <button class="mob-item" id="mob-members-list" onclick="goMob('members-list',this)"><span class="mob-icon">📋</span>רשימת חברים</button>
     <button class="mob-item" id="mob-cohorts" onclick="goMob('cohorts',this)"><span class="mob-icon">🔬</span>קוהורטים</button>
+    <button class="mob-item" id="mob-pending" onclick="goMob('pending',this)"><span class="mob-icon">⏳</span>ממתינים לתשלום</button>
   </div>
 </div>
 
