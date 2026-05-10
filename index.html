@@ -348,148 +348,121 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
       <div>
-        <div style="font-size:15px;font-weight:700;color:var(--text)">תחזית יומית — חידושים והמרות</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">מול כרטיסים: מה ציפינו · מה קרה · מה מחר</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)">תחזית יומית</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">חידושים והמרות · צפוי vs בפועל</div>
       </div>
       <span class="card-badge badge-blue" id="dw-updated">טוען...</span>
     </div>
 
-    <!-- 3-DAY GRID -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-
-      <!-- YESTERDAY -->
-      <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden">
-        <div style="background:#f8fafc;padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">אתמול</div>
-          <div id="dw-yesterday-date" style="font-size:10px;color:var(--muted)">—</div>
+    <!-- YESTERDAY -->
+    <div style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px">אתמול</div>
+        <div id="dw-yesterday-date" style="font-size:11px;color:var(--muted)">—</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">חידושים</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:11px;color:var(--muted)">צפוי</span>
+            <span id="dw-y-exp-ren" style="font-size:18px;font-weight:800;color:var(--text)">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:11px;color:var(--muted)">בפועל</span>
+            <span id="dw-y-act-ren" style="font-size:18px;font-weight:800;color:var(--green)">—</span>
+          </div>
+          <div style="height:3px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:8px">
+            <div id="dw-y-ren-bar" style="height:100%;background:var(--green);border-radius:99px;width:0%"></div>
+          </div>
+          <div id="dw-y-ren-miss" style="font-size:10px;color:var(--orange);margin-top:3px;text-align:left"></div>
         </div>
-        <div style="padding:14px">
-          <!-- Renewals -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">חידושים</div>
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
-              <div style="font-size:11px;color:var(--muted)">צפוי</div>
-              <div id="dw-y-exp-ren" style="font-size:20px;font-weight:800;color:var(--text)">—</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:var(--muted)">בפועל</div>
-              <div id="dw-y-act-ren" style="font-size:20px;font-weight:800;color:var(--green)">—</div>
-            </div>
-            <div style="height:4px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin-top:6px">
-              <div id="dw-y-ren-bar" style="height:100%;background:var(--green);border-radius:999px;transition:width .6s ease;width:0%"></div>
-            </div>
-            <div id="dw-y-ren-miss" style="font-size:10px;color:var(--orange);margin-top:3px;text-align:left"></div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">המרות Trial→₪47</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:11px;color:var(--muted)">צפוי</span>
+            <span id="dw-y-exp-conv" style="font-size:18px;font-weight:800;color:var(--text)">—</span>
           </div>
-          <div style="height:1px;background:var(--border);margin-bottom:12px"></div>
-          <!-- Conversions -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">המרות Trial→₪47</div>
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
-              <div style="font-size:11px;color:var(--muted)">צפוי</div>
-              <div id="dw-y-exp-conv" style="font-size:20px;font-weight:800;color:var(--text)">—</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:var(--muted)">בפועל</div>
-              <div id="dw-y-act-conv" style="font-size:20px;font-weight:800;color:#4338ca">—</div>
-            </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:11px;color:var(--muted)">בפועל</span>
+            <span id="dw-y-act-conv" style="font-size:18px;font-weight:800;color:#4338ca">—</span>
           </div>
-          <div style="height:1px;background:var(--border);margin-bottom:10px"></div>
-          <!-- Revenue -->
-          <div style="display:flex;justify-content:space-between;font-size:12px">
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:11px">
             <span style="color:var(--muted)">הכנסה בפועל</span>
-            <span id="dw-y-rev" style="font-weight:700;color:var(--text)">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px">
-            <span style="color:var(--muted)">הכנסה צפויה</span>
-            <span id="dw-y-exp-rev" style="color:var(--muted)">—</span>
+            <span id="dw-y-rev" style="font-weight:700">—</span>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- TODAY -->
-      <div style="border:2px solid var(--purple);border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(124,58,237,.15)">
-        <div style="background:linear-gradient(135deg,#7c3aed,#9f67fa);padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
-          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:.5px">היום</div>
-          <div id="dw-today-date" style="font-size:10px;color:rgba(255,255,255,.7)">—</div>
+    <!-- TODAY -->
+    <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:2px solid var(--purple);border-radius:12px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:10px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.8px">היום</div>
+        <div id="dw-today-date" style="font-size:11px;color:var(--purple);font-weight:600">—</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:#fff;border:1px solid #ddd6fe;border-radius:8px;padding:12px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">חידושים</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:11px;color:var(--muted)">צפוי</span>
+            <span id="dw-t-exp-ren" style="font-size:20px;font-weight:800;color:var(--purple)">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:11px;color:var(--muted)">בפועל</span>
+            <span id="dw-t-act-ren" style="font-size:20px;font-weight:800;color:var(--green)">—</span>
+          </div>
+          <div style="height:3px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:8px">
+            <div id="dw-t-ren-bar" style="height:100%;background:var(--purple);border-radius:99px;width:0%"></div>
+          </div>
+          <div id="dw-t-ren-miss" style="font-size:10px;color:var(--orange);margin-top:3px;text-align:left"></div>
         </div>
-        <div style="padding:14px">
-          <!-- Renewals -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">חידושים</div>
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
-              <div style="font-size:11px;color:var(--muted)">צפוי</div>
-              <div id="dw-t-exp-ren" style="font-size:22px;font-weight:800;color:var(--purple)">—</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:var(--muted)">בפועל עד עכשיו</div>
-              <div id="dw-t-act-ren" style="font-size:22px;font-weight:800;color:var(--green)">—</div>
-            </div>
-            <div style="height:4px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin-top:6px">
-              <div id="dw-t-ren-bar" style="height:100%;background:var(--purple);border-radius:999px;transition:width .6s ease;width:0%"></div>
-            </div>
-            <div id="dw-t-ren-miss" style="font-size:10px;color:var(--orange);margin-top:3px;text-align:left"></div>
+        <div style="background:#fff;border:1px solid #ddd6fe;border-radius:8px;padding:12px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">המרות Trial→₪47</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:11px;color:var(--muted)">צפוי</span>
+            <span id="dw-t-exp-conv" style="font-size:20px;font-weight:800;color:var(--purple)">—</span>
           </div>
-          <div style="height:1px;background:var(--border);margin-bottom:12px"></div>
-          <!-- Conversions -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">המרות Trial→₪47</div>
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
-              <div style="font-size:11px;color:var(--muted)">צפוי</div>
-              <div id="dw-t-exp-conv" style="font-size:22px;font-weight:800;color:var(--purple)">—</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:var(--muted)">בפועל</div>
-              <div id="dw-t-act-conv" style="font-size:22px;font-weight:800;color:#4338ca">—</div>
-            </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:11px;color:var(--muted)">בפועל</span>
+            <span id="dw-t-act-conv" style="font-size:20px;font-weight:800;color:#4338ca">—</span>
           </div>
-          <div style="height:1px;background:var(--border);margin-bottom:10px"></div>
-          <!-- Revenue -->
-          <div style="display:flex;justify-content:space-between;font-size:12px">
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid #ddd6fe;display:flex;justify-content:space-between;font-size:11px">
             <span style="color:var(--muted)">הכנסה בפועל</span>
             <span id="dw-t-rev" style="font-weight:800;color:var(--purple)">—</span>
           </div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px">
-            <span style="color:var(--muted)">הכנסה צפויה</span>
-            <span id="dw-t-exp-rev" style="color:var(--muted)">—</span>
-          </div>
         </div>
       </div>
-
-      <!-- TOMORROW -->
-      <div style="border:1px solid #bfdbfe;border-radius:12px;overflow:hidden;background:#f8fbff">
-        <div style="background:#eff6ff;padding:10px 14px;border-bottom:1px solid #bfdbfe;display:flex;justify-content:space-between;align-items:center">
-          <div style="font-size:11px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.5px">מחר — תחזית</div>
-          <div id="dw-tomorrow-date" style="font-size:10px;color:#2563eb">—</div>
-        </div>
-        <div style="padding:14px">
-          <!-- Renewals -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">חידושים צפויים</div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:var(--muted)">מספר</div>
-              <div id="dw-tm-exp-ren" style="font-size:22px;font-weight:800;color:#2563eb">—</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px">
-              <span style="color:var(--muted)">הכנסה צפויה</span>
-              <span id="dw-tm-exp-rev" style="font-weight:700;color:#2563eb">—</span>
-            </div>
-          </div>
-          <div style="height:1px;background:#bfdbfe;margin-bottom:12px"></div>
-          <!-- Conversions -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">המרות צפויות</div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:var(--muted)">מספר</div>
-              <div id="dw-tm-exp-conv" style="font-size:22px;font-weight:800;color:#4338ca">—</div>
-            </div>
-          </div>
-          <div style="height:1px;background:#bfdbfe;margin-bottom:10px"></div>
-          <!-- Members list -->
-          <div id="dw-tm-names" style="font-size:10px;color:var(--muted);line-height:1.8"></div>
-        </div>
-      </div>
-
     </div>
+
+    <!-- TOMORROW -->
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-size:10px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.8px">מחר — תחזית</div>
+        <div id="dw-tomorrow-date" style="font-size:11px;color:#2563eb;font-weight:600">—</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">חידושים צפויים</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:11px;color:var(--muted)">מספר</span>
+            <span id="dw-tm-exp-ren" style="font-size:20px;font-weight:800;color:#2563eb">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px">
+            <span style="color:var(--muted)">הכנסה צפויה</span>
+            <span id="dw-tm-exp-rev" style="font-weight:700;color:#2563eb">—</span>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">המרות צפויות</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:11px;color:var(--muted)">מספר</span>
+            <span id="dw-tm-exp-conv" style="font-size:20px;font-weight:800;color:#4338ca">—</span>
+          </div>
+          <div id="dw-tm-names" style="font-size:10px;color:var(--muted);line-height:1.7"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- ══ RECURRING STATUS WIDGET ══ -->
