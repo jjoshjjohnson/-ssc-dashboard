@@ -319,9 +319,9 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
   <div class="kpi-row">
     <div class="kpi red">
       <div class="kpi-top"><div class="kpi-ico">📉</div><span class="kpi-badge dn">35.5%</span></div>
-      <div class="kpi-lbl">נטשו לאחר Trial</div>
-      <div class="kpi-val sm" id="k-churn">106</div>
-      <div class="kpi-sub">41.9% לא המירו אחרי Trial</div>
+      <div class="kpi-lbl">נטשו אחרי Trial</div>
+      <div class="kpi-val sm" id="k-churn">49</div>
+      <div class="kpi-sub">נטשו אחרי Trial — חודשים סגורים</div>
     </div>
     <div class="kpi cyan">
       <div class="kpi-top"><div class="kpi-ico">🔄</div><span class="kpi-badge">₪3,666</span></div>
@@ -338,7 +338,7 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi indigo">
       <div class="kpi-top"><div class="kpi-ico">💡</div><span class="kpi-badge">442 חברים</span></div>
       <div class="kpi-lbl">LTV ממוצע</div>
-      <div class="kpi-val sm" id="k-ltv">₪91</div>
+      <div class="kpi-val sm" id="k-ltv">₪121</div>
       <div class="kpi-sub">קארדקום בלבד</div>
     </div>
   </div>
@@ -551,8 +551,8 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi red">
       <div class="kpi-top"><div class="kpi-ico">❌</div><span class="kpi-badge dn">35.5%</span></div>
       <div class="kpi-lbl">עזבו (Churned)</div>
-      <div class="kpi-val" id="m-churned">157</div>
-      <div class="kpi-sub">41.9% לא המירו אחרי Trial</div>
+      <div class="kpi-val" id="m-churned">49</div>
+      <div class="kpi-sub">נטשו אחרי Trial (פברואר+מרץ)</div>
     </div>
     <div class="kpi orange">
       <div class="kpi-top"><div class="kpi-ico">⏳</div><span class="kpi-badge">ממוצע</span></div>
@@ -823,7 +823,7 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
       <div class="kpi-top"><div class="kpi-ico">❌</div></div>
       <div class="kpi-lbl">עזבו</div>
       <div class="kpi-val" id="ml-churned-count">106</div>
-      <div class="kpi-sub">לא שילמו 35+ יום</div>
+      <div class="kpi-sub">לא המירו אחרי Trial</div>
     </div>
     <div class="kpi purple">
       <div class="kpi-top"><div class="kpi-ico">💰</div></div>
@@ -894,7 +894,7 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi red">
       <div class="kpi-top"><div class="kpi-ico">💨</div><span class="kpi-badge">41.9%</span></div>
       <div class="kpi-lbl">נטשו אחרי Trial</div>
-      <div class="kpi-val" id="co-total-churn">106</div>
+      <div class="kpi-val" id="co-total-churn">49</div>
       <div class="kpi-sub">לא המירו בחודש הבא</div>
     </div>
   </div>
@@ -2258,6 +2258,22 @@ function updateRecurringWidget(c) {
   s('k-act',  totalActive);
   s('m-active', totalActive);
   s('ml-active-count', totalActive);
+
+  // Churn = trial members who joined in CLOSED months and never converted
+  // Computed from cohort data — only Feb+Mar are fully closed
+  const closedChurn = (typeof cohortData !== 'undefined' && cohortData)
+    ? Object.entries(cohortData)
+        .filter(([month]) => {
+          const [ny, nm] = month.split('-').map(Number);
+          const convYM = nm === 12 ? `${ny+1}-01` : `${ny}-${String(nm+1).padStart(2,'0')}`;
+          return convYM < CURR_MONTH; // conv month fully in the past
+        })
+        .flatMap(([,members]) => members.filter(m => m.status === 'churned'))
+        .length
+    : 49; // fallback
+  s('k-churn', closedChurn);
+  s('m-churned', closedChurn);
+  s('ml-churned-count', closedChurn);
 }
 
 
