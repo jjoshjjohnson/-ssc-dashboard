@@ -2903,31 +2903,50 @@ function updateDailyWidget(txns) {
   const YESTERDAY = new Date(NOW); YESTERDAY.setDate(TODAY.getDate()-1);
   const TOMORROW  = new Date(NOW); TOMORROW.setDate(TODAY.getDate()+1);
 
-  function fmt(d) { return d.toISOString().slice(0,10); }
+  // ── LOCAL date string — avoids UTC offset bug (Israel = UTC+3) ──
+  function fmt(d) {
+    return d.getFullYear() + '-' +
+      String(d.getMonth()+1).padStart(2,'0') + '-' +
+      String(d.getDate()).padStart(2,'0');
+  }
   function dayLabel(d) {
     const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
     return days[d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth()+1);
   }
-  function prevMonthSameDay(d) {
-    // What date was 1 month ago for this day-of-month?
-    return prevMonthStr(d);
-  }
 
-  // Build member map
+  // ── Normalize transactions — seed uses {d,a,tok,n} full uses {CreateDate,Amount,Token,CardOwnerName} ──
+  const normalized = txns.map(t => ({
+    CreateDate: t.CreateDate || t.d || '',
+    Amount:     t.Amount     ?? t.a ?? 0,
+    Token:      t.Token      || t.tok || t.CardOwnerEmail || t.CardOwnerPhone || '',
+    CardOwnerName: t.CardOwnerName || t.n || '—',
+    CardOwnerEmail: t.CardOwnerEmail || t.e || '',
+    CardOwnerPhone: t.CardOwnerPhone || t.ph || '',
+  })).filter(t => t.CreateDate && t.Amount > 1);
+
+  // ── Normalize: handles both full txns {CreateDate,Amount,Token} and seed {d,a,tok} ──
+  const normalized = txns.map(t => ({
+    CreateDate: t.CreateDate || t.d || '',
+    Amount:     t.Amount     ?? t.a ?? 0,
+    Token:      t.Token || t.tok || t.CardOwnerEmail || t.CardOwnerPhone || '',
+    CardOwnerName: t.CardOwnerName || t.n || '—',
+  })).filter(t => t.CreateDate && t.Amount > 1);
+
+  // Build member map from normalized data
   const mmap = {};
-  for (const t of [...txns].sort((a,b) => a.CreateDate.localeCompare(b.CreateDate))) {
-    const key = t.Token || t.CardOwnerEmail || t.CardOwnerPhone;
+  for (const t of [...normalized].sort((a,b) => a.CreateDate.localeCompare(b.CreateDate))) {
+    const key = t.Token;
     if (!key) continue;
-    if (!mmap[key]) mmap[key] = { name: t.CardOwnerName || '—', pays: [] };
+    if (!mmap[key]) mmap[key] = { name: t.CardOwnerName, pays: [] };
     mmap[key].pays.push(t);
   }
 
   function analyzeDay(targetDate) {
-    const targetStr  = fmt(targetDate);
-    const targetDay  = targetDate.getDate();
-    const prevMonth  = prevMonthSameDay(targetDate);
+    const targetStr = fmt(targetDate);
+    const targetDay = targetDate.getDate();
+    const prevMonth = prevMonthStr(targetDate);
 
-    // Expected renewals: paid recurring in prev month on same day
+    // Expected renewals: paid recurring in prev month on same day of month
     const expRenewals = [];
     for (const [token, m] of Object.entries(mmap)) {
       const prevRec = m.pays.filter(t =>
@@ -2949,33 +2968,30 @@ function updateDailyWidget(txns) {
         t.Amount === 10 &&
         parseInt(t.CreateDate.slice(8,10)) === targetDay
       );
-      if (prevTrial.length) {
-        expConversions.push({ token, name: m.name });
-      }
+      if (prevTrial.length) expConversions.push({ token, name: m.name });
     }
 
-    // Actual payments on this day
-    const actPays    = txns.filter(t => t.CreateDate.startsWith(targetStr));
-    const actRen     = actPays.filter(t => RECURRING.has(t.Amount));
-    const actNew     = actPays.filter(t => t.Amount === 10);
-    const actRenTok  = new Set(actRen.map(t => t.Token || t.CardOwnerEmail || t.CardOwnerPhone));
-    const actConvTok = new Set(actRen.map(t => t.Token || t.CardOwnerEmail || t.CardOwnerPhone));
+    // Actual payments on target date
+    const actPays = normalized.filter(t => t.CreateDate.startsWith(targetStr));
+    const actRen  = actPays.filter(t => RECURRING.has(t.Amount));
+    const actNew  = actPays.filter(t => t.Amount === 10);
+    const actRenTok = new Set(actRen.map(t => t.Token));
 
     const matchedRen  = expRenewals.filter(m => actRenTok.has(m.token));
     const missedRen   = expRenewals.filter(m => !actRenTok.has(m.token));
-    const matchedConv = expConversions.filter(m => actConvTok.has(m.token));
-    const missedConv  = expConversions.filter(m => !actConvTok.has(m.token));
+    const matchedConv = expConversions.filter(m => actRenTok.has(m.token));
 
     const expRev = expRenewals.reduce((s,m) => s + m.amount, 0);
     const actRev = actRen.reduce((s,t) => s + t.Amount, 0) + actNew.reduce((s,t) => s + t.Amount, 0);
 
     return {
       targetStr, expRenewals, expConversions,
-      actRen, actNew, matchedRen, missedRen, matchedConv, missedConv,
+      actRen, actNew, matchedRen, missedRen, matchedConv,
       expRev, actRev,
       tomorrowNames: expRenewals.map(m => m.name).slice(0,6),
     };
   }
+
 
   const y  = analyzeDay(YESTERDAY);
   const t  = analyzeDay(TODAY);
