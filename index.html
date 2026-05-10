@@ -604,7 +604,7 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
       <div>
         <div style="font-size:15px;font-weight:700;color:var(--text)">מנויים — <span id="dyn-curr-month-heb">מאי 2026</span></div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">ביטול נספר רק בסוף החודש (<span id="dyn-month-end">31/05</span>) · מתעדכן אוטומטית</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">הוראת קבע: חיוב עובר אוטומטית ביום הקבוע · לא עבר = בוטל · טרם הגיע = ממתין</div>
       </div>
       <span class="card-badge badge-purple" id="widget-updated">טוען...</span>
     </div>
@@ -644,8 +644,7 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
         </div>
         <div id="ws-rec-pending" style="font-size:34px;font-weight:800;color:#2563eb;line-height:1;margin-bottom:4px">—</div>
         <div style="font-size:11px;color:#6b7280;margin-bottom:4px">
-          <span id="ws-rec-late" style="color:#ea580c;font-weight:700">—</span> באיחור ·
-          <span id="ws-rec-future">—</span> עתידי
+          <span id="ws-rec-future">—</span> חברים · יום החיוב טרם הגיע
         </div>
         <div style="height:1px;background:#bfdbfe;margin-bottom:8px"></div>
         <div style="font-size:12px;font-weight:700;color:#2563eb">₪<span id="ws-rec-pending-rev">—</span> צפוי</div>
@@ -691,8 +690,7 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
         </div>
         <div id="ws-trial-pending" style="font-size:34px;font-weight:800;color:#d97706;line-height:1;margin-bottom:4px">—</div>
         <div style="font-size:11px;color:#6b7280;margin-bottom:4px">
-          <span id="ws-trial-late" style="color:#ea580c;font-weight:700">—</span> באיחור ·
-          <span id="ws-trial-future">—</span> עתידי
+          <span id="ws-trial-future">—</span> חברים · יום ההמרה טרם הגיע
         </div>
         <div style="height:1px;background:#fde68a;margin-bottom:8px"></div>
         <div style="font-size:12px;font-weight:700;color:#d97706">מועד: אותו יום בחודש</div>
@@ -2498,30 +2496,33 @@ function updateRecurringWidget(c) {
   }
 
   // ── CLASSIFY RECURRING PREV MEMBERS ──
-  let recRenewed = [], recPendingLate = [], recPendingFuture = [], recCancelled = [];
+  // Standing order (הוראת קבע): Cardcom auto-charges on exact billing day.
+  // Billing day passed + no charge = standing order CANCELLED (no "late" state).
+  // Billing day not reached = charge will fire automatically (pending).
+  let recRenewed = [], recPendingFuture = [], recCancelled = [];
+  const recPendingLate = []; // no longer used - late = cancelled with standing orders
   for (const [token, m] of Object.entries(recPrev)) {
     if (paidCurrRecurring.has(token)) {
-      recRenewed.push(m);
-    } else if (isMonthEnd) {
-      recCancelled.push(m);
+      recRenewed.push(m);         // ✅ charge fired
     } else if (m.payDay <= todayDay) {
-      recPendingLate.push(m);
+      recCancelled.push(m);       // ❌ billing day passed, no charge = cancelled/failed
     } else {
-      recPendingFuture.push(m);
+      recPendingFuture.push(m);   // ⏳ billing day not yet reached
     }
   }
 
   // ── CLASSIFY TRIAL PREV MEMBERS ──
-  let trialConverted = [], trialPendingLate = [], trialPendingFuture = [], trialChurned = [];
+  // Trial = 30 days from purchase. First charge = same day next calendar month.
+  // Conversion day passed + no ₪47 = churned (chose not to continue).
+  let trialConverted = [], trialPendingFuture = [], trialChurned = [];
+  const trialPendingLate = []; // no longer used - late = churned for trials
   for (const [token, m] of Object.entries(trialPrev)) {
     if (paidCurrRecurring.has(token)) {
-      trialConverted.push(m); // converted from trial to recurring
-    } else if (isMonthEnd) {
-      trialChurned.push(m);
+      trialConverted.push(m);     // 🔄 converted to recurring
     } else if (m.payDay <= todayDay) {
-      trialPendingLate.push(m); // due date passed, not yet paid
+      trialChurned.push(m);       // 💨 conversion day passed, no payment = churned
     } else {
-      trialPendingFuture.push(m);
+      trialPendingFuture.push(m); // ⏳ conversion day not yet reached
     }
   }
 
@@ -2534,15 +2535,15 @@ function updateRecurringWidget(c) {
   }
 
   // ── TOTALS ──
-  const totalActive = recRenewed.length + recPendingLate.length + recPendingFuture.length
-                    + trialConverted.length + trialPendingLate.length + trialPendingFuture.length
+  const totalActive = recRenewed.length + recPendingFuture.length
+                    + trialConverted.length + trialPendingFuture.length
                     + newMembers.length;
 
   const recRenewedRev  = recRenewed.reduce((s,m) => s + m.amount, 0);
-  const recPendingRev  = [...recPendingLate,...recPendingFuture].reduce((s,m) => s + m.amount, 0);
+  const recPendingRev  = recPendingFuture.reduce((s,m) => s + m.amount, 0);
   const recCancelRev   = recCancelled.reduce((s,m) => s + m.amount, 0);
   const trialConvRev   = trialConverted.reduce((s,m) => s + 47, 0); // approx ₪47 each
-  const lateTotalRev   = recPendingLate.reduce((s,m) => s + m.amount, 0);
+
   const trialChurnRate = Object.keys(trialPrev).length > 0
     ? Math.round(trialChurned.length / Object.keys(trialPrev).length * 100) + '%'
     : '—';
@@ -2558,8 +2559,7 @@ function updateRecurringWidget(c) {
   // Recurring row
   s('ws-rec-renewed',      recRenewed.length);
   s('ws-rec-renewed-rev',  recRenewedRev.toLocaleString());
-  s('ws-rec-pending',      recPendingLate.length + recPendingFuture.length);
-  s('ws-rec-late',         recPendingLate.length);
+  s('ws-rec-pending',      recPendingFuture.length);
   s('ws-rec-future',       recPendingFuture.length);
   s('ws-rec-pending-rev',  recPendingRev.toLocaleString());
   s('ws-rec-cancelled',    recCancelled.length);
@@ -2570,7 +2570,6 @@ function updateRecurringWidget(c) {
   s('ws-trial-conv',       trialConverted.length);
   s('ws-trial-conv-rev',   trialConvRev.toLocaleString());
   s('ws-trial-pending',    trialPendingLate.length + trialPendingFuture.length);
-  s('ws-trial-late',       trialPendingLate.length);
   s('ws-trial-future',     trialPendingFuture.length);
   s('ws-trial-churned',    trialChurned.length);
   s('ws-trial-churn-rate', trialChurnRate);
@@ -2583,20 +2582,11 @@ function updateRecurringWidget(c) {
   const total = Math.max(totalActive, 1);
   const setBar = (id, val) => { const el=document.getElementById(id); if(el) el.style.width = Math.round(val/total*100)+'%'; };
   setBar('ws-bar-renewed', recRenewed.length + trialConverted.length);
-  setBar('ws-bar-pending', recPendingLate.length + recPendingFuture.length + trialPendingLate.length + trialPendingFuture.length);
+  setBar('ws-bar-pending', recPendingFuture.length + trialPendingFuture.length);
   setBar('ws-bar-new',     newMembers.length);
 
   // Late warning — recurring members only (these are committed members, worth chasing)
-  const lateWarn = document.getElementById('ws-late-warning');
-  if (lateWarn) {
-    if (recPendingLate.length > 0 && !isMonthEnd) {
-      lateWarn.style.display = 'block';
-      s('ws-late-count', recPendingLate.length);
-      s('ws-late-rev', lateTotalRev.toLocaleString());
-    } else {
-      lateWarn.style.display = 'none';
-    }
-  }
+  // No late state - late = cancelled with standing orders
 
   // Sync top KPIs
   s('k-act',  totalActive);
