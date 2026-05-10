@@ -347,72 +347,96 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
   <div class="card" style="margin-bottom:16px;border-top:3px solid var(--purple)">
     <div class="card-hd" style="margin-bottom:14px">
       <div>
-        <div class="card-title">📊 סטטוס מנויים חוזרים — מאי 2026</div>
-        <div class="card-sub">על בסיס מחזור חיוב 30 יום + 5 ימי חסד · מעודכן בזמן אמת</div>
+        <div class="card-title">📊 סטטוס חברים — מאי 2026</div>
+        <div class="card-sub">חברים פעיל = שילם ₪10 או ₪47 החודש הקודם ועוד לא בוטל · ביטול נספר רק בסוף החודש</div>
       </div>
       <span class="card-badge badge-purple" id="widget-updated">טוען...</span>
     </div>
 
-    <!-- HOW ACTIVE IS DEFINED -->
-    <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#5b21b6;line-height:1.7">
-      <strong>📌 הגדרת חבר פעיל:</strong> חבר שביצע תשלום ב-35 הימים האחרונים (מחזור 30 יום + 5 ימי חסד). 
-      חבר שלא שילם מעל 35 יום נחשב כבוי ♻️
+    <!-- DEFINITION BOX -->
+    <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#5b21b6;line-height:1.8">
+      <strong>📌 הגדרת חבר פעיל:</strong><br>
+      כל מי ששילם ₪10 או ₪47 בחודש הקודם (אפריל) ועדיין לא בוטל.<br>
+      מועד חידוש = אותו יום חודש בו שילמו בחודש הקודם.<br>
+      <strong>ביטול מוכרז רק בסוף החודש</strong> — מי שלא שילם עד 31 במאי = מבוטל.
     </div>
 
     <!-- 4 STATUS BOXES -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
 
-      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;text-align:center">
-        <div style="font-size:11px;font-weight:600;color:#059669;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">✅ חידשו החודש</div>
-        <div id="ws-renewed" style="font-size:32px;font-weight:800;color:#059669;line-height:1">70</div>
-        <div style="font-size:11px;color:#6b7280;margin-top:4px">כבר שילמו מאי</div>
-        <div style="font-size:11px;font-weight:600;color:#059669;margin-top:3px">₪<span id="ws-renewed-rev">3,290</span></div>
+      <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:10px;font-weight:700;color:#059669;margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">✅ חידשו כבר</div>
+        <div id="ws-renewed" style="font-size:34px;font-weight:800;color:#059669;line-height:1">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:4px">שילמו מאי</div>
+        <div style="font-size:12px;font-weight:700;color:#059669;margin-top:4px">₪<span id="ws-renewed-rev">—</span> התקבל</div>
       </div>
 
-      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px;text-align:center">
-        <div style="font-size:11px;font-weight:600;color:#2563eb;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">⏳ טרם הגיע מועד</div>
-        <div id="ws-pending" style="font-size:32px;font-weight:800;color:#2563eb;line-height:1">125</div>
-        <div style="font-size:11px;color:#6b7280;margin-top:4px">יחידשו מאוחר יותר</div>
-        <div style="font-size:11px;font-weight:600;color:#2563eb;margin-top:3px">₪<span id="ws-pending-rev">5,875</span> פוטנציאל</div>
+      <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:10px;font-weight:700;color:#2563eb;margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">⏳ ממתין לחידוש</div>
+        <div id="ws-pending" style="font-size:34px;font-weight:800;color:#2563eb;line-height:1">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:4px">
+          <span id="ws-late" style="color:#ea580c;font-weight:600">—</span> באיחור ·
+          <span id="ws-future">—</span> טרם הגיע
+        </div>
+        <div style="font-size:12px;font-weight:700;color:#2563eb;margin-top:4px">₪<span id="ws-pending-rev">—</span> צפוי</div>
       </div>
 
-      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px;text-align:center">
-        <div style="font-size:11px;font-weight:600;color:#dc2626;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">❌ בוטל החודש</div>
-        <div id="ws-cancelled" style="font-size:32px;font-weight:800;color:#dc2626;line-height:1">42</div>
-        <div style="font-size:11px;color:#6b7280;margin-top:4px">עבר מועד, לא שילמו</div>
-        <div style="font-size:11px;font-weight:600;color:#dc2626;margin-top:3px">₪<span id="ws-cancelled-rev">1,974</span> אבוד</div>
-      </div>
-
-      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px;text-align:center">
-        <div style="font-size:11px;font-weight:600;color:#d97706;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">🌟 חברים חדשים</div>
-        <div id="ws-new" style="font-size:32px;font-weight:800;color:#d97706;line-height:1">17</div>
+      <div style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1px solid #fed7aa;border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:10px;font-weight:700;color:#ea580c;margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">🆕 חברים חדשים</div>
+        <div id="ws-new" style="font-size:34px;font-weight:800;color:#ea580c;line-height:1">—</div>
         <div style="font-size:11px;color:#6b7280;margin-top:4px">₪10 Trial החודש</div>
-        <div style="font-size:11px;font-weight:600;color:#d97706;margin-top:3px">₪<span id="ws-new-rev">170</span></div>
+        <div style="font-size:12px;font-weight:700;color:#ea580c;margin-top:4px">₪<span id="ws-new-rev">—</span></div>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#fef2f2,#fee2e2);border:1px solid #fecaca;border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:10px;font-weight:700;color:#dc2626;margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">❌ בוטל החודש</div>
+        <div id="ws-cancelled" style="font-size:34px;font-weight:800;color:#dc2626;line-height:1">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:4px">לא שילמו עד סוף חודש</div>
+        <div style="font-size:12px;font-weight:700;color:#dc2626;margin-top:4px">₪<span id="ws-cancelled-rev">—</span> אבוד</div>
       </div>
 
     </div>
 
-    <!-- PROGRESS BAR: renewals progress -->
+    <!-- TOTAL MEMBERS BAR -->
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:700;color:var(--text)">סה"כ חברים פעילים כרגע</div>
+        <div id="ws-total" style="font-size:24px;font-weight:800;color:var(--purple)">—</div>
+      </div>
+      <div style="display:flex;gap:3px;height:10px;border-radius:999px;overflow:hidden;margin-bottom:8px">
+        <div id="ws-bar-renewed"   style="background:#059669;transition:width .8s ease;min-width:0"></div>
+        <div id="ws-bar-pending"   style="background:#3b82f6;transition:width .8s ease;min-width:0"></div>
+        <div id="ws-bar-new"       style="background:#ea580c;transition:width .8s ease;min-width:0"></div>
+      </div>
+      <div style="display:flex;gap:16px;font-size:10px;color:#6b7280">
+        <span><span style="display:inline-block;width:8px;height:8px;background:#059669;border-radius:2px;margin-left:4px"></span>חידשו</span>
+        <span><span style="display:inline-block;width:8px;height:8px;background:#3b82f6;border-radius:2px;margin-left:4px"></span>ממתינים</span>
+        <span><span style="display:inline-block;width:8px;height:8px;background:#ea580c;border-radius:2px;margin-left:4px"></span>חדשים</span>
+      </div>
+    </div>
+
+    <!-- RENEWAL PROGRESS -->
     <div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin-bottom:6px">
-        <span>התקדמות חידושים מאי</span>
-        <span><strong id="ws-renewal-pct" style="color:var(--purple)">29.5%</strong> מסה"כ הצפוי (<span id="ws-total-expected">237</span> חברים)</span>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin-bottom:5px">
+        <span>התקדמות חידושים מתוך חברי אפריל</span>
+        <span><strong id="ws-renewal-pct" style="color:var(--purple)">—</strong> מתוך <span id="ws-total-expected">—</span> חברים</span>
       </div>
       <div style="height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden">
-        <div id="ws-renewal-bar" style="height:100%;border-radius:999px;background:linear-gradient(90deg,#059669,#34d399);transition:width 1s ease;width:29.5%"></div>
+        <div id="ws-renewal-bar" style="height:100%;border-radius:999px;background:linear-gradient(90deg,#059669,#34d399);transition:width 1s ease;width:0%"></div>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:4px">
-        <span>יום 9 מתוך 31</span>
-        <span>תחזית סוף חודש: <strong id="ws-forecast" style="color:var(--green)">195 חידושים</strong></span>
+        <span>יום <span id="ws-today-day">9</span> מתוך 31 · ביטולים ייספרו ב-31/05</span>
+        <span>תחזית חידושים: <strong id="ws-forecast" style="color:var(--green)">—</strong></span>
       </div>
     </div>
 
-    <!-- INSIGHT -->
-    <div style="background:#fafafa;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px;font-size:11px;color:#6b7280;line-height:1.6">
-      💡 <strong style="color:var(--text)">42 ביטולים</strong> שמועד חידושם עבר ב-<strong id="ws-cancel-days">1–9</strong> ימים — שווה לפנות אליהם עכשיו.
-      ערך פוטנציאלי מהחזרה: <strong style="color:var(--green)">₪<span id="ws-recovery-val">1,974</span>/חודש</strong>
+    <!-- LATE WARNING -->
+    <div id="ws-late-warning" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 14px;font-size:11px;color:#92400e;line-height:1.6;display:none">
+      ⚠️ <strong id="ws-late-count">0</strong> חברים שמועד חידושם עבר (באיחור) — שווה לפנות אליהם. 
+      הכנסה פוטנציאלית: <strong>₪<span id="ws-late-rev">0</span></strong>
     </div>
   </div>
+
   <!-- GOAL BAR -->
   <div class="goal-wrap">
     <div class="goal-top">
@@ -1952,88 +1976,137 @@ function updateRecurringWidget(c) {
   const TODAY = new Date();
   TODAY.setHours(0,0,0,0);
   const todayDay = TODAY.getDate();
-  const CURRENT_MONTH = TODAY.toISOString().slice(0,7);
-  const lastMonthDt = new Date(TODAY.getFullYear(), TODAY.getMonth()-1, 1);
-  const LAST_MONTH = lastMonthDt.toISOString().slice(0,7);
-  const RECURRING_AMOUNTS = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
+  const daysInMonth = new Date(TODAY.getFullYear(), TODAY.getMonth()+1, 0).getDate();
+  const CURR_MONTH = TODAY.toISOString().slice(0,7);
+  const prevDt = new Date(TODAY.getFullYear(), TODAY.getMonth()-1, 1);
+  const PREV_MONTH = prevDt.toISOString().slice(0,7);
+  const RECURRING = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
 
-  // Build member map (sorted by date)
-  const memberMap = {};
+  // Build member history map
+  const mmap = {};
   for (const t of [...c.txns].sort((a,b) => a.CreateDate.localeCompare(b.CreateDate))) {
     const key = t.Token || t.CardOwnerEmail || t.CardOwnerPhone;
     if (!key) continue;
-    if (!memberMap[key]) memberMap[key] = [];
-    memberMap[key].push(t);
+    if (!mmap[key]) mmap[key] = [];
+    mmap[key].push(t);
   }
 
-  // Last month recurring members — use day-of-month for renewal logic
-  const lastMonthRecurring = {};
-  for (const [token, history] of Object.entries(memberMap)) {
-    const lmPays = history.filter(t => t.CreateDate.startsWith(LAST_MONTH) && RECURRING_AMOUNTS.has(t.Amount));
-    if (lmPays.length) {
-      const last = lmPays.reduce((a,b) => a.CreateDate > b.CreateDate ? a : b);
-      const payDay = parseInt(last.CreateDate.slice(8,10));
-      lastMonthRecurring[token] = { payDay, amount: last.Amount };
+  // ── Previous month members (₪10 or recurring) ──
+  const prevMembers = {};
+  for (const [token, hist] of Object.entries(mmap)) {
+    const prevPays = hist.filter(t =>
+      t.CreateDate.startsWith(PREV_MONTH) &&
+      (t.Amount === 10 || RECURRING.has(t.Amount))
+    );
+    if (!prevPays.length) continue;
+    const last = prevPays.reduce((a,b) => a.CreateDate > b.CreateDate ? a : b);
+    prevMembers[token] = {
+      name: hist[0].CardOwnerName || '—',
+      payDay: parseInt(last.CreateDate.slice(8,10)),
+      prevAmount: last.Amount,
+    };
+  }
+
+  // ── Current month payments ──
+  const paidCurr = {};
+  for (const [token, hist] of Object.entries(mmap)) {
+    const currPays = hist.filter(t =>
+      t.CreateDate.startsWith(CURR_MONTH) &&
+      (t.Amount === 10 || RECURRING.has(t.Amount))
+    );
+    if (currPays.length) {
+      const last = currPays.reduce((a,b) => a.CreateDate > b.CreateDate ? a : b);
+      paidCurr[token] = { amount: last.Amount };
     }
   }
 
-  // Current month recurring payments
-  const paidThisMonth = new Set();
-  for (const [token, history] of Object.entries(memberMap)) {
-    const cmPays = history.filter(t => t.CreateDate.startsWith(CURRENT_MONTH) && RECURRING_AMOUNTS.has(t.Amount));
-    if (cmPays.length) paidThisMonth.add(token);
-  }
-
-  // Classify: renewed / cancelled (overdue) / pending (not yet due)
-  let renewed = [], cancelled = [], pending = [];
-  for (const [token, m] of Object.entries(lastMonthRecurring)) {
-    if (paidThisMonth.has(token)) {
-      renewed.push(m);
+  // ── Classify prev month members ──
+  let renewed = [], pendingLate = [], pendingFuture = [];
+  for (const [token, m] of Object.entries(prevMembers)) {
+    if (paidCurr[token]) {
+      renewed.push({ ...m, currAmount: paidCurr[token].amount });
     } else if (m.payDay <= todayDay) {
-      // Renewal date has passed this month — truly cancelled/churned
-      cancelled.push({ ...m, daysOverdue: todayDay - m.payDay });
+      pendingLate.push(m);   // due date passed, still no payment — late but NOT cancelled yet
     } else {
-      // Renewal date hasn't arrived yet — still expected
-      pending.push({ ...m, daysUntil: m.payDay - todayDay });
+      pendingFuture.push(m); // due date not yet reached
     }
   }
+  const allPending = [...pendingLate, ...pendingFuture];
 
-  // New members this month (₪10 trial)
-  const newMembers = c.txns.filter(t => t.Amount === 10 && t.CreateDate.startsWith(CURRENT_MONTH));
+  // ── New members this month (₪10, no prev month payment) ──
+  const newMembers = [];
+  for (const [token, hist] of Object.entries(mmap)) {
+    if (prevMembers[token]) continue; // was in prev month — not "new"
+    const currPays = hist.filter(t => t.CreateDate.startsWith(CURR_MONTH) && t.Amount === 10);
+    if (currPays.length) newMembers.push({ token, name: hist[0].CardOwnerName });
+  }
 
-  // Revenue calcs
-  const renewedRev  = renewed.reduce((s,m)  => s + m.amount, 0);
-  const pendingRev  = pending.reduce((s,m)  => s + m.amount, 0);
-  const cancelledRev= cancelled.reduce((s,m)=> s + m.amount, 0);
-  const newRev = newMembers.length * 10;
-  const totalExpected = Object.keys(lastMonthRecurring).length;
-  const renewalPct = totalExpected > 0 ? Math.round(renewed.length / totalExpected * 100) : 0;
-  const forecast = renewed.length + pending.length;
-  const maxOverdue = cancelled.length > 0 ? Math.max(...cancelled.map(m => m.daysOverdue)) : 0;
+  // ── Cancelled = 0 until end of month ──
+  // At month end, allPending becomes cancelled. Show 0 during the month.
+  const isMonthEnd = todayDay >= daysInMonth;
+  const cancelled = isMonthEnd ? allPending : [];
+  const stillPending = isMonthEnd ? [] : allPending;
 
-  // Update DOM
+  // ── Revenue ──
+  const renewedRev   = renewed.reduce((s,m) => s + (m.currAmount || m.prevAmount), 0);
+  const pendingRev   = stillPending.reduce((s,m) => s + m.prevAmount, 0);
+  const lateRev      = pendingLate.reduce((s,m) => s + m.prevAmount, 0);
+  const cancelledRev = cancelled.reduce((s,m) => s + m.prevAmount, 0);
+  const newRev       = newMembers.length * 10;
+
+  const totalExpected  = Object.keys(prevMembers).length;
+  const totalActive    = renewed.length + stillPending.length + newMembers.length;
+  const renewalPct     = totalExpected > 0 ? Math.round(renewed.length / totalExpected * 100) : 0;
+  const forecast       = renewed.length + allPending.length; // all pending expected to renew
+
+  // ── Update DOM ──
   const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   s('ws-renewed',      renewed.length);
   s('ws-renewed-rev',  renewedRev.toLocaleString());
-  s('ws-pending',      pending.length);
+  s('ws-pending',      stillPending.length);
+  s('ws-late',         pendingLate.length);
+  s('ws-future',       pendingFuture.length);
   s('ws-pending-rev',  pendingRev.toLocaleString());
-  s('ws-cancelled',    cancelled.length);
-  s('ws-cancelled-rev',cancelledRev.toLocaleString());
   s('ws-new',          newMembers.length);
   s('ws-new-rev',      newRev.toLocaleString());
-  s('ws-renewal-pct',  renewalPct + '%');
+  s('ws-cancelled',    cancelled.length);
+  s('ws-cancelled-rev',cancelledRev.toLocaleString());
+  s('ws-total',        totalActive);
   s('ws-total-expected',totalExpected);
+  s('ws-renewal-pct',  renewalPct + '%');
   s('ws-forecast',     forecast + ' חידושים');
-  s('ws-recovery-val', cancelledRev.toLocaleString());
-  s('ws-cancel-days',  cancelled.length > 0 ? `1–${maxOverdue}` : '0');
+  s('ws-today-day',    todayDay);
   s('ws-updated',      'עודכן: ' + new Date().toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'}));
 
-  // Progress bar
+  // Progress bar fill
   const bar = document.getElementById('ws-renewal-bar');
   if (bar) bar.style.width = renewalPct + '%';
 
-  // Update donut legend
+  // Stacked member bar
+  const total = Math.max(totalActive, 1);
+  const setBar = (id, val) => { const el=document.getElementById(id); if(el) el.style.width = Math.round(val/total*100)+'%'; };
+  setBar('ws-bar-renewed', renewed.length);
+  setBar('ws-bar-pending', stillPending.length);
+  setBar('ws-bar-new',     newMembers.length);
+
+  // Late warning box
+  const lateWarn = document.getElementById('ws-late-warning');
+  if (lateWarn) {
+    if (pendingLate.length > 0 && !isMonthEnd) {
+      lateWarn.style.display = 'block';
+      s('ws-late-count', pendingLate.length);
+      s('ws-late-rev', lateRev.toLocaleString());
+    } else {
+      lateWarn.style.display = 'none';
+    }
+  }
+
+  // Update overview KPIs too
+  s('k-act', totalActive);
+  s('dl-active', renewed.length + stillPending.length);
   s('dl-new', newMembers.length);
+  s('m-active', totalActive);
+  s('ml-active-count', totalActive);
 }
 
 // ── BOOT ──
