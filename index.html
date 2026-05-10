@@ -452,20 +452,20 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi purple">
       <div class="kpi-top"><div class="kpi-ico">💰</div><span class="kpi-badge up" id="k-rev-badge">קצב ₪1,846/יום</span></div>
       <div class="kpi-lbl">הכנסות החודש</div>
-      <div class="kpi-val" id="k-rev">₪16,617</div>
+      <div class="kpi-val" id="k-rev">₪25,690</div>
       <div class="kpi-sub">קארדקום + יופי · <span id="dyn-curr-month-kpi">מאי 2026</span></div>
     </div>
     <div class="kpi blue">
       <div class="kpi-top"><div class="kpi-ico">👥</div><span class="kpi-badge up">+17 החודש</span></div>
       <div class="kpi-lbl">חברים פעילים</div>
-      <div class="kpi-val" id="k-act">296</div>
+      <div class="kpi-val" id="k-act">257</div>
       <div class="kpi-sub">פעיל לפי מודל קוהורט</div>
     </div>
     <div class="kpi green">
       <div class="kpi-top"><div class="kpi-ico">📈</div><span class="kpi-badge" id="k-mrr-badge">232 מנויים</span></div>
       <div class="kpi-lbl">MRR קארדקום</div>
-      <div class="kpi-val" id="k-mrr">₪11,112</div>
-      <div class="kpi-sub"><span id="k-mrr-sub">232 מנויים × ממוצע ₪48</span></div>
+      <div class="kpi-val" id="k-mrr">₪11,154</div>
+      <div class="kpi-sub"><span id="k-mrr-sub">234 מנויים × ממוצע ₪48</span></div>
     </div>
   </div>
 
@@ -479,19 +479,19 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi cyan">
       <div class="kpi-top"><div class="kpi-ico">🔄</div><span class="kpi-badge">₪3,666</span></div>
       <div class="kpi-lbl">חידושים החודש</div>
-      <div class="kpi-val sm" id="k-renew">78</div>
+      <div class="kpi-val sm" id="k-renew">87</div>
       <div class="kpi-sub">מנויי ₪47 קארדקום</div>
     </div>
     <div class="kpi pink">
       <div class="kpi-top"><div class="kpi-ico">🌟</div><span class="kpi-badge">2026</span></div>
       <div class="kpi-lbl">YTD הכנסות</div>
-      <div class="kpi-val sm" id="k-ytd">₪141,094</div>
+      <div class="kpi-val sm" id="k-ytd">₪150,161</div>
       <div class="kpi-sub">קארדקום + יופי</div>
     </div>
     <div class="kpi indigo">
       <div class="kpi-top"><div class="kpi-ico">💡</div><span class="kpi-badge">442 חברים</span></div>
       <div class="kpi-lbl">LTV ממוצע</div>
-      <div class="kpi-val sm" id="k-ltv">₪121</div>
+      <div class="kpi-val sm" id="k-ltv">₪122</div>
       <div class="kpi-sub">קארדקום בלבד</div>
     </div>
   </div>
@@ -2338,7 +2338,7 @@ function updateDashboard(c) {
   set('mrr-arr', '₪' + (mrrTotal*12).toLocaleString());
   set('k-eom', '₪' + eomForecast.toLocaleString());
   set('k-churn', c.churned.length + ' חברים');
-  set('k-renew', c.mtdRecurring);
+  set('k-renew', renewalsMTD);
   set('k-ytd', '₪' + combinedYTD.toLocaleString());
   set('k-ltv', '₪' + ltv);
   set('ml-active-count', c.active.length);
@@ -2455,8 +2455,8 @@ function showFallbackData() {
   if (el) el.textContent = '⚠️ מנסה שוב...';
   showToast('⚠️ לא הצליח להתחבר ל-Cardcom · מנסה שוב בעוד 15 שניות', 'warning', 0);
   const staticVals = {
-    'k-rev':'₪16,617','k-act':'296','k-mrr':'₪11,112','k-eom':'₪57,236',
-    'k-churn':'49','k-renew':'70','k-ytd':'₪141,094','k-ltv':'₪121'
+    'k-rev':'₪25,690','k-act':'257','k-mrr':'₪11,154',
+    'k-churn':'49','k-renew':'87','k-ytd':'₪150,161','k-ltv':'₪122'
   };
   Object.entries(staticVals).forEach(([id,val]) => {
     const el = document.getElementById(id);
