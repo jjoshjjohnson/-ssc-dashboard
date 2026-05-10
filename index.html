@@ -294,7 +294,7 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
       <div class="kpi-top"><div class="kpi-ico">💰</div><span class="kpi-badge up" id="k-rev-badge">קצב ₪1,846/יום</span></div>
       <div class="kpi-lbl">הכנסות החודש</div>
       <div class="kpi-val" id="k-rev">₪16,617</div>
-      <div class="kpi-sub">קארדקום + יופי · מאי 2026</div>
+      <div class="kpi-sub">קארדקום + יופי · <span id="dyn-curr-month-kpi">מאי 2026</span></div>
     </div>
     <div class="kpi blue">
       <div class="kpi-top"><div class="kpi-ico">👥</div><span class="kpi-badge up">+17 החודש</span></div>
@@ -350,8 +350,8 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
       <div>
-        <div style="font-size:15px;font-weight:700;color:var(--text)">מנויים — מאי 2026</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">ביטול נספר רק בסוף החודש (31/05) · מתעדכן אוטומטית</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)">מנויים — <span id="dyn-curr-month-heb">מאי 2026</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">ביטול נספר רק בסוף החודש (<span id="dyn-month-end">31/05</span>) · מתעדכן אוטומטית</div>
       </div>
       <span class="card-badge badge-purple" id="widget-updated">טוען...</span>
     </div>
@@ -487,7 +487,7 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
           <span><span style="display:inline-block;width:8px;height:8px;background:#3b82f6;border-radius:2px;margin-left:4px;vertical-align:middle"></span>ממתינים</span>
           <span><span style="display:inline-block;width:8px;height:8px;background:#ea580c;border-radius:2px;margin-left:4px;vertical-align:middle"></span>חדשים</span>
         </div>
-        <span id="ws-today-day" style="color:var(--muted)">יום 9/31</span>
+        <span id="ws-today-day" style="color:var(--muted)">יום —/—</span>
       </div>
     </div>
 
@@ -1074,13 +1074,13 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
   <div class="card">
     <div class="card-hd">
       <div>
-        <div class="card-title">קוהורט אפריל — פירוט יומי</div>
-        <div class="card-sub">45 חברים שהצטרפו באפריל · מועד חידוש = אותו יום בחודש מאי</div>
+        <div class="card-title">קוהורט <span id="dyn-prev-month-heb-cohort">אפריל</span> — פירוט יומי</div>
+        <div class="card-sub"><span id="dyn-cohort-sub">45 חברים שהצטרפו באפריל · מועד חידוש = אותו יום בחודש מאי</span></div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <span class="card-badge badge-green" id="co-apr-conv-badge">5 המירו</span>
-        <span class="card-badge badge-red" id="co-apr-churn-badge">7 נטשו</span>
-        <span class="card-badge badge-blue" id="co-apr-pend-badge">33 ממתין</span>
+        <span class="card-badge badge-green" id="co-apr-conv-badge">— המירו</span>
+        <span class="card-badge badge-red" id="co-apr-churn-badge">— נטשו</span>
+        <span class="card-badge badge-blue" id="co-apr-pend-badge">— ממתין</span>
       </div>
     </div>
 
@@ -2544,7 +2544,9 @@ function renderCohortTable(cohorts) {
 }
 
 function renderAprCohort(cohorts) {
-  const apr = (cohorts['2026-04'] || []).sort((a,b) => a.joinDay - b.joinDay);
+  const prevDtC = new Date(); prevDtC.setDate(1); prevDtC.setMonth(prevDtC.getMonth()-1);
+  const PREV_COHORT_MONTH = prevDtC.toISOString().slice(0,7);
+  const apr = (cohorts[PREV_COHORT_MONTH] || []).sort((a,b) => a.joinDay - b.joinDay);
   const filtered = cohortFilter === 'all' ? apr
     : cohortFilter === 'converted' ? apr.filter(m => m.converted)
     : cohortFilter === 'churned' ? apr.filter(m => m.status === 'churned' || m.status === 'late')
@@ -2580,6 +2582,13 @@ function renderAprCohort(cohorts) {
   const churn = apr.filter(m => m.status === 'churned' || m.status === 'late').length;
   const pend  = apr.filter(m => m.status === 'pending' || m.status === 'future').length;
   const s = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  // Update cohort subtitle
+  const HEB_M = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  const prevDtSub = new Date(); prevDtSub.setDate(1); prevDtSub.setMonth(prevDtSub.getMonth()-1);
+  const prevMHeb = HEB_M[prevDtSub.getMonth()];
+  const nextMHeb = HEB_M[(prevDtSub.getMonth()+1) % 12];
+  const cohortSub = document.getElementById('dyn-cohort-sub');
+  if (cohortSub) cohortSub.textContent = apr.length + ' חברים שהצטרפו ב' + prevMHeb + ' · מועד חידוש = אותו יום ב' + nextMHeb;
   s('co-apr-conv-badge',  conv  + ' המירו');
   s('co-apr-churn-badge', churn + ' נטשו');
   s('co-apr-pend-badge',  pend  + ' ממתין');
@@ -2738,13 +2747,84 @@ function updateDailyWidget(txns) {
   s('dw-updated', 'עודכן: ' + new Date().toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'}));
 }
 
+
+// ══ GLOBAL DATE LABELS — runs on load and every refresh ══
+function updateDateLabels() {
+  const NOW = new Date();
+  const CURR_MONTH_NUM = NOW.getMonth(); // 0-indexed
+  const CURR_YEAR = NOW.getFullYear();
+  const DAYS_IN_MONTH = new Date(CURR_YEAR, CURR_MONTH_NUM+1, 0).getDate();
+  const TODAY_DAY = NOW.getDate();
+
+  const HEB_MONTHS = [
+    'ינואר','פברואר','מרץ','אפריל','מאי','יוני',
+    'יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'
+  ];
+
+  const currMonthHeb = HEB_MONTHS[CURR_MONTH_NUM];
+  const prevMonthHeb = HEB_MONTHS[CURR_MONTH_NUM === 0 ? 11 : CURR_MONTH_NUM-1];
+  const nextMonthHeb = HEB_MONTHS[(CURR_MONTH_NUM+1) % 12];
+
+  // Month/year label
+  const currMonthYear = currMonthHeb + ' ' + CURR_YEAR;
+  const endOfMonth = DAYS_IN_MONTH + '/' + String(CURR_MONTH_NUM+1).padStart(2,'0');
+
+  const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const sInner = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
+
+  s('dyn-curr-month-heb',      currMonthYear);
+  s('dyn-curr-month-kpi',      currMonthYear);
+  s('dyn-month-end',           endOfMonth);
+  s('dyn-prev-month-heb-cohort', prevMonthHeb);
+  s('ws-today-day',            'יום ' + TODAY_DAY + '/' + DAYS_IN_MONTH);
+  s('days-elapsed',             TODAY_DAY);
+
+  // Goal bar sub-text
+  const goalSub = document.querySelector('.card-sub');
+  // Cohort subtitle — update dynamically when cohort data is available
+  // (handled in renderAprCohort)
+
+  // Update widget header "ביטול נספר רק בסוף החודש"  
+  s('dyn-month-end', DAYS_IN_MONTH + '/' + String(CURR_MONTH_NUM+1).padStart(2,'0'));
+
+  // Topbar date
+  const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+  const tbMeta = document.querySelector('.tb-sub');
+  if (tbMeta) {
+    tbMeta.textContent = days[NOW.getDay()] + ' ' + TODAY_DAY + ' ' + currMonthHeb + ' ' + CURR_YEAR + ' · Terminal 141682';
+  }
+}
+
+// ══ MONTH-CHANGE DETECTION ══
+// If the browser is left open overnight or across month boundaries,
+// detect and re-fetch + re-render everything
+let _lastKnownMonth = new Date().getMonth();
+let _lastKnownDay   = new Date().getDate();
+
+function checkDateRollover() {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentDay   = now.getDate();
+
+  if (currentMonth !== _lastKnownMonth || currentDay !== _lastKnownDay) {
+    // Day or month changed — full refresh
+    console.log('Date rollover detected, refreshing data...');
+    _lastKnownMonth = currentMonth;
+    _lastKnownDay   = currentDay;
+    updateDateLabels();
+    fetchCardcomData(); // re-fetch live data with new date context
+  }
+}
+
 // ── BOOT ──
 document.addEventListener('DOMContentLoaded',()=>{
+  updateDateLabels();          // set all date labels immediately
   initCharts();
   buildHeatmap();
   setTimeout(renderMembers,100);
   fetchCardcomData();
   startAutoRefresh();
+  setInterval(checkDateRollover, 60000); // check for day/month rollover every minute
 });
 </script>
 </body>
