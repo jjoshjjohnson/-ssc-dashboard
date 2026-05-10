@@ -131,9 +131,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .g-5-7{display:grid;grid-template-columns:5fr 7fr;gap:16px;margin-bottom:16px}
 
 /* ── CHART WRAP ── */
-.cw{position:relative;height:210px}
-.cw.tall{height:270px}
-.cw.sh{height:150px}
+.cw{position:relative;height:220px}
+.cw.tall{height:280px}
+.cw.sh{height:160px}
 
 /* ── GOAL BAR ── */
 .goal-wrap{background:var(--white);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border)}
@@ -868,7 +868,7 @@ function initCharts(){
     {label:'קארדקום',data:D.cardcom,backgroundColor:C.purple+'cc',borderRadius:4},
     {label:'יופי',data:D.yofi,backgroundColor:C.cyan+'cc',borderRadius:4},
     {label:'סה"כ',data:D.combined,type:'line',borderColor:C.yellow,backgroundColor:'transparent',tension:0.4,pointBackgroundColor:C.yellow,pointRadius:5,borderWidth:2.5}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10,padding:14,usePointStyle:true}},tooltip:ttILS},scales:{x:{stacked:true,grid:gr},y:{stacked:false,grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',align:'end',labels:{boxWidth:10,padding:14,usePointStyle:true,font:{size:11}}},tooltip:ttILS},scales:{x:{stacked:true,grid:gr},y:{stacked:false,grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
 
   // Revenue split donut
   chs.split=new Chart(document.getElementById('ch-split'),{type:'doughnut',data:{labels:['קארדקום','יופי'],datasets:[{data:[41833,99261],backgroundColor:[C.purple,C.cyan],borderWidth:3,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>` ${c.label}: ₪${c.parsed.toLocaleString()}`}}}}});
@@ -890,7 +890,7 @@ function initCharts(){
   chs.wkNew=new Chart(document.getElementById('ch-wk-new'),{type:'bar',data:{labels:D.weekly.labels,datasets:[
     {label:'חדשים',data:D.weekly.newM,backgroundColor:C.green+'cc',borderRadius:4},
     {label:'חידושים',data:D.weekly.rec,backgroundColor:C.purple+'cc',borderRadius:4}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,usePointStyle:true}},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',align:'end',labels:{boxWidth:10,padding:12,usePointStyle:true,font:{size:11}}},tooltip:ttN},scales:{x:{grid:gr},y:{grid:gr}}}});
 }
 
 // ── HEATMAP ──
@@ -1888,6 +1888,7 @@ function rebuildCharts(c) {
   updateChart(chs.churn, mLabels.slice(1), [{data:newByMonth.slice(1)},{data:churnByMonth.slice(1)}]);
   updateChart(chs.newmo, mLabels.slice(1), [{data:newByMonth.slice(1)}]);
   updateChart(chs.revStack, mLabels, [{data:cardcomByMonth},{data:yofiByMonth},{data:combinedByMonth}]);
+  if (chs.revStack) { chs.revStack.options.plugins.legend.align = 'end'; chs.revStack.update('none'); }
   updateChart(chs.weeklyRev, wLabels, [{data:wRev}]);
   updateChart(chs.wkNew, wLabels, [{data:wNew},{data:wRec}]);
   updateChart(chs.dowNew, dowLabels, [{data:c.dow.new}]);
@@ -1949,11 +1950,14 @@ function startAutoRefresh() {
 // ══ UPDATE WIDGET WITH LIVE DATA ══
 function updateRecurringWidget(c) {
   const TODAY = new Date();
+  TODAY.setHours(0,0,0,0);
+  const todayDay = TODAY.getDate();
   const CURRENT_MONTH = TODAY.toISOString().slice(0,7);
-  const LAST_MONTH = new Date(TODAY.getFullYear(), TODAY.getMonth()-1, 1).toISOString().slice(0,7);
+  const lastMonthDt = new Date(TODAY.getFullYear(), TODAY.getMonth()-1, 1);
+  const LAST_MONTH = lastMonthDt.toISOString().slice(0,7);
   const RECURRING_AMOUNTS = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
 
-  // Build member map
+  // Build member map (sorted by date)
   const memberMap = {};
   for (const t of [...c.txns].sort((a,b) => a.CreateDate.localeCompare(b.CreateDate))) {
     const key = t.Token || t.CardOwnerEmail || t.CardOwnerPhone;
@@ -1962,71 +1966,73 @@ function updateRecurringWidget(c) {
     memberMap[key].push(t);
   }
 
-  // April recurring members
-  const aprRecurring = {};
+  // Last month recurring members — use day-of-month for renewal logic
+  const lastMonthRecurring = {};
   for (const [token, history] of Object.entries(memberMap)) {
-    const aprPays = history.filter(t => t.CreateDate.startsWith(LAST_MONTH) && RECURRING_AMOUNTS.has(t.Amount));
-    if (aprPays.length) {
-      const last = aprPays.reduce((a,b) => a.CreateDate > b.CreateDate ? a : b);
-      aprRecurring[token] = { lastAprDate: new Date(last.CreateDate), amount: last.Amount, history };
+    const lmPays = history.filter(t => t.CreateDate.startsWith(LAST_MONTH) && RECURRING_AMOUNTS.has(t.Amount));
+    if (lmPays.length) {
+      const last = lmPays.reduce((a,b) => a.CreateDate > b.CreateDate ? a : b);
+      const payDay = parseInt(last.CreateDate.slice(8,10));
+      lastMonthRecurring[token] = { payDay, amount: last.Amount };
     }
   }
 
-  // May recurring payments
-  const paidMay = new Set();
+  // Current month recurring payments
+  const paidThisMonth = new Set();
   for (const [token, history] of Object.entries(memberMap)) {
-    const mayPays = history.filter(t => t.CreateDate.startsWith(CURRENT_MONTH) && RECURRING_AMOUNTS.has(t.Amount));
-    if (mayPays.length) paidMay.add(token);
+    const cmPays = history.filter(t => t.CreateDate.startsWith(CURRENT_MONTH) && RECURRING_AMOUNTS.has(t.Amount));
+    if (cmPays.length) paidThisMonth.add(token);
   }
 
-  let renewed = [], pending = [], cancelled = [];
-  for (const [token, m] of Object.entries(aprRecurring)) {
-    if (paidMay.has(token)) {
+  // Classify: renewed / cancelled (overdue) / pending (not yet due)
+  let renewed = [], cancelled = [], pending = [];
+  for (const [token, m] of Object.entries(lastMonthRecurring)) {
+    if (paidThisMonth.has(token)) {
       renewed.push(m);
-      continue;
-    }
-    const expectedRenewal = new Date(m.lastAprDate.getTime() + 30*24*60*60*1000);
-    if (expectedRenewal <= TODAY) {
-      cancelled.push({ ...m, daysOverdue: Math.round((TODAY-expectedRenewal)/(1000*60*60*24)) });
+    } else if (m.payDay <= todayDay) {
+      // Renewal date has passed this month — truly cancelled/churned
+      cancelled.push({ ...m, daysOverdue: todayDay - m.payDay });
     } else {
-      pending.push({ ...m, daysUntil: Math.round((expectedRenewal-TODAY)/(1000*60*60*24)) });
+      // Renewal date hasn't arrived yet — still expected
+      pending.push({ ...m, daysUntil: m.payDay - todayDay });
     }
   }
 
-  // New members this month
+  // New members this month (₪10 trial)
   const newMembers = c.txns.filter(t => t.Amount === 10 && t.CreateDate.startsWith(CURRENT_MONTH));
 
   // Revenue calcs
-  const renewedRev = renewed.reduce((s,m) => s+m.amount, 0);
-  const pendingRev = pending.reduce((s,m) => s+m.amount, 0);
-  const cancelledRev = cancelled.reduce((s,m) => s+m.amount, 0);
+  const renewedRev  = renewed.reduce((s,m)  => s + m.amount, 0);
+  const pendingRev  = pending.reduce((s,m)  => s + m.amount, 0);
+  const cancelledRev= cancelled.reduce((s,m)=> s + m.amount, 0);
   const newRev = newMembers.length * 10;
-  const totalExpected = Object.keys(aprRecurring).length;
-  const renewalPct = totalExpected > 0 ? Math.round(renewed.length/totalExpected*100) : 0;
+  const totalExpected = Object.keys(lastMonthRecurring).length;
+  const renewalPct = totalExpected > 0 ? Math.round(renewed.length / totalExpected * 100) : 0;
   const forecast = renewed.length + pending.length;
+  const maxOverdue = cancelled.length > 0 ? Math.max(...cancelled.map(m => m.daysOverdue)) : 0;
 
   // Update DOM
-  const s = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
-  s('ws-renewed', renewed.length);
-  s('ws-renewed-rev', renewedRev.toLocaleString());
-  s('ws-pending', pending.length);
-  s('ws-pending-rev', pendingRev.toLocaleString());
-  s('ws-cancelled', cancelled.length);
-  s('ws-cancelled-rev', cancelledRev.toLocaleString());
-  s('ws-new', newMembers.length);
-  s('ws-new-rev', newRev.toLocaleString());
-  s('ws-renewal-pct', renewalPct + '%');
-  s('ws-total-expected', totalExpected);
-  s('ws-forecast', forecast + ' חידושים');
+  const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  s('ws-renewed',      renewed.length);
+  s('ws-renewed-rev',  renewedRev.toLocaleString());
+  s('ws-pending',      pending.length);
+  s('ws-pending-rev',  pendingRev.toLocaleString());
+  s('ws-cancelled',    cancelled.length);
+  s('ws-cancelled-rev',cancelledRev.toLocaleString());
+  s('ws-new',          newMembers.length);
+  s('ws-new-rev',      newRev.toLocaleString());
+  s('ws-renewal-pct',  renewalPct + '%');
+  s('ws-total-expected',totalExpected);
+  s('ws-forecast',     forecast + ' חידושים');
   s('ws-recovery-val', cancelledRev.toLocaleString());
-  s('ws-cancel-days', cancelled.length > 0 ? `1–${Math.max(...cancelled.map(m=>m.daysOverdue))}` : '0');
-  s('ws-updated', 'עודכן: ' + new Date().toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'}));
+  s('ws-cancel-days',  cancelled.length > 0 ? `1–${maxOverdue}` : '0');
+  s('ws-updated',      'עודכן: ' + new Date().toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'}));
 
-  // Update bar
+  // Progress bar
   const bar = document.getElementById('ws-renewal-bar');
   if (bar) bar.style.width = renewalPct + '%';
 
-  // Update dl values in overview donut
+  // Update donut legend
   s('dl-new', newMembers.length);
 }
 
