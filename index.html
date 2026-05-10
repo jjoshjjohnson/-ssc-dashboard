@@ -1907,6 +1907,26 @@ function mlPage(dir){
 
 // ═══════════════════════════════════════════
 //  LIVE CARDCOM FETCH SYSTEM
+
+// ── LOCAL DATE HELPERS (avoid UTC offset bugs for Israel UTC+3) ──
+function localMonthStr(d) {
+  // Returns "YYYY-MM" using LOCAL time, not UTC
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+function localDateStr(d) {
+  // Returns "YYYY-MM-DD" using LOCAL time
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
+function prevMonthStr(d) {
+  // Returns "YYYY-MM" for the month before d, using LOCAL time
+  const m = d.getMonth(); // 0-indexed
+  const y = d.getFullYear();
+  if (m === 0) return (y-1) + '-12';
+  return y + '-' + String(m).padStart(2,'0');
+}
+
 //  Calls Cardcom API via Make webhook on load
 //  Credentials: Terminal 141682
 // ═══════════════════════════════════════════
@@ -1929,7 +1949,7 @@ const TODAY = new Date();
 const YEAR_START = new Date(TODAY.getFullYear(), 0, 1);
 const TODAY_STR = getDateStr(TODAY);
 const YEAR_START_STR = getDateStr(YEAR_START);
-const CURRENT_MONTH = TODAY.toISOString().slice(0,7);
+const CURRENT_MONTH = localMonthStr(TODAY);
 const CURRENT_MONTH_NUM = String(TODAY.getMonth()+1).padStart(2,'0');
 const CURRENT_YEAR = String(TODAY.getFullYear());
 const DAYS_IN_MONTH = new Date(TODAY.getFullYear(), TODAY.getMonth()+1, 0).getDate();
@@ -2463,9 +2483,8 @@ function updateRecurringWidget(c) {
   const TODAY = new Date(); TODAY.setHours(0,0,0,0);
   const todayDay = TODAY.getDate();
   const daysInMonth = new Date(TODAY.getFullYear(), TODAY.getMonth()+1, 0).getDate();
-  const CURR_MONTH = TODAY.toISOString().slice(0,7);
-  const prevDt = new Date(TODAY.getFullYear(), TODAY.getMonth()-1, 1);
-  const PREV_MONTH = prevDt.toISOString().slice(0,7);
+  const CURR_MONTH = localMonthStr(TODAY);
+  const PREV_MONTH = prevMonthStr(TODAY);
   const RECURRING = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
   const isMonthEnd = todayDay >= daysInMonth;
 
@@ -2637,7 +2656,7 @@ function buildCohortData(txns) {
   const RECURRING = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
   const TODAY = new Date(); TODAY.setHours(0,0,0,0);
   const todayDay = TODAY.getDate();
-  const CURR_MONTH = TODAY.toISOString().slice(0,7);
+  const CURR_MONTH = localMonthStr(TODAY);
 
   // Build member map
   const mmap = {};
@@ -2747,7 +2766,7 @@ function renderCohortTable(cohorts) {
 
 function renderAprCohort(cohorts) {
   const prevDtC = new Date(); prevDtC.setDate(1); prevDtC.setMonth(prevDtC.getMonth()-1);
-  const PREV_COHORT_MONTH = prevDtC.toISOString().slice(0,7);
+  const PREV_COHORT_MONTH = prevMonthStr(prevDtC);
   const apr = (cohorts[PREV_COHORT_MONTH] || []).sort((a,b) => a.joinDay - b.joinDay);
   const filtered = cohortFilter === 'all' ? apr
     : cohortFilter === 'converted' ? apr.filter(m => m.converted)
@@ -2829,8 +2848,7 @@ function updateDailyWidget(txns) {
   }
   function prevMonthSameDay(d) {
     // What date was 1 month ago for this day-of-month?
-    const pm = new Date(d.getFullYear(), d.getMonth()-1, 1);
-    return `${pm.getFullYear()}-${String(pm.getMonth()+1).padStart(2,'0')}`;
+    return prevMonthStr(d);
   }
 
   // Build member map
