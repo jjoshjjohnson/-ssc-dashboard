@@ -299,8 +299,8 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi blue">
       <div class="kpi-top"><div class="kpi-ico">👥</div><span class="kpi-badge up">+17 החודש</span></div>
       <div class="kpi-lbl">חברים פעילים</div>
-      <div class="kpi-val" id="k-act">285</div>
-      <div class="kpi-sub">תשלום ב-35 ימים אחרונים</div>
+      <div class="kpi-val" id="k-act">296</div>
+      <div class="kpi-sub">פעיל לפי מודל קוהורט</div>
     </div>
     <div class="kpi green">
       <div class="kpi-top"><div class="kpi-ico">📈</div><span class="kpi-badge">281 מנויים</span></div>
@@ -319,9 +319,9 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
   <div class="kpi-row">
     <div class="kpi red">
       <div class="kpi-top"><div class="kpi-ico">📉</div><span class="kpi-badge dn">35.5%</span></div>
-      <div class="kpi-lbl">שחיקה (Churn)</div>
-      <div class="kpi-val sm" id="k-churn">157 חברים</div>
-      <div class="kpi-sub">מסה"כ 442 חברים</div>
+      <div class="kpi-lbl">נטשו לאחר Trial</div>
+      <div class="kpi-val sm" id="k-churn">106</div>
+      <div class="kpi-sub">41.9% לא המירו אחרי Trial</div>
     </div>
     <div class="kpi cyan">
       <div class="kpi-top"><div class="kpi-ico">🔄</div><span class="kpi-badge">₪3,666</span></div>
@@ -346,96 +346,120 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
 
   <!-- ══ RECURRING STATUS WIDGET ══ -->
   <div class="card" style="margin-bottom:16px;border-top:3px solid var(--purple)">
-    <div class="card-hd" style="margin-bottom:14px">
+
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
       <div>
-        <div class="card-title">📊 סטטוס חברים — מאי 2026</div>
-        <div class="card-sub">חברים פעיל = שילם ₪10 או ₪47 החודש הקודם ועוד לא בוטל · ביטול נספר רק בסוף החודש</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)">מנויים חוזרים — מאי 2026</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">על בסיס מועד הצטרפות · ביטול נספר רק בסוף החודש (31/05)</div>
       </div>
       <span class="card-badge badge-purple" id="widget-updated">טוען...</span>
     </div>
 
-    <!-- DEFINITION BOX -->
-    <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#5b21b6;line-height:1.8">
-      <strong>📌 הגדרת חבר פעיל:</strong><br>
-      כל מי ששילם ₪10 או ₪47 בחודש הקודם (אפריל) ועדיין לא בוטל.<br>
-      מועד חידוש = אותו יום חודש בו שילמו בחודש הקודם.<br>
-      <strong>ביטול מוכרז רק בסוף החודש</strong> — מי שלא שילם עד 31 במאי = מבוטל.
+    <!-- TOTAL MEMBERS HEADLINE -->
+    <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#7c3aed;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">סה"כ חברים פעילים כרגע</div>
+        <div style="font-size:11px;color:#6b7280">חידשו + ממתינים לחידוש + חדשים החודש</div>
+      </div>
+      <div id="ws-total" style="font-size:40px;font-weight:800;color:#7c3aed;line-height:1">—</div>
     </div>
 
-    <!-- 4 STATUS BOXES -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+    <!-- 4 BOXES -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
 
-      <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #bbf7d0;border-radius:12px;padding:16px;text-align:center">
-        <div style="font-size:10px;font-weight:700;color:#059669;margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">✅ חידשו כבר</div>
-        <div id="ws-renewed" style="font-size:34px;font-weight:800;color:#059669;line-height:1">—</div>
-        <div style="font-size:11px;color:#6b7280;margin-top:4px">שילמו מאי</div>
-        <div style="font-size:12px;font-weight:700;color:#059669;margin-top:4px">₪<span id="ws-renewed-rev">—</span> התקבל</div>
-      </div>
-
-      <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:12px;padding:16px;text-align:center">
-        <div style="font-size:10px;font-weight:700;color:#2563eb;margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">⏳ ממתין לחידוש</div>
-        <div id="ws-pending" style="font-size:34px;font-weight:800;color:#2563eb;line-height:1">—</div>
-        <div style="font-size:11px;color:#6b7280;margin-top:4px">
-          <span id="ws-late" style="color:#ea580c;font-weight:600">—</span> באיחור ·
-          <span id="ws-future">—</span> טרם הגיע
+      <!-- Box 1: Renewed -->
+      <div style="border:2px solid #bbf7d0;border-radius:12px;padding:14px;background:#f0fdf4">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+          <span style="font-size:16px">✅</span>
+          <span style="font-size:10px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px">כבר חידשו</span>
         </div>
-        <div style="font-size:12px;font-weight:700;color:#2563eb;margin-top:4px">₪<span id="ws-pending-rev">—</span> צפוי</div>
+        <div id="ws-renewed" style="font-size:36px;font-weight:800;color:#059669;line-height:1;margin-bottom:6px">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-bottom:4px">שילמו מאי</div>
+        <div style="height:1px;background:#bbf7d0;margin:8px 0"></div>
+        <div style="font-size:12px;font-weight:700;color:#059669">₪<span id="ws-renewed-rev">—</span> התקבל</div>
       </div>
 
-      <div style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1px solid #fed7aa;border-radius:12px;padding:16px;text-align:center">
-        <div style="font-size:10px;font-weight:700;color:#ea580c;margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">🆕 חברים חדשים</div>
-        <div id="ws-new" style="font-size:34px;font-weight:800;color:#ea580c;line-height:1">—</div>
-        <div style="font-size:11px;color:#6b7280;margin-top:4px">₪10 Trial החודש</div>
-        <div style="font-size:12px;font-weight:700;color:#ea580c;margin-top:4px">₪<span id="ws-new-rev">—</span></div>
+      <!-- Box 2: Pending -->
+      <div style="border:2px solid #bfdbfe;border-radius:12px;padding:14px;background:#eff6ff">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+          <span style="font-size:16px">⏳</span>
+          <span style="font-size:10px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.5px">ממתין לחידוש</span>
+        </div>
+        <div id="ws-pending" style="font-size:36px;font-weight:800;color:#2563eb;line-height:1;margin-bottom:6px">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-bottom:4px">
+          <span id="ws-late" style="color:#ea580c;font-weight:700">—</span> באיחור ·
+          <span id="ws-future">—</span> עתידי
+        </div>
+        <div style="height:1px;background:#bfdbfe;margin:8px 0"></div>
+        <div style="font-size:12px;font-weight:700;color:#2563eb">₪<span id="ws-pending-rev">—</span> צפוי</div>
       </div>
 
-      <div style="background:linear-gradient(135deg,#fef2f2,#fee2e2);border:1px solid #fecaca;border-radius:12px;padding:16px;text-align:center">
-        <div style="font-size:10px;font-weight:700;color:#dc2626;margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px">❌ בוטל החודש</div>
-        <div id="ws-cancelled" style="font-size:34px;font-weight:800;color:#dc2626;line-height:1">—</div>
-        <div style="font-size:11px;color:#6b7280;margin-top:4px">לא שילמו עד סוף חודש</div>
-        <div style="font-size:12px;font-weight:700;color:#dc2626;margin-top:4px">₪<span id="ws-cancelled-rev">—</span> אבוד</div>
+      <!-- Box 3: New -->
+      <div style="border:2px solid #fed7aa;border-radius:12px;padding:14px;background:#fff7ed">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+          <span style="font-size:16px">🆕</span>
+          <span style="font-size:10px;font-weight:700;color:#ea580c;text-transform:uppercase;letter-spacing:.5px">חדשים החודש</span>
+        </div>
+        <div id="ws-new" style="font-size:36px;font-weight:800;color:#ea580c;line-height:1;margin-bottom:6px">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-bottom:4px">הצטרפו ב-₪10</div>
+        <div style="height:1px;background:#fed7aa;margin:8px 0"></div>
+        <div style="font-size:12px;font-weight:700;color:#ea580c">₪<span id="ws-new-rev">—</span></div>
+      </div>
+
+      <!-- Box 4: Cancelled -->
+      <div style="border:2px solid #fecaca;border-radius:12px;padding:14px;background:#fef2f2">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+          <span style="font-size:16px">❌</span>
+          <span style="font-size:10px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.5px">בוטל החודש</span>
+        </div>
+        <div id="ws-cancelled" style="font-size:36px;font-weight:800;color:#dc2626;line-height:1;margin-bottom:6px">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-bottom:4px">לא שילמו עד סוף חודש</div>
+        <div style="height:1px;background:#fecaca;margin:8px 0"></div>
+        <div style="font-size:12px;font-weight:700;color:#dc2626">₪<span id="ws-cancelled-rev">—</span> אבוד</div>
       </div>
 
     </div>
 
-    <!-- TOTAL MEMBERS BAR -->
-    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:13px;font-weight:700;color:var(--text)">סה"כ חברים פעילים כרגע</div>
-        <div id="ws-total" style="font-size:24px;font-weight:800;color:var(--purple)">—</div>
+    <!-- STACKED PROGRESS BAR -->
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin-bottom:5px">
+        <span>חלוקת חברים פעילים</span>
+        <span>יום <span id="ws-today-day">9</span>/31 · ביטולים יספרו ב-31/05</span>
       </div>
-      <div style="display:flex;gap:3px;height:10px;border-radius:999px;overflow:hidden;margin-bottom:8px">
-        <div id="ws-bar-renewed"   style="background:#059669;transition:width .8s ease;min-width:0"></div>
-        <div id="ws-bar-pending"   style="background:#3b82f6;transition:width .8s ease;min-width:0"></div>
-        <div id="ws-bar-new"       style="background:#ea580c;transition:width .8s ease;min-width:0"></div>
+      <div style="display:flex;gap:2px;height:10px;border-radius:999px;overflow:hidden">
+        <div id="ws-bar-renewed" style="background:#059669;transition:width .8s ease;min-width:0"></div>
+        <div id="ws-bar-pending" style="background:#3b82f6;transition:width .8s ease;min-width:0"></div>
+        <div id="ws-bar-new"     style="background:#ea580c;transition:width .8s ease;min-width:0"></div>
       </div>
-      <div style="display:flex;gap:16px;font-size:10px;color:#6b7280">
-        <span><span style="display:inline-block;width:8px;height:8px;background:#059669;border-radius:2px;margin-left:4px"></span>חידשו</span>
-        <span><span style="display:inline-block;width:8px;height:8px;background:#3b82f6;border-radius:2px;margin-left:4px"></span>ממתינים</span>
-        <span><span style="display:inline-block;width:8px;height:8px;background:#ea580c;border-radius:2px;margin-left:4px"></span>חדשים</span>
+      <div style="display:flex;gap:14px;font-size:10px;color:#9ca3af;margin-top:5px">
+        <span><span style="display:inline-block;width:8px;height:8px;background:#059669;border-radius:2px;margin-left:4px;vertical-align:middle"></span>חידשו</span>
+        <span><span style="display:inline-block;width:8px;height:8px;background:#3b82f6;border-radius:2px;margin-left:4px;vertical-align:middle"></span>ממתינים לחידוש</span>
+        <span><span style="display:inline-block;width:8px;height:8px;background:#ea580c;border-radius:2px;margin-left:4px;vertical-align:middle"></span>חדשים החודש</span>
       </div>
     </div>
 
     <!-- RENEWAL PROGRESS -->
-    <div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin-bottom:5px">
-        <span>התקדמות חידושים מתוך חברי אפריל</span>
-        <span><strong id="ws-renewal-pct" style="color:var(--purple)">—</strong> מתוך <span id="ws-total-expected">—</span> חברים</span>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:11px;color:#6b7280">כמה מחברי החודש הקודם כבר חידשו</span>
+        <span style="font-size:12px;font-weight:700;color:var(--purple)" id="ws-renewal-pct">—</span>
       </div>
-      <div style="height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden">
-        <div id="ws-renewal-bar" style="height:100%;border-radius:999px;background:linear-gradient(90deg,#059669,#34d399);transition:width 1s ease;width:0%"></div>
+      <div style="height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden">
+        <div id="ws-renewal-bar" style="height:100%;border-radius:999px;background:linear-gradient(90deg,#7c3aed,#9f67fa);transition:width 1s ease;width:0%"></div>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:4px">
-        <span>יום <span id="ws-today-day">9</span> מתוך 31 · ביטולים ייספרו ב-31/05</span>
-        <span>תחזית חידושים: <strong id="ws-forecast" style="color:var(--green)">—</strong></span>
+        <span>מתוך <span id="ws-total-expected">—</span> חברי החודש הקודם</span>
+        <span>תחזית סוף חודש: <strong id="ws-forecast" style="color:var(--green)">—</strong></span>
       </div>
     </div>
 
-    <!-- LATE WARNING -->
+    <!-- LATE MEMBERS WARNING -->
     <div id="ws-late-warning" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 14px;font-size:11px;color:#92400e;line-height:1.6;display:none">
-      ⚠️ <strong id="ws-late-count">0</strong> חברים שמועד חידושם עבר (באיחור) — שווה לפנות אליהם. 
-      הכנסה פוטנציאלית: <strong>₪<span id="ws-late-rev">0</span></strong>
+      ⚠️ <strong id="ws-late-count">0</strong> חברים שמועד החידוש שלהם עבר אך עדיין לא שילמו —
+      כדאי לפנות אליהם. ערך פוטנציאלי: <strong>₪<span id="ws-late-rev">0</span></strong>
     </div>
+
   </div>
 
   <!-- GOAL BAR -->
@@ -458,28 +482,12 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
   </div>
 
   <!-- CHARTS ROW -->
-  <div class="g-7-5">
-    <div class="card" style="margin-bottom:0">
+  <div class="card" style="margin-bottom:16px">
       <div class="card-hd">
         <div><div class="card-title">הכנסות חודשיות</div><div class="card-sub">קארדקום + יופי · 2026</div></div>
         <div class="legend"><span><span class="ld" style="background:#7c3aed"></span>קארדקום</span><span><span class="ld" style="background:#0891b2"></span>יופי</span></div>
       </div>
-      <div class="cw"><canvas id="ch-monthly"></canvas></div>
-    </div>
-    <div class="card" style="margin-bottom:0">
-      <div class="card-hd">
-        <div><div class="card-title">Analytics</div><div class="card-sub">פילוח חברים</div></div>
-      </div>
-      <div class="donut-wrap" style="height:210px;align-items:center;">
-        <div class="donut-canvas"><canvas id="ch-status"></canvas></div>
-        <div class="donut-legend">
-          <div class="dl-item"><div class="dl-dot" style="background:#7c3aed"></div><div class="dl-lbl">פעילים</div><div class="dl-val" id="dl-active">285</div></div>
-          <div class="dl-item"><div class="dl-dot" style="background:#dc2626"></div><div class="dl-lbl">עזבו</div><div class="dl-val" id="dl-churned">157</div></div>
-          <div class="dl-item"><div class="dl-dot" style="background:#059669"></div><div class="dl-lbl">שימור</div><div class="dl-val">64.5%</div></div>
-          <div class="dl-item"><div class="dl-dot" style="background:#ea580c"></div><div class="dl-lbl">חדשים/חודש</div><div class="dl-val" id="dl-new">17</div></div>
-        </div>
-      </div>
-    </div>
+      <div class="cw tall"><canvas id="ch-monthly"></canvas></div>
   </div>
 
   <!-- HEATMAP -->
@@ -501,14 +509,14 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi green">
       <div class="kpi-top"><div class="kpi-ico">✅</div><span class="kpi-badge">64.5% שימור</span></div>
       <div class="kpi-lbl">חברים פעילים</div>
-      <div class="kpi-val" id="m-active">285</div>
-      <div class="kpi-sub">תשלום ב-35 ימים אחרונים</div>
+      <div class="kpi-val" id="m-active">296</div>
+      <div class="kpi-sub">פעיל לפי מודל קוהורט</div>
     </div>
     <div class="kpi red">
       <div class="kpi-top"><div class="kpi-ico">❌</div><span class="kpi-badge dn">35.5%</span></div>
       <div class="kpi-lbl">עזבו (Churned)</div>
       <div class="kpi-val" id="m-churned">157</div>
-      <div class="kpi-sub">מסה"כ 442 חברים</div>
+      <div class="kpi-sub">41.9% לא המירו אחרי Trial</div>
     </div>
     <div class="kpi orange">
       <div class="kpi-top"><div class="kpi-ico">⏳</div><span class="kpi-badge">ממוצע</span></div>
@@ -772,13 +780,13 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi green">
       <div class="kpi-top"><div class="kpi-ico">✅</div></div>
       <div class="kpi-lbl">פעילים</div>
-      <div class="kpi-val" id="ml-active-count">285</div>
-      <div class="kpi-sub">תשלום ב-35 ימים אחרונים</div>
+      <div class="kpi-val" id="ml-active-count">296</div>
+      <div class="kpi-sub">פעיל לפי מודל קוהורט</div>
     </div>
     <div class="kpi red">
       <div class="kpi-top"><div class="kpi-ico">❌</div></div>
       <div class="kpi-lbl">עזבו</div>
-      <div class="kpi-val" id="ml-churned-count">157</div>
+      <div class="kpi-val" id="ml-churned-count">106</div>
       <div class="kpi-sub">לא שילמו 35+ יום</div>
     </div>
     <div class="kpi purple">
@@ -969,7 +977,7 @@ function initCharts(){
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttILS},scales:{x:{stacked:true,grid:gr},y:{stacked:true,grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
 
   // Status donut
-  chs.status=new Chart(document.getElementById('ch-status'),{type:'doughnut',data:{labels:['פעילים','עזבו'],datasets:[{data:[285,157],backgroundColor:[C.green,C.red],borderWidth:3,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
+  // Analytics donut removed from overview
 
   // Member status donut (members page)
   chs.memberDonut=new Chart(document.getElementById('ch-member-donut'),{type:'doughnut',data:{labels:['פעילים','עזבו'],datasets:[{data:[285,157],backgroundColor:[C.green,C.red],borderWidth:3,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>` ${c.label}: ${c.parsed}`}}}}});
