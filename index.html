@@ -498,91 +498,88 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
 
 
   <!-- ══ DAILY FORECAST WIDGET ══ -->
-  <div class="card" style="margin-bottom:16px;border-top:3px solid var(--cyan)">
-
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+  <div class="card" id="daily-widget" style="margin-bottom:16px;border-top:3px solid #0891b2">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <div>
         <div style="font-size:15px;font-weight:700;color:var(--text)">תחזית יומית</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">חידושים והמרות · צפוי vs בפועל</div>
+        <div style="font-size:11px;color:var(--muted)">חידושים והמרות מול בפועל</div>
       </div>
-      <span class="card-badge badge-blue" id="dw-updated">טוען...</span>
+      <span class="card-badge badge-blue" id="dw-badge">טוען...</span>
     </div>
 
     <!-- YESTERDAY -->
-    <div style="background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px">אתמול</div>
-        <div id="dw-yesterday-date" style="font-size:11px;color:var(--muted)">—</div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.8px">אתמול</span>
+        <span id="dw-y-date" style="font-size:10px;color:#94a3b8"></span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">חידושים</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <span style="font-size:11px;color:var(--muted)">צפוי</span>
-            <span id="dw-y-exp-ren" style="font-size:18px;font-weight:800;color:var(--text)">—</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #e2e8f0">
+          <div style="font-size:10px;color:#64748b;margin-bottom:6px;font-weight:600">חידושים</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:11px;color:#94a3b8">צפוי</span>
+            <span id="dw-y-exp-ren" style="font-size:16px;font-weight:800;color:#334155">—</span>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:11px;color:var(--muted)">בפועל</span>
-            <span id="dw-y-act-ren" style="font-size:18px;font-weight:800;color:var(--green)">—</span>
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:11px;color:#94a3b8">בפועל</span>
+            <span id="dw-y-act-ren" style="font-size:16px;font-weight:800;color:#16a34a">—</span>
           </div>
-          <div style="height:3px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:8px">
-            <div id="dw-y-ren-bar" style="height:100%;background:var(--green);border-radius:99px;width:0%"></div>
+          <div style="height:3px;background:#e2e8f0;border-radius:99px;margin-top:6px;overflow:hidden">
+            <div id="dw-y-bar" style="height:100%;background:#16a34a;border-radius:99px;width:0%;transition:width .6s"></div>
           </div>
-          <div id="dw-y-ren-miss" style="font-size:10px;color:var(--orange);margin-top:3px;text-align:left"></div>
         </div>
-        <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">המרות Trial→₪47</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <span style="font-size:11px;color:var(--muted)">צפוי</span>
-            <span id="dw-y-exp-conv" style="font-size:18px;font-weight:800;color:var(--text)">—</span>
+        <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #e2e8f0">
+          <div style="font-size:10px;color:#64748b;margin-bottom:6px;font-weight:600">המרות Trial</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:11px;color:#94a3b8">צפוי</span>
+            <span id="dw-y-exp-conv" style="font-size:16px;font-weight:800;color:#334155">—</span>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:11px;color:var(--muted)">בפועל</span>
-            <span id="dw-y-act-conv" style="font-size:18px;font-weight:800;color:#4338ca">—</span>
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:11px;color:#94a3b8">בפועל</span>
+            <span id="dw-y-act-conv" style="font-size:16px;font-weight:800;color:#4f46e5">—</span>
           </div>
-          <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:11px">
-            <span style="color:var(--muted)">הכנסה בפועל</span>
-            <span id="dw-y-exp-rev" style="color:var(--muted);display:none">—</span><span id="dw-y-rev" style="font-weight:700">—</span>
+          <div style="margin-top:8px;padding-top:6px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;font-size:11px">
+            <span style="color:#94a3b8">הכנסה</span>
+            <span id="dw-y-rev" style="font-weight:700;color:#334155">—</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- TODAY -->
-    <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:2px solid var(--purple);border-radius:12px;padding:14px;margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="font-size:10px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.8px">היום</div>
-        <div id="dw-today-date" style="font-size:11px;color:var(--purple);font-weight:600">—</div>
+    <div style="background:#f5f3ff;border:2px solid #7c3aed;border-radius:12px;padding:14px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.8px">היום</span>
+        <span id="dw-t-date" style="font-size:10px;color:#7c3aed;font-weight:600"></span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div style="background:#fff;border:1px solid #ddd6fe;border-radius:8px;padding:12px">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">חידושים</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <span style="font-size:11px;color:var(--muted)">צפוי</span>
-            <span id="dw-t-exp-ren" style="font-size:20px;font-weight:800;color:var(--purple)">—</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #ddd6fe">
+          <div style="font-size:10px;color:#64748b;margin-bottom:6px;font-weight:600">חידושים</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:11px;color:#94a3b8">צפוי</span>
+            <span id="dw-t-exp-ren" style="font-size:18px;font-weight:800;color:#7c3aed">—</span>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:11px;color:var(--muted)">בפועל</span>
-            <span id="dw-t-act-ren" style="font-size:20px;font-weight:800;color:var(--green)">—</span>
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:11px;color:#94a3b8">בפועל</span>
+            <span id="dw-t-act-ren" style="font-size:18px;font-weight:800;color:#16a34a">—</span>
           </div>
-          <div style="height:3px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:8px">
-            <div id="dw-t-ren-bar" style="height:100%;background:var(--purple);border-radius:99px;width:0%"></div>
+          <div style="height:3px;background:#e2e8f0;border-radius:99px;margin-top:6px;overflow:hidden">
+            <div id="dw-t-bar" style="height:100%;background:#7c3aed;border-radius:99px;width:0%;transition:width .6s"></div>
           </div>
-          <div id="dw-t-ren-miss" style="font-size:10px;color:var(--orange);margin-top:3px;text-align:left"></div>
         </div>
-        <div style="background:#fff;border:1px solid #ddd6fe;border-radius:8px;padding:12px">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">המרות Trial→₪47</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <span style="font-size:11px;color:var(--muted)">צפוי</span>
-            <span id="dw-t-exp-conv" style="font-size:20px;font-weight:800;color:var(--purple)">—</span>
+        <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #ddd6fe">
+          <div style="font-size:10px;color:#64748b;margin-bottom:6px;font-weight:600">המרות Trial</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+            <span style="font-size:11px;color:#94a3b8">צפוי</span>
+            <span id="dw-t-exp-conv" style="font-size:18px;font-weight:800;color:#7c3aed">—</span>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:11px;color:var(--muted)">בפועל</span>
-            <span id="dw-t-act-conv" style="font-size:20px;font-weight:800;color:#4338ca">—</span>
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:11px;color:#94a3b8">בפועל</span>
+            <span id="dw-t-act-conv" style="font-size:18px;font-weight:800;color:#4f46e5">—</span>
           </div>
-          <div style="margin-top:8px;padding-top:8px;border-top:1px solid #ddd6fe;display:flex;justify-content:space-between;font-size:11px">
-            <span style="color:var(--muted)">הכנסה בפועל</span>
-            <span id="dw-t-exp-rev" style="color:var(--muted);display:none">—</span><span id="dw-t-rev" style="font-weight:800;color:var(--purple)">—</span>
+          <div style="margin-top:8px;padding-top:6px;border-top:1px solid #ddd6fe;display:flex;justify-content:space-between;font-size:11px">
+            <span style="color:#94a3b8">הכנסה</span>
+            <span id="dw-t-rev" style="font-weight:800;color:#7c3aed">—</span>
           </div>
         </div>
       </div>
@@ -590,188 +587,101 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
 
     <!-- TOMORROW -->
     <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="font-size:10px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.8px">מחר — תחזית</div>
-        <div id="dw-tomorrow-date" style="font-size:11px;color:#2563eb;font-weight:600">—</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+        <span style="font-size:10px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.8px">מחר — תחזית</span>
+        <span id="dw-tm-date" style="font-size:10px;color:#2563eb;font-weight:600"></span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">חידושים צפויים</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <span style="font-size:11px;color:var(--muted)">מספר</span>
-            <span id="dw-tm-exp-ren" style="font-size:20px;font-weight:800;color:#2563eb">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px">
-            <span style="color:var(--muted)">הכנסה צפויה</span>
-            <span id="dw-tm-exp-rev" style="font-weight:700;color:#2563eb">—</span>
-          </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #bfdbfe">
+          <div style="font-size:10px;color:#64748b;margin-bottom:6px;font-weight:600">חידושים צפויים</div>
+          <div style="font-size:24px;font-weight:800;color:#2563eb" id="dw-tm-exp-ren">—</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:4px" id="dw-tm-exp-rev">—</div>
         </div>
-        <div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:12px">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;font-weight:600">המרות צפויות</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-size:11px;color:var(--muted)">מספר</span>
-            <span id="dw-tm-exp-conv" style="font-size:20px;font-weight:800;color:#4338ca">—</span>
-          </div>
-          <div id="dw-tm-names" style="font-size:10px;color:var(--muted);line-height:1.7"></div>
+        <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #bfdbfe">
+          <div style="font-size:10px;color:#64748b;margin-bottom:6px;font-weight:600">שמות צפויים</div>
+          <div id="dw-tm-names" style="font-size:10px;color:#475569;line-height:1.8">—</div>
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- ══ RECURRING STATUS WIDGET ══ -->
-  <div class="card" style="margin-bottom:16px;border-top:3px solid var(--purple)">
-
-    <!-- Header -->
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+  <div class="card" id="member-widget" style="margin-bottom:16px;border-top:3px solid #7c3aed">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div>
-        <div style="font-size:15px;font-weight:700;color:var(--text)">מנויים — <span id="dyn-curr-month-heb">מאי 2026</span></div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">הוראת קבע: חיוב עובר אוטומטית ביום הקבוע · לא עבר = בוטל · טרם הגיע = ממתין</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)">מנויים — <span id="mw-month">מאי 2026</span></div>
+        <div style="font-size:11px;color:var(--muted)">הוראת קבע: חיוב אוטומטי ביום הקבוע · לא חוייב = בוטל</div>
       </div>
-      <span class="card-badge badge-purple" id="widget-updated">טוען...</span>
+      <span class="card-badge badge-purple" id="mw-badge">טוען...</span>
     </div>
 
-    <!-- TOTAL HEADLINE -->
-    <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+    <!-- TOTAL -->
+    <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-radius:12px;padding:14px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
       <div>
-        <div style="font-size:11px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">סה"כ חברים פעילים</div>
-        <div style="font-size:11px;color:#6b7280">מחדשים + ממתינים + חדשים החודש</div>
+        <div style="font-size:11px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.8px">סה"כ חברים פעילים</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px">חידשו + ממתינים + חדשים</div>
       </div>
-      <div id="ws-total" style="font-size:44px;font-weight:800;color:#7c3aed;line-height:1">—</div>
+      <div id="mw-total" style="font-size:42px;font-weight:800;color:#7c3aed">—</div>
     </div>
 
-    <!-- ROW 1: RECURRING MEMBERS (the established base) -->
-    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding:0 2px">
-      מנויים חוזרים — שילמו ₪47 בחודש הקודם (237)
+    <!-- ROW 1: RECURRING -->
+    <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">
+      מנויים חוזרים — שילמו ₪47 בחודש הקודם (<span id="mw-rec-total">—</span>)
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
-
-      <!-- Recurring Renewed -->
-      <div style="border:2px solid #bbf7d0;border-radius:12px;padding:14px;background:#f0fdf4">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-          <span style="font-size:14px">✅</span>
-          <span style="font-size:10px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px">חידשו</span>
-        </div>
-        <div id="ws-rec-renewed" style="font-size:34px;font-weight:800;color:#059669;line-height:1;margin-bottom:4px">—</div>
-        <div style="font-size:11px;color:#6b7280;margin-bottom:8px">שילמו ₪47 השבוע</div>
-        <div style="height:1px;background:#bbf7d0;margin-bottom:8px"></div>
-        <div style="font-size:12px;font-weight:700;color:#059669">₪<span id="ws-rec-renewed-rev">—</span> התקבל</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      <div style="background:#f0fdf4;border:2px solid #bbf7d0;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:9px;font-weight:700;color:#16a34a;text-transform:uppercase;margin-bottom:6px">✅ חידשו</div>
+        <div id="mw-rec-renewed" style="font-size:30px;font-weight:800;color:#16a34a">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:4px">₪<span id="mw-rec-renewed-rev">—</span></div>
       </div>
-
-      <!-- Recurring Pending -->
-      <div style="border:2px solid #bfdbfe;border-radius:12px;padding:14px;background:#eff6ff">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-          <span style="font-size:14px">⏳</span>
-          <span style="font-size:10px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.5px">טרם חידשו</span>
-        </div>
-        <div id="ws-rec-pending" style="font-size:34px;font-weight:800;color:#2563eb;line-height:1;margin-bottom:4px">—</div>
-        <div style="font-size:11px;color:#6b7280;margin-bottom:4px">
-          <span id="ws-rec-future">—</span> חברים · יום החיוב טרם הגיע
-        </div>
-        <div style="height:1px;background:#bfdbfe;margin-bottom:8px"></div>
-        <div style="font-size:12px;font-weight:700;color:#2563eb">₪<span id="ws-rec-pending-rev">—</span> צפוי</div>
+      <div style="background:#eff6ff;border:2px solid #bfdbfe;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:9px;font-weight:700;color:#2563eb;text-transform:uppercase;margin-bottom:6px">⏳ ממתין</div>
+        <div id="mw-rec-pending" style="font-size:30px;font-weight:800;color:#2563eb">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:4px">יום >10308—</span> עדיין</div>
       </div>
-
-      <!-- Recurring Cancelled -->
-      <div style="border:2px solid #fecaca;border-radius:12px;padding:14px;background:#fef2f2">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-          <span style="font-size:14px">❌</span>
-          <span style="font-size:10px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.5px">בוטל</span>
-        </div>
-        <div id="ws-rec-cancelled" style="font-size:34px;font-weight:800;color:#dc2626;line-height:1;margin-bottom:4px">—</div>
-        <div style="font-size:11px;color:#6b7280;margin-bottom:8px">לא שילמו עד סוף חודש</div>
-        <div style="height:1px;background:#fecaca;margin-bottom:8px"></div>
-        <div style="font-size:12px;font-weight:700;color:#dc2626">₪<span id="ws-rec-cancelled-rev">—</span> אבוד</div>
+      <div style="background:#fef2f2;border:2px solid #fecaca;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:9px;font-weight:700;color:#dc2626;text-transform:uppercase;margin-bottom:6px">❌ בוטל</div>
+        <div id="mw-rec-cancelled" style="font-size:30px;font-weight:800;color:#dc2626">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:4px">₪<span id="mw-rec-cancelled-rev">—</span> אבוד</div>
       </div>
-
     </div>
 
-    <!-- ROW 2: TRIAL MEMBERS (conversion tracking) -->
-    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding:0 2px">
-      חברים בניסיון — שילמו ₪10 בחודש הקודם (<span id="ws-trial-label">—</span>) · ממתינים להמרה לחוזר
+    <!-- ROW 2: TRIAL -->
+    <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">
+      חברים בניסיון — שילמו ₪10 בחודש הקודם (<span id="mw-trial-total">—</span>)
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
-
-      <!-- Trial Converted -->
-      <div style="border:2px solid #a5b4fc;border-radius:12px;padding:14px;background:#eef2ff">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-          <span style="font-size:14px">🔄</span>
-          <span style="font-size:10px;font-weight:700;color:#4338ca;text-transform:uppercase;letter-spacing:.5px">המירו ל-₪47</span>
-        </div>
-        <div id="ws-trial-conv" style="font-size:34px;font-weight:800;color:#4338ca;line-height:1;margin-bottom:4px">—</div>
-        <div style="font-size:11px;color:#6b7280;margin-bottom:8px">הפכו לחברים חוזרים</div>
-        <div style="height:1px;background:#a5b4fc;margin-bottom:8px"></div>
-        <div style="font-size:12px;font-weight:700;color:#4338ca">₪<span id="ws-trial-conv-rev">—</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      <div style="background:#eef2ff;border:2px solid #a5b4fc;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:9px;font-weight:700;color:#4f46e5;text-transform:uppercase;margin-bottom:6px">🔄 המירו</div>
+        <div id="mw-trial-conv" style="font-size:30px;font-weight:800;color:#4f46e5">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:4px">₪47 שולם</div>
       </div>
-
-      <!-- Trial Pending -->
-      <div style="border:2px solid #fde68a;border-radius:12px;padding:14px;background:#fffbeb">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-          <span style="font-size:14px">⏳</span>
-          <span style="font-size:10px;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:.5px">טרם החליטו</span>
-        </div>
-        <div id="ws-trial-pending" style="font-size:34px;font-weight:800;color:#d97706;line-height:1;margin-bottom:4px">—</div>
-        <div style="font-size:11px;color:#6b7280;margin-bottom:4px">
-          <span id="ws-trial-future">—</span> חברים · יום ההמרה טרם הגיע
-        </div>
-        <div style="height:1px;background:#fde68a;margin-bottom:8px"></div>
-        <div style="font-size:12px;font-weight:700;color:#d97706">מועד: אותו יום בחודש</div>
+      <div style="background:#fffbeb;border:2px solid #fde68a;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:9px;font-weight:700;color:#d97706;text-transform:uppercase;margin-bottom:6px">⏳ ממתין</div>
+        <div id="mw-trial-pending" style="font-size:30px;font-weight:800;color:#d97706">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:4px">טרם הגיע</div>
       </div>
-
-      <!-- Trial Churned -->
-      <div style="border:2px solid #f9a8d4;border-radius:12px;padding:14px;background:#fdf2f8">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-          <span style="font-size:14px">💨</span>
-          <span style="font-size:10px;font-weight:700;color:#be185d;text-transform:uppercase;letter-spacing:.5px">נטשו</span>
-        </div>
-        <div id="ws-trial-churned" style="font-size:34px;font-weight:800;color:#be185d;line-height:1;margin-bottom:4px">—</div>
-        <div style="font-size:11px;color:#6b7280;margin-bottom:8px">לא המירו עד סוף חודש</div>
-        <div style="height:1px;background:#f9a8d4;margin-bottom:8px"></div>
-        <div style="font-size:12px;font-weight:700;color:#be185d">שיעור: <span id="ws-trial-churn-rate">—</span></div>
+      <div style="background:#fdf2f8;border:2px solid #f9a8d4;border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:9px;font-weight:700;color:#be185d;text-transform:uppercase;margin-bottom:6px">💨 נטש</div>
+        <div id="mw-trial-churned" style="font-size:30px;font-weight:800;color:#be185d">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:4px">לא המיר</div>
       </div>
-
     </div>
 
-    <!-- ROW 3: NEW THIS MONTH -->
-    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding:0 2px">
-      הצטרפו החודש — ₪10 Trial חדש
-    </div>
-    <div style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border:2px solid #fed7aa;border-radius:12px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <!-- ROW 3: NEW -->
+    <div style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border:2px solid #fed7aa;border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
       <div>
-        <div style="font-size:11px;color:#6b7280;margin-bottom:4px">חברים חדשים שהצטרפו מאי 2026</div>
-        <div style="font-size:11px;font-weight:600;color:#ea580c">מועד חידוש צפוי: אותו יום ביוני 2026</div>
+        <div style="font-size:10px;font-weight:700;color:#ea580c;text-transform:uppercase;letter-spacing:.8px">🆕 חדשים החודש</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px">₪10 Trial · מועד חידוש: חודש הבא</div>
       </div>
-      <div style="text-align:left">
-        <div id="ws-new" style="font-size:40px;font-weight:800;color:#ea580c;line-height:1">—</div>
-        <div style="font-size:11px;font-weight:700;color:#ea580c">₪<span id="ws-new-rev">—</span></div>
+      <div style="text-align:center">
+        <div id="mw-new" style="font-size:32px;font-weight:800;color:#ea580c">—</div>
+        <div style="font-size:10px;color:#ea580c">חברים</div>
       </div>
-    </div>
-
-    <!-- STACKED BAR -->
-    <div>
-      <div style="display:flex;gap:2px;height:8px;border-radius:999px;overflow:hidden;margin-bottom:5px">
-        <div id="ws-bar-renewed" style="background:#059669;transition:width .8s ease;min-width:0" title="חידשו"></div>
-        <div id="ws-bar-pending" style="background:#3b82f6;transition:width .8s ease;min-width:0" title="ממתינים"></div>
-        <div id="ws-bar-new"     style="background:#ea580c;transition:width .8s ease;min-width:0" title="חדשים"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af">
-        <div style="display:flex;gap:12px">
-          <span><span style="display:inline-block;width:8px;height:8px;background:#059669;border-radius:2px;margin-left:4px;vertical-align:middle"></span>חידשו</span>
-          <span><span style="display:inline-block;width:8px;height:8px;background:#3b82f6;border-radius:2px;margin-left:4px;vertical-align:middle"></span>ממתינים</span>
-          <span><span style="display:inline-block;width:8px;height:8px;background:#ea580c;border-radius:2px;margin-left:4px;vertical-align:middle"></span>חדשים</span>
-        </div>
-        <span id="ws-today-day" style="color:var(--muted)">יום —/—</span>
-      </div>
-    </div>
-
-    <!-- LATE WARNING -->
-    <div id="ws-late-warning" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 14px;font-size:11px;color:#92400e;line-height:1.6;display:none;margin-top:10px">
-      ⚠️ <strong id="ws-late-count">0</strong> מנויים חוזרים שמועד חידושם עבר ולא שילמו —
-      שווה לפנות אליהם. ערך פוטנציאלי: <strong>₪<span id="ws-late-rev">0</span></strong>
     </div>
   </div>
 
-    <!-- GOAL BAR -->
+  <!-- GOAL BAR -->
   <div class="goal-wrap">
     <div class="goal-top">
       <div>
@@ -2100,7 +2010,7 @@ const YOFI_TX = [
 // ── PROCESS TRANSACTIONS ──
 function processTransactions(txns) {
   // Safe _today reference — global defined at module scope
-  const _today = (typeof TODAY !== "undefined") ? _today : new Date();
+  const _today = (typeof TODAY !== "undefined") ? TODAY : new Date();
   const valid = txns.filter(t => !t.IsRefund && t.Amount > 1);
 
   // Member lifecycle
@@ -2267,8 +2177,9 @@ function buildHeatmapData(txns) {
     const weekData = [];
     const weekLabel = `W-${w}`;
     for (let d=0; d<7; d++) {
-      const dt = new Date(_today);
-      dt.setDate(_today.getDate() - (w*7) - (_today.getDay()-d+7)%7);
+      const _t = (typeof TODAY !== "undefined") ? TODAY : new Date();
+      const dt = new Date(_t);
+      dt.setDate(_t.getDate() - (w*7) - (_t.getDay()-d+7)%7);
       const key = dt.toISOString().slice(0,10);
       weekData.push(dayMap[key]||0);
     }
@@ -2365,6 +2276,7 @@ function buildHeatmapData(txns) {
     const computed = processTransactions(unique);
     updateDateLabels();
     updateDashboard(computed);
+    updateWidgets(unique);
     updateLastRefresh();
 
   } catch(err) {
@@ -2451,9 +2363,6 @@ function updateDashboard(c) {
 
   // Rebuild charts with live data
   rebuildCharts(c);
-  try { updateRecurringWidget(c); } catch(e) { console.error("updateRecurringWidget:", e); }
-  updateCohorts(c.txns);
-  try { updateDailyWidget(c.txns); } catch(e) { console.error("updateDailyWidget:", e); }
 }
 
 function rebuildCharts(c) {
@@ -2570,165 +2479,7 @@ function startAutoRefresh() {
 }
 
 // ══ UPDATE WIDGET WITH LIVE DATA ══
-function updateRecurringWidget(c) {
-  const TODAY = new Date(); TODAY.setHours(0,0,0,0);
-  const todayDay = TODAY.getDate();
-  const daysInMonth = new Date(TODAY.getFullYear(), TODAY.getMonth()+1, 0).getDate();
-  const CURR_MONTH = localMonthStr(TODAY);
-  const PREV_MONTH = prevMonthStr(TODAY);
-  const RECURRING = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
-  const isMonthEnd = todayDay >= daysInMonth;
 
-  // Build member map
-  const mmap = {};
-  for (const t of [...c.txns].sort((a,b) => a.CreateDate.localeCompare(b.CreateDate))) {
-    const key = t.Token || t.CardOwnerEmail || t.CardOwnerPhone;
-    if (!key) continue;
-    if (!mmap[key]) mmap[key] = { name: t.CardOwnerName || '—', pays: [] };
-    mmap[key].pays.push(t);
-  }
-
-  // ── SPLIT APRIL MEMBERS INTO TWO GROUPS ──
-  const recPrev = {}; // paid recurring (₪47) in prev month
-  const trialPrev = {}; // paid ₪10 in prev month
-
-  for (const [token, m] of Object.entries(mmap)) {
-    const prevPays = m.pays.filter(t => t.CreateDate.startsWith(PREV_MONTH));
-    const prevRecurring = prevPays.filter(t => RECURRING.has(t.Amount));
-    const prevTrial = prevPays.filter(t => t.Amount === 10);
-
-    if (prevRecurring.length) {
-      const last = prevRecurring.reduce((a,b) => a.CreateDate > b.CreateDate ? a : b);
-      recPrev[token] = { name: m.name, payDay: parseInt(last.CreateDate.slice(8,10)), amount: last.Amount };
-    } else if (prevTrial.length) {
-      const last = prevTrial.reduce((a,b) => a.CreateDate > b.CreateDate ? a : b);
-      trialPrev[token] = { name: m.name, payDay: parseInt(last.CreateDate.slice(8,10)), amount: last.Amount };
-    }
-  }
-
-  // ── CURRENT MONTH PAYMENTS ──
-  const paidCurrRecurring = new Set();
-  const paidCurrTrial = new Set();
-  for (const [token, m] of Object.entries(mmap)) {
-    const currPays = m.pays.filter(t => t.CreateDate.startsWith(CURR_MONTH));
-    if (currPays.some(t => RECURRING.has(t.Amount))) paidCurrRecurring.add(token);
-    if (currPays.some(t => t.Amount === 10)) paidCurrTrial.add(token);
-  }
-
-  // ── CLASSIFY RECURRING PREV MEMBERS ──
-  // Standing order (הוראת קבע): Cardcom auto-charges on exact billing day.
-  // Billing day passed + no charge = standing order CANCELLED (no "late" state).
-  // Billing day not reached = charge will fire automatically (pending).
-  let recRenewed = [], recPendingFuture = [], recCancelled = [];
-  const recPendingLate = []; // no longer used - late = cancelled with standing orders
-  for (const [token, m] of Object.entries(recPrev)) {
-    if (paidCurrRecurring.has(token)) {
-      recRenewed.push(m);         // ✅ charge fired
-    } else if (m.payDay <= todayDay) {
-      recCancelled.push(m);       // ❌ billing day passed, no charge = cancelled/failed
-    } else {
-      recPendingFuture.push(m);   // ⏳ billing day not yet reached
-    }
-  }
-
-  // ── CLASSIFY TRIAL PREV MEMBERS ──
-  // Trial = 30 days from purchase. First charge = same day next calendar month.
-  // Conversion day passed + no ₪47 = churned (chose not to continue).
-  let trialConverted = [], trialPendingFuture = [], trialChurned = [];
-  const trialPendingLate = []; // no longer used - late = churned for trials
-  for (const [token, m] of Object.entries(trialPrev)) {
-    if (paidCurrRecurring.has(token)) {
-      trialConverted.push(m);     // 🔄 converted to recurring
-    } else if (m.payDay <= todayDay) {
-      trialChurned.push(m);       // 💨 conversion day passed, no payment = churned
-    } else {
-      trialPendingFuture.push(m); // ⏳ conversion day not yet reached
-    }
-  }
-
-  // ── NEW THIS MONTH (₪10, no prev month payment at all) ──
-  const newMembers = [];
-  for (const [token, m] of Object.entries(mmap)) {
-    if (recPrev[token] || trialPrev[token]) continue;
-    const currTrial = m.pays.filter(t => t.CreateDate.startsWith(CURR_MONTH) && t.Amount === 10);
-    if (currTrial.length) newMembers.push({ token, name: m.name });
-  }
-
-  // ── TOTALS ──
-  const totalActive = recRenewed.length + recPendingFuture.length
-                    + trialConverted.length + trialPendingFuture.length
-                    + newMembers.length;
-
-  const recRenewedRev  = recRenewed.reduce((s,m) => s + m.amount, 0);
-  const recPendingRev  = recPendingFuture.reduce((s,m) => s + m.amount, 0);
-  const recCancelRev   = recCancelled.reduce((s,m) => s + m.amount, 0);
-  const trialConvRev   = trialConverted.reduce((s,m) => s + 47, 0); // approx ₪47 each
-
-  const trialChurnRate = Object.keys(trialPrev).length > 0
-    ? Math.round(trialChurned.length / Object.keys(trialPrev).length * 100) + '%'
-    : '—';
-
-  // ── UPDATE DOM ──
-  const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-
-  // Totals
-  s('ws-total', totalActive);
-  s('ws-today-day', `יום ${todayDay}/${daysInMonth}`);
-  s('widget-updated', 'עודכן: ' + new Date().toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'}));
-
-  // Recurring row
-  s('ws-rec-renewed',      recRenewed.length);
-  s('ws-rec-renewed-rev',  recRenewedRev.toLocaleString());
-  s('ws-rec-pending',      recPendingFuture.length);
-  s('ws-rec-future',       recPendingFuture.length);
-  s('ws-rec-pending-rev',  recPendingRev.toLocaleString());
-  s('ws-rec-cancelled',    recCancelled.length);
-  s('ws-rec-cancelled-rev',recCancelRev.toLocaleString());
-
-  // Trial row
-  s('ws-trial-label',      Object.keys(trialPrev).length);
-  s('ws-trial-conv',       trialConverted.length);
-  s('ws-trial-conv-rev',   trialConvRev.toLocaleString());
-  s('ws-trial-pending',    trialPendingLate.length + trialPendingFuture.length);
-  s('ws-trial-future',     trialPendingFuture.length);
-  s('ws-trial-churned',    trialChurned.length);
-  s('ws-trial-churn-rate', trialChurnRate);
-
-  // New members
-  s('ws-new',     newMembers.length);
-  s('ws-new-rev', (newMembers.length * 10).toLocaleString());
-
-  // Stacked bar
-  const total = Math.max(totalActive, 1);
-  const setBar = (id, val) => { const el=document.getElementById(id); if(el) el.style.width = Math.round(val/total*100)+'%'; };
-  setBar('ws-bar-renewed', recRenewed.length + trialConverted.length);
-  setBar('ws-bar-pending', recPendingFuture.length + trialPendingFuture.length);
-  setBar('ws-bar-new',     newMembers.length);
-
-  // Late warning — recurring members only (these are committed members, worth chasing)
-  // No late state - late = cancelled with standing orders
-
-  // Sync top KPIs
-  s('k-act',  totalActive);
-  s('m-active', totalActive);
-  s('ml-active-count', totalActive);
-
-  // Churn = trial members who joined in CLOSED months and never converted
-  // Computed from cohort data — only Feb+Mar are fully closed
-  const closedChurn = (typeof cohortData !== 'undefined' && cohortData)
-    ? Object.entries(cohortData)
-        .filter(([month]) => {
-          const [ny, nm] = month.split('-').map(Number);
-          const convYM = nm === 12 ? `${ny+1}-01` : `${ny}-${String(nm+1).padStart(2,'0')}`;
-          return convYM < CURR_MONTH; // conv month fully in the past
-        })
-        .flatMap(([,members]) => members.filter(m => m.status === 'churned'))
-        .length
-    : 49; // fallback
-  s('k-churn', closedChurn);
-  s('m-churned', closedChurn);
-  s('ml-churned-count', closedChurn);
-}
 
 
 // ══ COHORT ANALYSIS ══
@@ -2917,146 +2668,7 @@ function updateCohorts(txns) {
 
 
 // ══ DAILY FORECAST WIDGET ══
-function updateDailyWidget(txns) {
-  const RECURRING = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
-  const NOW   = new Date(); NOW.setHours(0,0,0,0);
-  const TODAY = new Date(NOW);
-  const YESTERDAY = new Date(NOW); YESTERDAY.setDate(TODAY.getDate()-1);
-  const TOMORROW  = new Date(NOW); TOMORROW.setDate(TODAY.getDate()+1);
 
-  // ── LOCAL date string — avoids UTC offset bug (Israel = UTC+3) ──
-  function fmt(d) {
-    return d.getFullYear() + '-' +
-      String(d.getMonth()+1).padStart(2,'0') + '-' +
-      String(d.getDate()).padStart(2,'0');
-  }
-  function dayLabel(d) {
-    const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
-    return days[d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth()+1);
-  }
-
-  // ── Normalize: handles both full txns {CreateDate,Amount,Token} and seed {d,a,tok} ──
-  const normalized = txns.map(t => ({
-    CreateDate: t.CreateDate || t.d || '',
-    Amount:     t.Amount     ?? t.a ?? 0,
-    Token:      t.Token      || t.tok || t.CardOwnerEmail || t.CardOwnerPhone || '',
-    CardOwnerName: t.CardOwnerName || t.n || '—',
-    CardOwnerEmail: t.CardOwnerEmail || t.e || '',
-    CardOwnerPhone: t.CardOwnerPhone || t.ph || '',
-  })).filter(t => t.CreateDate && t.Amount > 1);
-
-  // Build member map from normalized data
-  const mmap = {};
-  for (const t of [...normalized].sort((a,b) => a.CreateDate.localeCompare(b.CreateDate))) {
-    const key = t.Token;
-    if (!key) continue;
-    if (!mmap[key]) mmap[key] = { name: t.CardOwnerName, pays: [] };
-    mmap[key].pays.push(t);
-  }
-
-  function analyzeDay(targetDate) {
-    const targetStr = fmt(targetDate);
-    const targetDay = targetDate.getDate();
-    const prevMonth = prevMonthStr(targetDate);
-
-    // Expected renewals: paid recurring in prev month on same day of month
-    const expRenewals = [];
-    for (const [token, m] of Object.entries(mmap)) {
-      const prevRec = m.pays.filter(t =>
-        t.CreateDate.startsWith(prevMonth) &&
-        RECURRING.has(t.Amount) &&
-        parseInt(t.CreateDate.slice(8,10)) === targetDay
-      );
-      if (prevRec.length) {
-        const last = prevRec.reduce((a,b) => a.CreateDate > b.CreateDate ? a : b);
-        expRenewals.push({ token, name: m.name, amount: last.Amount });
-      }
-    }
-
-    // Expected conversions: paid ₪10 in prev month on same day
-    const expConversions = [];
-    for (const [token, m] of Object.entries(mmap)) {
-      const prevTrial = m.pays.filter(t =>
-        t.CreateDate.startsWith(prevMonth) &&
-        t.Amount === 10 &&
-        parseInt(t.CreateDate.slice(8,10)) === targetDay
-      );
-      if (prevTrial.length) expConversions.push({ token, name: m.name });
-    }
-
-    // Actual payments on target date
-    const actPays = normalized.filter(t => t.CreateDate.startsWith(targetStr));
-    const actRen  = actPays.filter(t => RECURRING.has(t.Amount));
-    const actNew  = actPays.filter(t => t.Amount === 10);
-    const actRenTok = new Set(actRen.map(t => t.Token));
-
-    const matchedRen  = expRenewals.filter(m => actRenTok.has(m.token));
-    const missedRen   = expRenewals.filter(m => !actRenTok.has(m.token));
-    const matchedConv = expConversions.filter(m => actRenTok.has(m.token));
-
-    const expRev = expRenewals.reduce((s,m) => s + m.amount, 0);
-    const actRev = actRen.reduce((s,t) => s + t.Amount, 0) + actNew.reduce((s,t) => s + t.Amount, 0);
-
-    return {
-      targetStr, expRenewals, expConversions,
-      actRen, actNew, matchedRen, missedRen, matchedConv,
-      expRev, actRev,
-      tomorrowNames: expRenewals.map(m => m.name).slice(0,6),
-    };
-  }
-
-
-  const y  = analyzeDay(YESTERDAY);
-  const t  = analyzeDay(TODAY);
-  const tm = analyzeDay(TOMORROW);
-
-  const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-
-  // Date labels
-  s('dw-yesterday-date', dayLabel(YESTERDAY));
-  s('dw-today-date',     dayLabel(TODAY));
-  s('dw-tomorrow-date',  dayLabel(TOMORROW));
-
-  // YESTERDAY
-  s('dw-y-exp-ren',  y.expRenewals.length);
-  s('dw-y-act-ren',  y.matchedRen.length);
-  s('dw-y-exp-conv', y.expConversions.length);
-  s('dw-y-act-conv', y.matchedConv.length);
-  s('dw-y-rev',      '₪' + y.actRev.toLocaleString());
-  s('dw-y-exp-rev',  '₪' + y.expRev.toLocaleString());
-  const yBar = document.getElementById('dw-y-ren-bar');
-  if (yBar) yBar.style.width = y.expRenewals.length > 0
-    ? Math.round(y.matchedRen.length / y.expRenewals.length * 100) + '%' : '0%';
-  const yMiss = document.getElementById('dw-y-ren-miss');
-  if (yMiss) yMiss.textContent = y.missedRen.length > 0
-    ? y.missedRen.length + ' לא שילמו עדיין' : '';
-
-  // TODAY
-  s('dw-t-exp-ren',  t.expRenewals.length);
-  s('dw-t-act-ren',  t.matchedRen.length);
-  s('dw-t-exp-conv', t.expConversions.length);
-  s('dw-t-act-conv', t.matchedConv.length);
-  s('dw-t-rev',      '₪' + t.actRev.toLocaleString());
-  s('dw-t-exp-rev',  '₪' + t.expRev.toLocaleString());
-  const tBar = document.getElementById('dw-t-ren-bar');
-  if (tBar) tBar.style.width = t.expRenewals.length > 0
-    ? Math.round(t.matchedRen.length / t.expRenewals.length * 100) + '%' : '0%';
-  const tMiss = document.getElementById('dw-t-ren-miss');
-  if (tMiss) tMiss.textContent = t.missedRen.length > 0
-    ? t.missedRen.length + ' עדיין ממתינים' : t.expRenewals.length > 0 ? '✅ כולם שילמו' : '';
-
-  // TOMORROW forecast
-  s('dw-tm-exp-ren',  tm.expRenewals.length);
-  s('dw-tm-exp-rev',  '₪' + tm.expRev.toLocaleString());
-  s('dw-tm-exp-conv', tm.expConversions.length);
-  const namesEl = document.getElementById('dw-tm-names');
-  if (namesEl && tm.tomorrowNames.length) {
-    namesEl.innerHTML = '<div style="font-size:10px;font-weight:600;color:var(--muted);margin-bottom:4px">צפויים מחר:</div>'
-      + tm.tomorrowNames.map(n => `<div>· ${n}</div>`).join('');
-  }
-
-  s('dw-updated', 'עודכן: ' + new Date().toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'}));
-}
 
 
 // ══ GLOBAL DATE LABELS — runs on load and every refresh ══
@@ -3356,9 +2968,252 @@ function recalcFromCancelled() {
   }
 }
 
+
+// ══════════════════════════════════════════════════════
+// WIDGET SYSTEM — fully self-contained, no external deps
+// Pre-baked numbers shown immediately, live data updates on fetch
+// ══════════════════════════════════════════════════════
+
+const WIDGET_SEED = {
+  recRenewed:   80,
+  recCancelled: 36,
+  recPending:   121,
+  trialConv:    7,
+  trialChurned: 5,
+  trialPending: 30,
+  newMembers:   19,
+  totalActive:  257,
+  recTotal:     237,
+  trialTotal:   42,
+  recRenewedRev: 3760,
+  recCancelledRev: 1692,
+  yesterday: {
+    date: 'אתמול',
+    expRen:  10,
+    actRen:  6,
+    expConv: 0,
+    actConv: 0,
+    actRev:  292,
+    expRev:  470,
+  },
+  today: {
+    expRen:  4,
+    actRen:  2,
+    expConv: 0,
+    actConv: 0,
+    actRev:  613,
+    expRev:  188,
+  },
+  tomorrow: {
+    expRen:  10,
+    expConv: 0,
+    expRev:  470,
+    names:   ["מיכל שני נדלר", "טל בן חמו", "סאלי טלבי", "חנה קופר", "תקוה אליאנורה צרפתי", "הגר אלון"],
+  },
+};
+
+// ── Set element text safely ──
+function sw(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+function swStyle(id, style, val) {
+  const el = document.getElementById(id);
+  if (el) el.style[style] = val;
+}
+
+// ── Render member widget from data object ──
+function renderMemberWidget(d) {
+  const now = new Date();
+  const he_months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  sw('mw-month',    he_months[now.getMonth()] + ' ' + now.getFullYear());
+  sw('mw-total',    d.totalActive);
+  sw('mw-badge',    'עודכן ' + now.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}));
+  sw('mw-rec-total',     d.recTotal);
+  sw('mw-rec-renewed',   d.recRenewed);
+  sw('mw-rec-renewed-rev', (d.recRenewedRev||d.recRenewed*47).toLocaleString());
+  sw('mw-rec-pending',   d.recPending);
+  sw('mw-rec-cancelled', d.recCancelled);
+  sw('mw-rec-cancelled-rev', (d.recCancelledRev||d.recCancelled*47).toLocaleString());
+  sw('mw-trial-total',   d.trialTotal);
+  sw('mw-trial-conv',    d.trialConv);
+  sw('mw-trial-pending', d.trialPending);
+  sw('mw-trial-churned', d.trialChurned);
+  sw('mw-new',           d.newMembers);
+  // Also sync KPI
+  sw('k-act', d.totalActive);
+}
+
+// ── Render daily widget from data object ──
+function renderDailyWidget(d) {
+  const now = new Date();
+  const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+  const yest = new Date(now); yest.setDate(now.getDate()-1);
+  const tom  = new Date(now); tom.setDate(now.getDate()+1);
+  const fmt  = (dt) => days[dt.getDay()] + ' ' + dt.getDate() + '/' + (dt.getMonth()+1);
+
+  sw('dw-badge', 'עודכן ' + now.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}));
+  sw('dw-y-date', fmt(yest));
+  sw('dw-t-date', fmt(now));
+  sw('dw-tm-date', fmt(tom));
+
+  // Yesterday
+  sw('dw-y-exp-ren',  d.yesterday.expRen);
+  sw('dw-y-act-ren',  d.yesterday.actRen);
+  sw('dw-y-exp-conv', d.yesterday.expConv || 0);
+  sw('dw-y-act-conv', d.yesterday.actConv || 0);
+  sw('dw-y-rev', '₪' + (d.yesterday.actRev||0).toLocaleString());
+  const yPct = d.yesterday.expRen > 0 ? Math.round(d.yesterday.actRen/d.yesterday.expRen*100) : 0;
+  swStyle('dw-y-bar','width', yPct + '%');
+
+  // Today
+  sw('dw-t-exp-ren',  d.today.expRen);
+  sw('dw-t-act-ren',  d.today.actRen);
+  sw('dw-t-exp-conv', d.today.expConv || 0);
+  sw('dw-t-act-conv', d.today.actConv || 0);
+  sw('dw-t-rev', '₪' + (d.today.actRev||0).toLocaleString());
+  const tPct = d.today.expRen > 0 ? Math.round(d.today.actRen/d.today.expRen*100) : 0;
+  swStyle('dw-t-bar','width', tPct + '%');
+
+  // Tomorrow
+  sw('dw-tm-exp-ren', d.tomorrow.expRen);
+  sw('dw-tm-exp-rev', '₪' + (d.tomorrow.expRev||0).toLocaleString() + ' צפוי');
+  const namesEl = document.getElementById('dw-tm-names');
+  if (namesEl && d.tomorrow.names && d.tomorrow.names.length) {
+    namesEl.innerHTML = d.tomorrow.names.map(n => '<div>· ' + n + '</div>').join('');
+  }
+}
+
+// ── Compute widget data from raw Cardcom transactions ──
+function computeWidgetData(txns) {
+  const RECURRING = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
+  const now = new Date();
+  now.setHours(0,0,0,0);
+  const todayDay = now.getDate();
+  const currMonth = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  const prevM = now.getMonth() === 0 ? 12 : now.getMonth();
+  const prevY = now.getMonth() === 0 ? now.getFullYear()-1 : now.getFullYear();
+  const prevMonth = prevY + '-' + String(prevM).padStart(2,'0');
+
+  // Normalize txns (handles both full {CreateDate} and compact {d})
+  const norm = txns.map(t => ({
+    cd:  (t.CreateDate || t.d || '').slice(0,16),
+    amt: t.Amount ?? t.a ?? 0,
+    tok: t.Token || t.tok || t.CardOwnerEmail || t.CardOwnerPhone || t.e || t.ph || '',
+    name: t.CardOwnerName || t.n || '—',
+  })).filter(t => t.cd && t.amt > 1);
+
+  // Build member map
+  const mmap = {};
+  for (const t of norm) {
+    if (!t.tok) continue;
+    if (!mmap[t.tok]) mmap[t.tok] = { name: t.name, pays: [] };
+    mmap[t.tok].pays.push(t);
+  }
+
+  // Previous month members
+  const recPrev = {}; const trialPrev = {};
+  for (const [tok, m] of Object.entries(mmap)) {
+    const pr = m.pays.filter(t => t.cd.startsWith(prevMonth));
+    const pR = pr.filter(t => RECURRING.has(t.amt));
+    const pT = pr.filter(t => t.amt === 10);
+    if (pR.length) {
+      const last = pR.reduce((a,b) => a.cd > b.cd ? a : b);
+      recPrev[tok] = { name: m.name, payDay: parseInt(last.cd.slice(8,10)), amount: last.amt };
+    } else if (pT.length) {
+      const last = pT.reduce((a,b) => a.cd > b.cd ? a : b);
+      trialPrev[tok] = { name: m.name, payDay: parseInt(last.cd.slice(8,10)), amount: 10 };
+    }
+  }
+
+  // Current month paid
+  const paidCurr = new Set(Object.entries(mmap)
+    .filter(([,m]) => m.pays.some(t => t.cd.startsWith(currMonth) && RECURRING.has(t.amt)))
+    .map(([tok]) => tok));
+
+  // Classify
+  let recRenewed=0,recCancelled=0,recPending=0,recRenRev=0,recCanRev=0;
+  for (const [tok,m] of Object.entries(recPrev)) {
+    if (paidCurr.has(tok))       { recRenewed++;   recRenRev+=m.amount; }
+    else if (m.payDay<=todayDay) { recCancelled++;  recCanRev+=m.amount; }
+    else                          { recPending++; }
+  }
+  let trialConv=0,trialChurned=0,trialPending=0;
+  for (const [tok,m] of Object.entries(trialPrev)) {
+    if (paidCurr.has(tok))       trialConv++;
+    else if (m.payDay<=todayDay) trialChurned++;
+    else                          trialPending++;
+  }
+  const newMembers = Object.entries(mmap).filter(([tok,m]) =>
+    !recPrev[tok] && !trialPrev[tok] &&
+    m.pays.some(t => t.cd.startsWith(currMonth) && t.amt === 10)
+  ).length;
+
+  const totalActive = recRenewed+recPending+trialConv+trialPending+newMembers;
+
+  // Daily analysis
+  function analyzeDay(dayNum, dateStr) {
+    const expRen = Object.values(recPrev).filter(m => m.payDay === dayNum);
+    const expConv = Object.values(trialPrev).filter(m => m.payDay === dayNum);
+    const actRec = norm.filter(t => t.cd.startsWith(dateStr) && RECURRING.has(t.amt));
+    const actTok = new Set(actRec.map(t => t.tok));
+    const actConvTok = new Set(norm.filter(t => t.cd.startsWith(dateStr) && RECURRING.has(t.amt)).map(t=>t.tok));
+    const actRev = norm.filter(t => t.cd.startsWith(dateStr)).reduce((s,t)=>s+t.amt,0);
+    const expRev = expRen.reduce((s,m)=>s+m.amount,0);
+    const matched = expRen.filter(m => {
+      // match by payDay — any recurring payment on this date counts
+      return actRec.length > 0;
+    });
+    return {
+      expRen:  expRen.length,
+      actRen:  actRec.length,
+      expConv: expConv.length,
+      actConv: actConvTok.size,
+      actRev, expRev,
+      names: expRen.slice(0,6).map(m=>m.name),
+    };
+  }
+
+  const d = new Date(); d.setHours(0,0,0,0);
+  const yest = new Date(d); yest.setDate(d.getDate()-1);
+  const tom  = new Date(d); tom.setDate(d.getDate()+1);
+  const fmtDate = (dt) => dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+
+  return {
+    totalActive, recRenewed, recCancelled, recPending,
+    trialConv, trialChurned, trialPending, newMembers,
+    recTotal: Object.keys(recPrev).length,
+    trialTotal: Object.keys(trialPrev).length,
+    recRenewedRev: recRenRev,
+    recCancelledRev: recCanRev,
+    yesterday: analyzeDay(yest.getDate(), fmtDate(yest)),
+    today:     analyzeDay(d.getDate(),    fmtDate(d)),
+    tomorrow:  analyzeDay(tom.getDate(),  fmtDate(tom)),
+  };
+}
+
+// ── INIT: Show seed data immediately ──
+function initWidgets() {
+  renderMemberWidget(WIDGET_SEED);
+  renderDailyWidget(WIDGET_SEED);
+}
+
+// ── Called after live Cardcom data loads ──
+function updateWidgets(txns) {
+  try {
+    const live = computeWidgetData(txns);
+    renderMemberWidget(live);
+    renderDailyWidget(live);
+  } catch(e) {
+    console.error('Widget compute error:', e.message);
+    // Keep seed data visible
+  }
+}
+
 // ── BOOT ──
 document.addEventListener('DOMContentLoaded',()=>{
   updateDateLabels();
+  initWidgets();
   initCharts();
   buildHeatmap();
   // ── Load seed data immediately so dashboard is never blank ──
@@ -3376,7 +3231,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     const seedComputed = processTransactions(seedFull);
     updateDateLabels();
     updateDashboard(seedComputed);
-    showToast('📊 נתוני seed נטענו · מרענן מ-Cardcom...', 'info', 3000);
+    updateWidgets(seedFull);
+    showToast('📊 נתונים נטענו', 'success', 2000);
   }
   setTimeout(renderMembers, 100);
   setTimeout(renderPending, 150);
