@@ -2455,9 +2455,9 @@ function updateDashboard(c) {
 
   // Rebuild charts with live data
   rebuildCharts(c);
-  updateRecurringWidget(c);
+  try { updateRecurringWidget(c); } catch(e) { console.error("updateRecurringWidget:", e); }
   updateCohorts(c.txns);
-  updateDailyWidget(c.txns);
+  try { updateDailyWidget(c.txns); } catch(e) { console.error("updateDailyWidget:", e); }
 }
 
 function rebuildCharts(c) {
