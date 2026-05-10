@@ -303,10 +303,10 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
       <div class="kpi-sub">פעיל לפי מודל קוהורט</div>
     </div>
     <div class="kpi green">
-      <div class="kpi-top"><div class="kpi-ico">📈</div><span class="kpi-badge">281 מנויים</span></div>
+      <div class="kpi-top"><div class="kpi-ico">📈</div><span class="kpi-badge" id="k-mrr-badge">232 מנויים</span></div>
       <div class="kpi-lbl">MRR קארדקום</div>
-      <div class="kpi-val" id="k-mrr">₪11,565</div>
-      <div class="kpi-sub">Monthly Recurring Revenue</div>
+      <div class="kpi-val" id="k-mrr">₪11,112</div>
+      <div class="kpi-sub"><span id="k-mrr-sub">232 מנויים × ממוצע ₪48</span></div>
     </div>
     <div class="kpi orange">
       <div class="kpi-top"><div class="kpi-ico">🎯</div><span class="kpi-badge up">115% מיעד</span></div>
@@ -343,6 +343,155 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     </div>
   </div>
 
+
+  <!-- ══ DAILY FORECAST WIDGET ══ -->
+  <div class="card" style="margin-bottom:16px;border-top:3px solid var(--cyan)">
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)">תחזית יומית — חידושים והמרות</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">מול כרטיסים: מה ציפינו · מה קרה · מה מחר</div>
+      </div>
+      <span class="card-badge badge-blue" id="dw-updated">טוען...</span>
+    </div>
+
+    <!-- 3-DAY GRID -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+
+      <!-- YESTERDAY -->
+      <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden">
+        <div style="background:#f8fafc;padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">אתמול</div>
+          <div id="dw-yesterday-date" style="font-size:10px;color:var(--muted)">—</div>
+        </div>
+        <div style="padding:14px">
+          <!-- Renewals -->
+          <div style="margin-bottom:12px">
+            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">חידושים</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
+              <div style="font-size:11px;color:var(--muted)">צפוי</div>
+              <div id="dw-y-exp-ren" style="font-size:20px;font-weight:800;color:var(--text)">—</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-size:11px;color:var(--muted)">בפועל</div>
+              <div id="dw-y-act-ren" style="font-size:20px;font-weight:800;color:var(--green)">—</div>
+            </div>
+            <div style="height:4px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin-top:6px">
+              <div id="dw-y-ren-bar" style="height:100%;background:var(--green);border-radius:999px;transition:width .6s ease;width:0%"></div>
+            </div>
+            <div id="dw-y-ren-miss" style="font-size:10px;color:var(--orange);margin-top:3px;text-align:left"></div>
+          </div>
+          <div style="height:1px;background:var(--border);margin-bottom:12px"></div>
+          <!-- Conversions -->
+          <div style="margin-bottom:12px">
+            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">המרות Trial→₪47</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
+              <div style="font-size:11px;color:var(--muted)">צפוי</div>
+              <div id="dw-y-exp-conv" style="font-size:20px;font-weight:800;color:var(--text)">—</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-size:11px;color:var(--muted)">בפועל</div>
+              <div id="dw-y-act-conv" style="font-size:20px;font-weight:800;color:#4338ca">—</div>
+            </div>
+          </div>
+          <div style="height:1px;background:var(--border);margin-bottom:10px"></div>
+          <!-- Revenue -->
+          <div style="display:flex;justify-content:space-between;font-size:12px">
+            <span style="color:var(--muted)">הכנסה בפועל</span>
+            <span id="dw-y-rev" style="font-weight:700;color:var(--text)">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px">
+            <span style="color:var(--muted)">הכנסה צפויה</span>
+            <span id="dw-y-exp-rev" style="color:var(--muted)">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TODAY -->
+      <div style="border:2px solid var(--purple);border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(124,58,237,.15)">
+        <div style="background:linear-gradient(135deg,#7c3aed,#9f67fa);padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:.5px">היום</div>
+          <div id="dw-today-date" style="font-size:10px;color:rgba(255,255,255,.7)">—</div>
+        </div>
+        <div style="padding:14px">
+          <!-- Renewals -->
+          <div style="margin-bottom:12px">
+            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">חידושים</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
+              <div style="font-size:11px;color:var(--muted)">צפוי</div>
+              <div id="dw-t-exp-ren" style="font-size:22px;font-weight:800;color:var(--purple)">—</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-size:11px;color:var(--muted)">בפועל עד עכשיו</div>
+              <div id="dw-t-act-ren" style="font-size:22px;font-weight:800;color:var(--green)">—</div>
+            </div>
+            <div style="height:4px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin-top:6px">
+              <div id="dw-t-ren-bar" style="height:100%;background:var(--purple);border-radius:999px;transition:width .6s ease;width:0%"></div>
+            </div>
+            <div id="dw-t-ren-miss" style="font-size:10px;color:var(--orange);margin-top:3px;text-align:left"></div>
+          </div>
+          <div style="height:1px;background:var(--border);margin-bottom:12px"></div>
+          <!-- Conversions -->
+          <div style="margin-bottom:12px">
+            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">המרות Trial→₪47</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
+              <div style="font-size:11px;color:var(--muted)">צפוי</div>
+              <div id="dw-t-exp-conv" style="font-size:22px;font-weight:800;color:var(--purple)">—</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-size:11px;color:var(--muted)">בפועל</div>
+              <div id="dw-t-act-conv" style="font-size:22px;font-weight:800;color:#4338ca">—</div>
+            </div>
+          </div>
+          <div style="height:1px;background:var(--border);margin-bottom:10px"></div>
+          <!-- Revenue -->
+          <div style="display:flex;justify-content:space-between;font-size:12px">
+            <span style="color:var(--muted)">הכנסה בפועל</span>
+            <span id="dw-t-rev" style="font-weight:800;color:var(--purple)">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px">
+            <span style="color:var(--muted)">הכנסה צפויה</span>
+            <span id="dw-t-exp-rev" style="color:var(--muted)">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOMORROW -->
+      <div style="border:1px solid #bfdbfe;border-radius:12px;overflow:hidden;background:#f8fbff">
+        <div style="background:#eff6ff;padding:10px 14px;border-bottom:1px solid #bfdbfe;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:11px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.5px">מחר — תחזית</div>
+          <div id="dw-tomorrow-date" style="font-size:10px;color:#2563eb">—</div>
+        </div>
+        <div style="padding:14px">
+          <!-- Renewals -->
+          <div style="margin-bottom:12px">
+            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">חידושים צפויים</div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-size:11px;color:var(--muted)">מספר</div>
+              <div id="dw-tm-exp-ren" style="font-size:22px;font-weight:800;color:#2563eb">—</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px">
+              <span style="color:var(--muted)">הכנסה צפויה</span>
+              <span id="dw-tm-exp-rev" style="font-weight:700;color:#2563eb">—</span>
+            </div>
+          </div>
+          <div style="height:1px;background:#bfdbfe;margin-bottom:12px"></div>
+          <!-- Conversions -->
+          <div style="margin-bottom:12px">
+            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">המרות צפויות</div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-size:11px;color:var(--muted)">מספר</div>
+              <div id="dw-tm-exp-conv" style="font-size:22px;font-weight:800;color:#4338ca">—</div>
+            </div>
+          </div>
+          <div style="height:1px;background:#bfdbfe;margin-bottom:10px"></div>
+          <!-- Members list -->
+          <div id="dw-tm-names" style="font-size:10px;color:var(--muted);line-height:1.8"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <!-- ══ RECURRING STATUS WIDGET ══ -->
   <div class="card" style="margin-bottom:16px;border-top:3px solid var(--purple)">
@@ -498,152 +647,157 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     </div>
   </div>
 
-  <!-- ══ DAILY FORECAST WIDGET ══ -->
-  <div class="card" style="margin-bottom:16px;border-top:3px solid var(--cyan)">
+  <!-- ══ RECURRING STATUS WIDGET ══ -->
+  <div class="card" style="margin-bottom:16px;border-top:3px solid var(--purple)">
 
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
       <div>
-        <div style="font-size:15px;font-weight:700;color:var(--text)">תחזית יומית — חידושים והמרות</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">מול כרטיסים: מה ציפינו · מה קרה · מה מחר</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)">מנויים — <span id="dyn-curr-month-heb">מאי 2026</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">ביטול נספר רק בסוף החודש (<span id="dyn-month-end">31/05</span>) · מתעדכן אוטומטית</div>
       </div>
-      <span class="card-badge badge-blue" id="dw-updated">טוען...</span>
+      <span class="card-badge badge-purple" id="widget-updated">טוען...</span>
     </div>
 
-    <!-- 3-DAY GRID -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+    <!-- TOTAL HEADLINE -->
+    <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-radius:12px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">סה"כ חברים פעילים</div>
+        <div style="font-size:11px;color:#6b7280">מחדשים + ממתינים + חדשים החודש</div>
+      </div>
+      <div id="ws-total" style="font-size:44px;font-weight:800;color:#7c3aed;line-height:1">—</div>
+    </div>
 
-      <!-- YESTERDAY -->
-      <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden">
-        <div style="background:#f8fafc;padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">אתמול</div>
-          <div id="dw-yesterday-date" style="font-size:10px;color:var(--muted)">—</div>
+    <!-- ROW 1: RECURRING MEMBERS (the established base) -->
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding:0 2px">
+      מנויים חוזרים — שילמו ₪47 בחודש הקודם (237)
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+
+      <!-- Recurring Renewed -->
+      <div style="border:2px solid #bbf7d0;border-radius:12px;padding:14px;background:#f0fdf4">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span style="font-size:14px">✅</span>
+          <span style="font-size:10px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px">חידשו</span>
         </div>
-        <div style="padding:14px">
-          <!-- Renewals -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">חידושים</div>
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
-              <div style="font-size:11px;color:var(--muted)">צפוי</div>
-              <div id="dw-y-exp-ren" style="font-size:20px;font-weight:800;color:var(--text)">—</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:var(--muted)">בפועל</div>
-              <div id="dw-y-act-ren" style="font-size:20px;font-weight:800;color:var(--green)">—</div>
-            </div>
-            <div style="height:4px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin-top:6px">
-              <div id="dw-y-ren-bar" style="height:100%;background:var(--green);border-radius:999px;transition:width .6s ease;width:0%"></div>
-            </div>
-            <div id="dw-y-ren-miss" style="font-size:10px;color:var(--orange);margin-top:3px;text-align:left"></div>
-          </div>
-          <div style="height:1px;background:var(--border);margin-bottom:12px"></div>
-          <!-- Conversions -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">המרות Trial→₪47</div>
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
-              <div style="font-size:11px;color:var(--muted)">צפוי</div>
-              <div id="dw-y-exp-conv" style="font-size:20px;font-weight:800;color:var(--text)">—</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:var(--muted)">בפועל</div>
-              <div id="dw-y-act-conv" style="font-size:20px;font-weight:800;color:#4338ca">—</div>
-            </div>
-          </div>
-          <div style="height:1px;background:var(--border);margin-bottom:10px"></div>
-          <!-- Revenue -->
-          <div style="display:flex;justify-content:space-between;font-size:12px">
-            <span style="color:var(--muted)">הכנסה בפועל</span>
-            <span id="dw-y-rev" style="font-weight:700;color:var(--text)">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px">
-            <span style="color:var(--muted)">הכנסה צפויה</span>
-            <span id="dw-y-exp-rev" style="color:var(--muted)">—</span>
-          </div>
-        </div>
+        <div id="ws-rec-renewed" style="font-size:34px;font-weight:800;color:#059669;line-height:1;margin-bottom:4px">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-bottom:8px">שילמו ₪47 השבוע</div>
+        <div style="height:1px;background:#bbf7d0;margin-bottom:8px"></div>
+        <div style="font-size:12px;font-weight:700;color:#059669">₪<span id="ws-rec-renewed-rev">—</span> התקבל</div>
       </div>
 
-      <!-- TODAY -->
-      <div style="border:2px solid var(--purple);border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(124,58,237,.15)">
-        <div style="background:linear-gradient(135deg,#7c3aed,#9f67fa);padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
-          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:.5px">היום</div>
-          <div id="dw-today-date" style="font-size:10px;color:rgba(255,255,255,.7)">—</div>
+      <!-- Recurring Pending -->
+      <div style="border:2px solid #bfdbfe;border-radius:12px;padding:14px;background:#eff6ff">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span style="font-size:14px">⏳</span>
+          <span style="font-size:10px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.5px">טרם חידשו</span>
         </div>
-        <div style="padding:14px">
-          <!-- Renewals -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">חידושים</div>
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
-              <div style="font-size:11px;color:var(--muted)">צפוי</div>
-              <div id="dw-t-exp-ren" style="font-size:22px;font-weight:800;color:var(--purple)">—</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:var(--muted)">בפועל עד עכשיו</div>
-              <div id="dw-t-act-ren" style="font-size:22px;font-weight:800;color:var(--green)">—</div>
-            </div>
-            <div style="height:4px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin-top:6px">
-              <div id="dw-t-ren-bar" style="height:100%;background:var(--purple);border-radius:999px;transition:width .6s ease;width:0%"></div>
-            </div>
-            <div id="dw-t-ren-miss" style="font-size:10px;color:var(--orange);margin-top:3px;text-align:left"></div>
-          </div>
-          <div style="height:1px;background:var(--border);margin-bottom:12px"></div>
-          <!-- Conversions -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">המרות Trial→₪47</div>
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4px">
-              <div style="font-size:11px;color:var(--muted)">צפוי</div>
-              <div id="dw-t-exp-conv" style="font-size:22px;font-weight:800;color:var(--purple)">—</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:var(--muted)">בפועל</div>
-              <div id="dw-t-act-conv" style="font-size:22px;font-weight:800;color:#4338ca">—</div>
-            </div>
-          </div>
-          <div style="height:1px;background:var(--border);margin-bottom:10px"></div>
-          <!-- Revenue -->
-          <div style="display:flex;justify-content:space-between;font-size:12px">
-            <span style="color:var(--muted)">הכנסה בפועל</span>
-            <span id="dw-t-rev" style="font-weight:800;color:var(--purple)">—</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px">
-            <span style="color:var(--muted)">הכנסה צפויה</span>
-            <span id="dw-t-exp-rev" style="color:var(--muted)">—</span>
-          </div>
+        <div id="ws-rec-pending" style="font-size:34px;font-weight:800;color:#2563eb;line-height:1;margin-bottom:4px">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-bottom:4px">
+          <span id="ws-rec-late" style="color:#ea580c;font-weight:700">—</span> באיחור ·
+          <span id="ws-rec-future">—</span> עתידי
         </div>
+        <div style="height:1px;background:#bfdbfe;margin-bottom:8px"></div>
+        <div style="font-size:12px;font-weight:700;color:#2563eb">₪<span id="ws-rec-pending-rev">—</span> צפוי</div>
       </div>
 
-      <!-- TOMORROW -->
-      <div style="border:1px solid #bfdbfe;border-radius:12px;overflow:hidden;background:#f8fbff">
-        <div style="background:#eff6ff;padding:10px 14px;border-bottom:1px solid #bfdbfe;display:flex;justify-content:space-between;align-items:center">
-          <div style="font-size:11px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.5px">מחר — תחזית</div>
-          <div id="dw-tomorrow-date" style="font-size:10px;color:#2563eb">—</div>
+      <!-- Recurring Cancelled -->
+      <div style="border:2px solid #fecaca;border-radius:12px;padding:14px;background:#fef2f2">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span style="font-size:14px">❌</span>
+          <span style="font-size:10px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.5px">בוטל</span>
         </div>
-        <div style="padding:14px">
-          <!-- Renewals -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">חידושים צפויים</div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:var(--muted)">מספר</div>
-              <div id="dw-tm-exp-ren" style="font-size:22px;font-weight:800;color:#2563eb">—</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px">
-              <span style="color:var(--muted)">הכנסה צפויה</span>
-              <span id="dw-tm-exp-rev" style="font-weight:700;color:#2563eb">—</span>
-            </div>
-          </div>
-          <div style="height:1px;background:#bfdbfe;margin-bottom:12px"></div>
-          <!-- Conversions -->
-          <div style="margin-bottom:12px">
-            <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">המרות צפויות</div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-size:11px;color:var(--muted)">מספר</div>
-              <div id="dw-tm-exp-conv" style="font-size:22px;font-weight:800;color:#4338ca">—</div>
-            </div>
-          </div>
-          <div style="height:1px;background:#bfdbfe;margin-bottom:10px"></div>
-          <!-- Members list -->
-          <div id="dw-tm-names" style="font-size:10px;color:var(--muted);line-height:1.8"></div>
-        </div>
+        <div id="ws-rec-cancelled" style="font-size:34px;font-weight:800;color:#dc2626;line-height:1;margin-bottom:4px">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-bottom:8px">לא שילמו עד סוף חודש</div>
+        <div style="height:1px;background:#fecaca;margin-bottom:8px"></div>
+        <div style="font-size:12px;font-weight:700;color:#dc2626">₪<span id="ws-rec-cancelled-rev">—</span> אבוד</div>
       </div>
 
+    </div>
+
+    <!-- ROW 2: TRIAL MEMBERS (conversion tracking) -->
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding:0 2px">
+      חברים בניסיון — שילמו ₪10 בחודש הקודם (<span id="ws-trial-label">—</span>) · ממתינים להמרה לחוזר
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+
+      <!-- Trial Converted -->
+      <div style="border:2px solid #a5b4fc;border-radius:12px;padding:14px;background:#eef2ff">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span style="font-size:14px">🔄</span>
+          <span style="font-size:10px;font-weight:700;color:#4338ca;text-transform:uppercase;letter-spacing:.5px">המירו ל-₪47</span>
+        </div>
+        <div id="ws-trial-conv" style="font-size:34px;font-weight:800;color:#4338ca;line-height:1;margin-bottom:4px">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-bottom:8px">הפכו לחברים חוזרים</div>
+        <div style="height:1px;background:#a5b4fc;margin-bottom:8px"></div>
+        <div style="font-size:12px;font-weight:700;color:#4338ca">₪<span id="ws-trial-conv-rev">—</span></div>
+      </div>
+
+      <!-- Trial Pending -->
+      <div style="border:2px solid #fde68a;border-radius:12px;padding:14px;background:#fffbeb">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span style="font-size:14px">⏳</span>
+          <span style="font-size:10px;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:.5px">טרם החליטו</span>
+        </div>
+        <div id="ws-trial-pending" style="font-size:34px;font-weight:800;color:#d97706;line-height:1;margin-bottom:4px">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-bottom:4px">
+          <span id="ws-trial-late" style="color:#ea580c;font-weight:700">—</span> באיחור ·
+          <span id="ws-trial-future">—</span> עתידי
+        </div>
+        <div style="height:1px;background:#fde68a;margin-bottom:8px"></div>
+        <div style="font-size:12px;font-weight:700;color:#d97706">מועד: אותו יום בחודש</div>
+      </div>
+
+      <!-- Trial Churned -->
+      <div style="border:2px solid #f9a8d4;border-radius:12px;padding:14px;background:#fdf2f8">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span style="font-size:14px">💨</span>
+          <span style="font-size:10px;font-weight:700;color:#be185d;text-transform:uppercase;letter-spacing:.5px">נטשו</span>
+        </div>
+        <div id="ws-trial-churned" style="font-size:34px;font-weight:800;color:#be185d;line-height:1;margin-bottom:4px">—</div>
+        <div style="font-size:11px;color:#6b7280;margin-bottom:8px">לא המירו עד סוף חודש</div>
+        <div style="height:1px;background:#f9a8d4;margin-bottom:8px"></div>
+        <div style="font-size:12px;font-weight:700;color:#be185d">שיעור: <span id="ws-trial-churn-rate">—</span></div>
+      </div>
+
+    </div>
+
+    <!-- ROW 3: NEW THIS MONTH -->
+    <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding:0 2px">
+      הצטרפו החודש — ₪10 Trial חדש
+    </div>
+    <div style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border:2px solid #fed7aa;border-radius:12px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div style="font-size:11px;color:#6b7280;margin-bottom:4px">חברים חדשים שהצטרפו מאי 2026</div>
+        <div style="font-size:11px;font-weight:600;color:#ea580c">מועד חידוש צפוי: אותו יום ביוני 2026</div>
+      </div>
+      <div style="text-align:left">
+        <div id="ws-new" style="font-size:40px;font-weight:800;color:#ea580c;line-height:1">—</div>
+        <div style="font-size:11px;font-weight:700;color:#ea580c">₪<span id="ws-new-rev">—</span></div>
+      </div>
+    </div>
+
+    <!-- STACKED BAR -->
+    <div>
+      <div style="display:flex;gap:2px;height:8px;border-radius:999px;overflow:hidden;margin-bottom:5px">
+        <div id="ws-bar-renewed" style="background:#059669;transition:width .8s ease;min-width:0" title="חידשו"></div>
+        <div id="ws-bar-pending" style="background:#3b82f6;transition:width .8s ease;min-width:0" title="ממתינים"></div>
+        <div id="ws-bar-new"     style="background:#ea580c;transition:width .8s ease;min-width:0" title="חדשים"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#9ca3af">
+        <div style="display:flex;gap:12px">
+          <span><span style="display:inline-block;width:8px;height:8px;background:#059669;border-radius:2px;margin-left:4px;vertical-align:middle"></span>חידשו</span>
+          <span><span style="display:inline-block;width:8px;height:8px;background:#3b82f6;border-radius:2px;margin-left:4px;vertical-align:middle"></span>ממתינים</span>
+          <span><span style="display:inline-block;width:8px;height:8px;background:#ea580c;border-radius:2px;margin-left:4px;vertical-align:middle"></span>חדשים</span>
+        </div>
+        <span id="ws-today-day" style="color:var(--muted)">יום —/—</span>
+      </div>
+    </div>
+
+    <!-- LATE WARNING -->
+    <div id="ws-late-warning" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 14px;font-size:11px;color:#92400e;line-height:1.6;display:none;margin-top:10px">
+      ⚠️ <strong id="ws-late-count">0</strong> מנויים חוזרים שמועד חידושם עבר ולא שילמו —
+      שווה לפנות אליהם. ערך פוטנציאלי: <strong>₪<span id="ws-late-rev">0</span></strong>
     </div>
   </div>
 
@@ -756,15 +910,15 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
       <div class="kpi-sub">קארדקום + יופי</div>
     </div>
     <div class="kpi blue">
-      <div class="kpi-top"><div class="kpi-ico">🔵</div><span class="kpi-badge">281 מנויים</span></div>
+      <div class="kpi-top"><div class="kpi-ico">🔵</div><span class="kpi-badge" id="k-mrr-badge">232 מנויים</span></div>
       <div class="kpi-lbl">MRR קארדקום</div>
       <div class="kpi-val sm">₪11,565</div>
-      <div class="kpi-sub">Monthly Recurring Revenue</div>
+      <div class="kpi-sub"><span id="k-mrr-sub">232 מנויים × ממוצע ₪48</span></div>
     </div>
     <div class="kpi green">
       <div class="kpi-top"><div class="kpi-ico">📅</div><span class="kpi-badge">MRR × 12</span></div>
       <div class="kpi-lbl">ARR משוער</div>
-      <div class="kpi-val sm" id="mrr-arr">₪138,780</div>
+      <div class="kpi-val sm" id="mrr-arr">₪133,344</div>
       <div class="kpi-sub">Annual Recurring Revenue</div>
     </div>
     <div class="kpi orange">
@@ -1174,8 +1328,7 @@ function initCharts(){
   chs.revStack=new Chart(document.getElementById('ch-rev-stack'),{type:'bar',data:{labels:D.months,datasets:[
     {label:'קארדקום',data:D.cardcom,backgroundColor:C.purple+'cc',borderRadius:4},
     {label:'יופי',data:D.yofi,backgroundColor:C.cyan+'cc',borderRadius:4},
-    {label:'סה"כ',data:D.combined,type:'line',borderColor:C.yellow,backgroundColor:'transparent',tension:0.4,pointBackgroundColor:C.yellow,pointRadius:5,borderWidth:2.5}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',align:'end',labels:{boxWidth:10,padding:14,usePointStyle:true,font:{size:11}}},tooltip:ttILS},scales:{x:{stacked:true,grid:gr},y:{stacked:false,grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:ttILS},scales:{x:{stacked:true,grid:gr},y:{stacked:true,grid:gr,ticks:{callback:v=>'₪'+(v/1000).toFixed(0)+'K'}}}}});
 
   // Revenue split donut
   chs.split=new Chart(document.getElementById('ch-split'),{type:'doughnut',data:{labels:['קארדקום','יופי'],datasets:[{data:[41833,99261],backgroundColor:[C.purple,C.cyan],borderWidth:3,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{...tt,callbacks:{label:c=>` ${c.label}: ₪${c.parsed.toLocaleString()}`}}}}});
@@ -2102,6 +2255,7 @@ function updateLastRefresh() {
 
 // ── UPDATE DASHBOARD WITH LIVE DATA ──
 function updateDashboard(c) {
+  const RECURRING_AMOUNTS = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
   const yofiMTD = c.yofiMTD;
   const combinedMTD = c.mtdRev + yofiMTD;
   const combinedYTD = c.ytdRev + c.yofiYTD;
@@ -2114,7 +2268,25 @@ function updateDashboard(c) {
   
   set('k-rev', '₪' + combinedMTD.toLocaleString());
   set('k-act', c.active.length);
-  set('k-mrr', '₪' + c.mrr.toLocaleString());
+  // MRR = sum of last recurring payment for each active recurring member (paid in last 35 days)
+  const NOW_DT = new Date();
+  let mrrTotal = 0, mrrCount = 0;
+  const mrrMap = {};
+  for (const t of c.txns) {
+    const key = t.Token || t.CardOwnerEmail || t.CardOwnerPhone;
+    if (!key || !RECURRING_AMOUNTS.has(t.Amount)) continue;
+    if (!mrrMap[key] || t.CreateDate > mrrMap[key].CreateDate) mrrMap[key] = t;
+  }
+  for (const t of Object.values(mrrMap)) {
+    const daysSince = Math.round((NOW_DT - new Date(t.CreateDate)) / 86400000);
+    if (daysSince <= 35) { mrrTotal += t.Amount; mrrCount++; }
+  }
+  const avgRec = mrrCount > 0 ? Math.round(mrrTotal/mrrCount) : 0;
+  set('k-mrr', '₪' + mrrTotal.toLocaleString());
+  set('k-mrr-badge', mrrCount + ' מנויים');
+  const mrrSubEl = document.getElementById('k-mrr-sub');
+  if (mrrSubEl) mrrSubEl.textContent = mrrCount + ' מנויים × ממוצע ₪' + avgRec;
+  set('mrr-arr', '₪' + (mrrTotal*12).toLocaleString());
   set('k-eom', '₪' + eomForecast.toLocaleString());
   set('k-churn', c.churned.length + ' חברים');
   set('k-renew', c.mtdRecurring);
@@ -2197,7 +2369,7 @@ function rebuildCharts(c) {
   updateChart(chs.churn, mLabels.slice(1), [{data:newByMonth.slice(1)},{data:churnByMonth.slice(1)}]);
   updateChart(chs.newmo, mLabels.slice(1), [{data:newByMonth.slice(1)}]);
   updateChart(chs.revStack, mLabels, [{data:cardcomByMonth},{data:yofiByMonth},{data:combinedByMonth}]);
-  if (chs.revStack) { chs.revStack.options.plugins.legend.align = 'end'; chs.revStack.update('none'); }
+
   updateChart(chs.weeklyRev, wLabels, [{data:wRev}]);
   updateChart(chs.wkNew, wLabels, [{data:wNew},{data:wRec}]);
   updateChart(chs.dowNew, dowLabels, [{data:c.dow.new}]);
