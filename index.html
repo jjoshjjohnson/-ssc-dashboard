@@ -2194,55 +2194,49 @@ function buildHeatmapData(txns) {
  async function fetchCardcomData() {
   showLoadingState();
 
-  // Make webhook proxies to Cardcom server-side (CORS-safe)
-  // Scenario 5172543: SSC Dashboard - Live Cardcom Data
+  // Make webhook (scenario 5172543) proxies Cardcom — CORS-safe
+  // Note: webhook has Page hardcoded to 1, so we split into date windows
   const WEBHOOK = "https://hook.eu1.make.com/v4s0rnwo4sm1a4rizz7ktm23ez9if5j4";
 
   function dateStr(d) {
-    // Cardcom format: DDMMYYYY
     const dd = String(d.getDate()).padStart(2,'0');
     const mm = String(d.getMonth()+1).padStart(2,'0');
     return dd + mm + d.getFullYear();
   }
 
   const now = new Date();
-  const toDate = dateStr(now);
+  const yearStart  = new Date(now.getFullYear(), 0, 1);        // Jan 1
+  const splitPoint = new Date(now.getFullYear(), 2, 1);        // Mar 1 (splits history/recent)
+  const splitMinus1 = new Date(now.getFullYear(), 1, 28);      // Feb 28
 
-  // Fetch 2 windows in parallel:
-  // Window A: Start of year → end of previous month (YTD history for charts/cohorts)
-  // Window B: Start of previous month → today (live member data, always fresh)
-  const yearStart = new Date(now.getFullYear(), 0, 1);
-  const prevMonthStart = new Date(now.getFullYear(), now.getMonth()-1, 1);
-
-  async function fetchWindow(fromDate, page) {
-    const r = await fetch(WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fromDate, toDate, page: String(page), pageSize: "500" })
-    });
-    if (!r.ok) throw new Error(`Webhook error: ${r.status}`);
-    const d = await r.json();
-    return d?.Tranzactions || d?.data?.Tranzactions || [];
+  async function callWebhook(fromDate, toDate, label) {
+    try {
+      const r = await fetch(WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fromDate, toDate })
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const d = await r.json();
+      const txns = d?.Tranzactions || d?.data?.Tranzactions || [];
+      console.log(`Cardcom ${label}: ${txns.length} txns`);
+      return txns;
+    } catch(e) {
+      console.warn(`Cardcom ${label} failed:`, e.message);
+      return [];
+    }
   }
 
   try {
-    // Fetch prev month → today (member logic window) — always fits in 500
-    const recent = await fetchWindow(dateStr(prevMonthStart), 1);
-    console.log(`Cardcom recent (prev month→today): ${recent.length} txns`);
+    // Parallel fetch: Jan-Feb history + Mar-today recent
+    const [history, recent] = await Promise.all([
+      callWebhook(dateStr(yearStart), dateStr(splitMinus1), 'Jan-Feb'),
+      callWebhook(dateStr(splitPoint), dateStr(now), 'Mar-today')
+    ]);
 
-    // Fetch start of year → prev month start (history for YTD charts)
-    const history = await fetchWindow(dateStr(yearStart), 1);
-    console.log(`Cardcom history (YTD page 1): ${history.length} txns`);
+    const all = [...history, ...recent];
 
-    // If history is full, get page 2
-    let history2 = [];
-    if (history.length >= 500) {
-      history2 = await fetchWindow(dateStr(yearStart), 2);
-      console.log(`Cardcom history page 2: ${history2.length} txns`);
-    }
-
-    // Combine all, deduplicate
-    const all = [...history, ...history2, ...recent];
+    // Deduplicate
     const seen = new Set();
     const unique = all.filter(t => {
       if (!t.TranzactionId || seen.has(t.TranzactionId)) return false;
@@ -2253,7 +2247,7 @@ function buildHeatmapData(txns) {
     console.log(`Cardcom total unique: ${unique.length} transactions`);
 
     if (unique.length === 0) {
-      console.warn('No transactions returned from webhook');
+      console.warn('No transactions — check webhook');
       showFallbackData();
       return;
     }
@@ -2265,10 +2259,11 @@ function buildHeatmapData(txns) {
     updateLastRefresh();
 
   } catch(err) {
-    console.error('Cardcom fetch failed:', err.message);
+    console.error('Cardcom fetch error:', err.message);
     showFallbackData();
   }
 }
+
 
 
 
@@ -2437,14 +2432,17 @@ function buildHeatmapLive(hmData) {
 }
 
 function showFallbackData() {
-  // Static fallback already in charts from initCharts()
   const el = document.getElementById('last-refresh');
-  if (el) el.textContent = '⚠️ נתונים סטטיים (שגיאת חיבור)';
-  const loadEls = ['k-rev','k-act','k-mrr','k-eom','k-churn','k-renew','k-ytd','k-ltv'];
-  loadEls.forEach(id => {
+  if (el) el.textContent = '⚠️ מנסה שוב...';
+  const staticVals = {
+    'k-rev':'₪16,617','k-act':'296','k-mrr':'₪11,112','k-eom':'₪57,236',
+    'k-churn':'49','k-renew':'70','k-ytd':'₪141,094','k-ltv':'₪121'
+  };
+  Object.entries(staticVals).forEach(([id,val]) => {
     const el = document.getElementById(id);
-    if (el) el.style.opacity = '1';
+    if (el) { el.textContent = val; el.style.opacity = '1'; }
   });
+  setTimeout(fetchCardcomData, 15000);
 }
 
 
