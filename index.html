@@ -2394,12 +2394,15 @@ function updateLastRefresh() {
 // ── UPDATE DASHBOARD WITH LIVE DATA ──
 function updateDashboard(c) {
   const RECURRING_AMOUNTS = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
-  const yofiMTD = c.yofiMTD;
-  const combinedMTD = c.mtdRev + yofiMTD;
-  const combinedYTD = c.ytdRev + c.yofiYTD;
-  const eomForecast = Math.round((combinedMTD / DAYS_ELAPSED) * DAYS_IN_MONTH);
+  const _now = new Date();
+  const _daysElapsed = _now.getDate();
+  const _daysInMonth = new Date(_now.getFullYear(), _now.getMonth()+1, 0).getDate();
+  const yofiMTD = c.yofiMTD || 0;
+  const combinedMTD = (c.mtdRev || 0) + yofiMTD;
+  const combinedYTD = (c.ytdRev || 0) + (c.yofiYTD || 0);
+  const eomForecast = _daysElapsed > 0 ? Math.round((combinedMTD / _daysElapsed) * _daysInMonth) : 0;
   const goalPct = Math.min(99, Math.round(combinedMTD / 50000 * 100));
-  const ltv = c.txns.length ? Math.round(c.ytdRev / c.members.length) : 0;
+  const ltv = c.txns && c.txns.length && c.members && c.members.length ? Math.round((c.ytdRev || 0) / c.members.length) : 0;
 
   // KPI updates
   const set = (id, val) => { const el=document.getElementById(id); if(el){el.textContent=val;el.style.opacity='1';} };
