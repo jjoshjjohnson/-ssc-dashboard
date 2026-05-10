@@ -2011,7 +2011,7 @@ function getDateStr(d) {
   return dd + mm + yy;
 }
 
-const TODAY = new Date();
+// These reference the global TODAY declared at top of script
 const YEAR_START = new Date(TODAY.getFullYear(), 0, 1);
 const TODAY_STR = getDateStr(TODAY);
 const YEAR_START_STR = getDateStr(YEAR_START);
@@ -2936,7 +2936,7 @@ function updateDailyWidget(txns) {
     return days[d.getDay()] + ' ' + d.getDate() + '/' + (d.getMonth()+1);
   }
 
-  // ── Normalize transactions — seed uses {d,a,tok,n} full uses {CreateDate,Amount,Token,CardOwnerName} ──
+  // ── Normalize: handles both full txns {CreateDate,Amount,Token} and seed {d,a,tok} ──
   const normalized = txns.map(t => ({
     CreateDate: t.CreateDate || t.d || '',
     Amount:     t.Amount     ?? t.a ?? 0,
@@ -2944,14 +2944,6 @@ function updateDailyWidget(txns) {
     CardOwnerName: t.CardOwnerName || t.n || '—',
     CardOwnerEmail: t.CardOwnerEmail || t.e || '',
     CardOwnerPhone: t.CardOwnerPhone || t.ph || '',
-  })).filter(t => t.CreateDate && t.Amount > 1);
-
-  // ── Normalize: handles both full txns {CreateDate,Amount,Token} and seed {d,a,tok} ──
-  const normalized = txns.map(t => ({
-    CreateDate: t.CreateDate || t.d || '',
-    Amount:     t.Amount     ?? t.a ?? 0,
-    Token:      t.Token || t.tok || t.CardOwnerEmail || t.CardOwnerPhone || '',
-    CardOwnerName: t.CardOwnerName || t.n || '—',
   })).filter(t => t.CreateDate && t.Amount > 1);
 
   // Build member map from normalized data
