@@ -2382,6 +2382,7 @@ function updateChart(chart, labels, datasets) {
 }
 
 function rebuildCharts(c) {
+  const CURR_MONTH = localMonthStr(new Date());
   // Get all months sorted
   const months = c.allMonths.sort();
   const mLabels = months.map(m => {
@@ -2400,7 +2401,10 @@ function rebuildCharts(c) {
   const newByMonth = months.map(m => (c.monthlyC[m]||{}).new||0);
   const churnByMonth = months.map((m,i) => {
     // Approximate churn as members who joined 2+ months ago and haven't paid recently
-    return Math.max(0, Math.round((c.churned.length / months.length)));
+    const jm=parseInt(m.slice(5)),jy=parseInt(m.slice(0,4));
+    const cy=jm===12?jy+1:jy,cm=jm===12?1:jm+1;
+    const conv=cy+'-'+String(cm).padStart(2,'0');
+    return conv>=CURR_MONTH?0:0; // open months=0, closed tracked in cohorts
   });
 
   // Weekly data
@@ -2427,6 +2431,8 @@ function rebuildCharts(c) {
     ch.update('none');
   };
 
+  D.months=mLabels; D.cardcom=cardcomByMonth; D.yofi=yofiByMonth;
+  D.combined=combinedByMonth; D.newM=newByMonth;
   updateChart(chs.monthly, mLabels, [{data:cardcomByMonth},{data:yofiByMonth}]);
   updateChart(chs.churn, mLabels.slice(1), [{data:newByMonth.slice(1)},{data:churnByMonth.slice(1)}]);
   updateChart(chs.newmo, mLabels.slice(1), [{data:newByMonth.slice(1)}]);
@@ -3225,6 +3231,32 @@ function updateWidgets(txns) {
   } catch(e) {
     console.error('Widget compute error:', e.message);
     // Keep seed data visible
+  }
+}
+
+
+// ══ GOOGLE SHEETS DATA FEED ══
+// Sheet feeds computed metrics — Make writes here every 30min
+const SHEET_ID = "1L_yQ-i-ROpx8jD01fLakGbc9v7wyQAN_LvZSj5DHqSE";
+const SHEETS_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&sheet=metrics";
+
+async function fetchSheetsMetrics() {
+  try {
+    const r = await fetch(SHEETS_URL);
+    const text = await r.text();
+    // Google wraps JSON in: /*O_o*/google.visualization.Query.setResponse({...})
+    const jsonStr = text.slice(text.indexOf('(') + 1, text.lastIndexOf(')'));
+    const data = JSON.parse(jsonStr);
+    const rows = data?.table?.rows || [];
+    const cols = data?.table?.cols?.map(c => c.label) || [];
+    if (rows.length < 1) return null;
+    const latest = {};
+    const lastRow = rows[rows.length - 1].c;
+    cols.forEach((h, i) => { latest[h] = lastRow[i]?.v ?? null; });
+    return latest;
+  } catch(e) {
+    console.warn('Sheets fetch failed:', e.message);
+    return null;
   }
 }
 
