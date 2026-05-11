@@ -452,20 +452,20 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi purple">
       <div class="kpi-top"><div class="kpi-ico">💰</div><span class="kpi-badge up" id="k-rev-badge">קצב ₪1,846/יום</span></div>
       <div class="kpi-lbl">הכנסות החודש</div>
-      <div class="kpi-val" id="k-rev">₪25,690</div>
+      <div class="kpi-val" id="k-rev">₪26,182</div>
       <div class="kpi-sub">סך כל ההכנסות מקארדקום ומיופי בחודש הנוכחי</div>
     </div>
     <div class="kpi blue">
       <div class="kpi-top"><div class="kpi-ico">👥</div><span class="kpi-badge up">+17 החודש</span></div>
       <div class="kpi-lbl">חברים פעילים</div>
-      <div class="kpi-val" id="k-act">257</div>
+      <div class="kpi-val" id="k-act">256</div>
       <div class="kpi-sub">חברים שחידשו + ממתינים לחידוש + חדשים החודש</div>
     </div>
     <div class="kpi green">
       <div class="kpi-top"><div class="kpi-ico">📈</div><span class="kpi-badge" id="k-mrr-badge">232 מנויים</span></div>
       <div class="kpi-lbl">MRR קארדקום</div>
-      <div class="kpi-val" id="k-mrr">₪11,154</div>
-      <div class="kpi-sub"><span id="k-mrr-sub">234 מנויים × ממוצע ₪48</span><br><span style="font-size:9px;color:rgba(255,255,255,.6)">סכום תשלומי מנויים חוזרים פעילים</span></div>
+      <div class="kpi-val" id="k-mrr">₪11,201</div>
+      <div class="kpi-sub"><span id="k-mrr-sub">235 מנויים × ממוצע ₪48</span><br><span style="font-size:9px;color:rgba(255,255,255,.6)">סכום תשלומי מנויים חוזרים פעילים</span></div>
     </div>
   </div>
 
@@ -479,19 +479,19 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi cyan">
       <div class="kpi-top"><div class="kpi-ico">🔄</div><span class="kpi-badge">₪3,666</span></div>
       <div class="kpi-lbl">חידושים החודש</div>
-      <div class="kpi-val sm" id="k-renew">87</div>
+      <div class="kpi-val sm" id="k-renew">96</div>
       <div class="kpi-sub">חברים שחידשו תשלום חוזר החודש</div>
     </div>
     <div class="kpi pink">
       <div class="kpi-top"><div class="kpi-ico">🌟</div><span class="kpi-badge">2026</span></div>
       <div class="kpi-lbl">הכנסה מצטברת מתחילת השנה</div>
-      <div class="kpi-val sm" id="k-ytd">₪150,161</div>
+      <div class="kpi-val sm" id="k-ytd">₪150,653</div>
       <div class="kpi-sub">קארדקום + יופי</div>
     </div>
     <div class="kpi indigo">
       <div class="kpi-top"><div class="kpi-ico">💡</div><span class="kpi-badge">442 חברים</span></div>
       <div class="kpi-lbl">LTV ממוצע</div>
-      <div class="kpi-val sm" id="k-ltv">₪122</div>
+      <div class="kpi-val sm" id="k-ltv">₪96</div>
       <div class="kpi-sub">ממוצע הכנסה לאורך חיי החבר</div>
     </div>
   </div>
@@ -1000,7 +1000,7 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi green">
       <div class="kpi-top"><div class="kpi-ico">✅</div></div>
       <div class="kpi-lbl">פעילים</div>
-      <div class="kpi-val" id="ml-active-count">257</div>
+      <div class="kpi-val" id="ml-active-count">256</div>
       <div class="kpi-sub">חברים שחידשו + ממתינים לחידוש + חדשים החודש</div>
     </div>
     <div class="kpi red">
@@ -1155,13 +1155,13 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi blue">
       <div class="kpi-top"><div class="kpi-ico">⏳</div><span class="kpi-badge" id="pnd-count-badge">151 חברים</span></div>
       <div class="kpi-lbl">ממתינים לחיוב</div>
-      <div class="kpi-val" id="pnd-total-count">151</div>
+      <div class="kpi-val" id="pnd-total-count">138</div>
       <div class="kpi-sub">יום החיוב טרם הגיע</div>
     </div>
     <div class="kpi green">
       <div class="kpi-ico">💰</div>
       <div class="kpi-lbl">הכנסה צפויה</div>
-      <div class="kpi-val sm" id="pnd-expected-rev">₪7,097</div>
+      <div class="kpi-val sm" id="pnd-expected-rev">₪6,486</div>
       <div class="kpi-sub">אם כולם יחוייבו</div>
     </div>
     <div class="kpi red">
@@ -1249,31 +1249,26 @@ const DAYS_IN_MONTH_GLOBAL = new Date(TODAY_YEAR, TODAY_MONTH+1, 0).getDate();
 
 // ── STATIC DATA ──
 const D = {
-  months:['ינואר','פברואר','מרץ','אפריל','מאי'],
-  cardcom:[0, 8483, 15533, 12374, 6060],
-  yofi:[18500, 21400, 24800, 23381, 19630],
-  combined:[18500,29883,40333,35755,25690],
-  newM:[0, 87, 108, 46, 19],
-  churned:[0, 25, 24, 0, 0],
+  months:['פברואר','מרץ','אפריל','מאי'],
+  cardcom:[8483, 15533, 12374, 6552],
+  yofi:[21400, 24800, 23381, 19630],
+  combined:[29883, 40333, 35755, 26182],
+  newM:[87, 108, 46, 22],
+  churned:[25,24,0,0],
   weekly:{
-    labels:['W13','W14','W15','W16','W17','W18','W19','W20'],
-    rev:[2754, 4079, 2700, 2474, 1997, 5119, 2164, 0],
-    newM:[3, 12, 7, 15, 7, 13, 14, 0],
-    rec:[48, 83, 56, 44, 41, 80, 42, 0]
+    labels:["שבוע 23/3", "שבוע 30/3", "שבוע 6/4", "שבוע 13/4", "שבוע 20/4", "שבוע 27/4", "שבוע 4/5", "שבוע 11/5"],
+    rev:[2754, 4079, 2700, 2474, 1997, 5119, 2233, 423],
+    newM:[3, 12, 7, 15, 7, 13, 17, 0],
+    rec:[48, 83, 56, 44, 41, 80, 43, 9]
   },
   dow:{
     labels:['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'],
-    new:[35, 45, 39, 47, 31, 31, 32],
-    rev:[7589, 5361, 4603, 6176, 4830, 4873, 9018]
+    new:[38, 45, 39, 47, 31, 31, 32],
+    rev:[7658, 5784, 4603, 6176, 4830, 4873, 9018]
   },
   prods:{
-    labels:['₪47','₪10','₪69','₪297','₪89','₪39','₪247','₪174','₪197'],
-    counts:[517,260,43,10,14,31,7,8,6]
-  },
-  hm:{
-    weeks:['W-7','W-6','W-5','W-4','W-3','W-2','W-1','W0'],
-    days:['א','ב','ג','ד','ה','ו','ש'],
-    data:[[5,3,4,6,2,3,4],[7,5,6,7,3,4,5],[4,7,5,4,5,6,7],[3,5,8,9,7,5,6],[6,4,3,5,4,3,4],[4,5,3,4,3,2,3],[5,4,6,5,4,3,4],[3,3,2,4,3,2,3]]
+    labels:["₪47", "₪10", "₪69", "₪39", "₪89", "₪297", "₪174", "₪247", "₪197"],
+    counts:[526, 263, 43, 32, 14, 10, 8, 7, 6]
   }
 };
 
@@ -2477,8 +2472,8 @@ function showFallbackData() {
   if (el) el.textContent = '⚠️ מנסה שוב...';
   showToast('⚠️ לא הצליח להתחבר ל-Cardcom · מנסה שוב בעוד 15 שניות', 'warning', 0);
   const staticVals = {
-    'k-rev':'₪25,690','k-act':'257','k-mrr':'₪11,154',
-    'k-churn':'49','k-renew':'87','k-ytd':'₪150,161','k-ltv':'₪122'
+    'k-rev':'₪26,182','k-act':'256','k-mrr':'₪11,201',
+    'k-churn':'49','k-renew':'96','k-ytd':'₪150,653','k-ltv':'₪96'
   };
   Object.entries(staticVals).forEach(([id,val]) => {
     const el = document.getElementById(id);
@@ -2998,18 +2993,18 @@ function recalcFromCancelled() {
 // ══════════════════════════════════════════════════════
 
 const WIDGET_SEED = {
-  recRenewed:   80,
-  recCancelled: 36,
-  recPending:   121,
-  trialConv:    7,
-  trialChurned: 5,
-  trialPending: 30,
-  newMembers:   19,
-  totalActive:  257,
+  recRenewed:   88,
+  recCancelled: 38,
+  recPending:   111,
+  trialConv:    8,
+  trialChurned: 7,
+  trialPending: 27,
+  newMembers:   22,
+  totalActive:  256,
   recTotal:     237,
   trialTotal:   42,
-  recRenewedRev: 3760,
-  recCancelledRev: 1692,
+  recRenewedRev: 4136,
+  recCancelledRev: 1786,
   yesterday: {
     expRen:  4,
     actRen:  14,
@@ -3019,10 +3014,10 @@ const WIDGET_SEED = {
     expRev:  188,
   },
   today: {
-    expRen:  10,
+    expRen:  11,
     actRen:  9,
-    expConv: 3,
-    actConv: 1,
+    expConv: 0,
+    actConv: 0,
     actRev:  423,
     expRev:  470,
   },
@@ -3030,12 +3025,9 @@ const WIDGET_SEED = {
     expRen:  10,
     expConv: 0,
     expRev:  446,
-    names:   ["טלי אלעזרה", "תמר שייביץ בן אבי", "רונית מנשורי", "אביה הרנוי", "ניצן רחמים", "יעל קלירס"],
+    names:   ['טלי אלעזרה','תמר שייביץ בן אבי','רונית מנשורי','אביה הרנוי','ניצן רחמים','יעל קלירס'],
   },
-
-
 };
-
 // ── Set element text safely ──
 function sw(id, val) {
   const el = document.getElementById(id);
