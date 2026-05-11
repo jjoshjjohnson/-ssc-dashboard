@@ -758,7 +758,8 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     </div>
     <div class="card" style="margin-bottom:0">
       <div class="card-hd"><div><div class="card-title">חברים חדשים לפי חודש</div><div class="card-sub">₪10 Trial</div></div></div>
-      <div class="cw"><canvas id="ch-newmo"></canvas></div>
+      <div class="cw"><canvas id="ch-newmo"></canvas>
+          <!-- ch-newmo-day used in acquisition tab --></div>
     </div>
   </div>
 
@@ -999,13 +1000,13 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
     <div class="kpi green">
       <div class="kpi-top"><div class="kpi-ico">✅</div></div>
       <div class="kpi-lbl">פעילים</div>
-      <div class="kpi-val" id="ml-active-count">296</div>
+      <div class="kpi-val" id="ml-active-count">257</div>
       <div class="kpi-sub">חברים שחידשו + ממתינים לחידוש + חדשים החודש</div>
     </div>
     <div class="kpi red">
       <div class="kpi-top"><div class="kpi-ico">❌</div></div>
       <div class="kpi-lbl">עזבו</div>
-      <div class="kpi-val" id="ml-churned-count">106</div>
+      <div class="kpi-val" id="ml-churned-count">49</div>
       <div class="kpi-sub">לא המירו אחרי Trial</div>
     </div>
     <div class="kpi purple">
@@ -1174,10 +1175,10 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
   <!-- Filter tabs -->
   <div class="filter-bar" style="margin-bottom:12px">
     <div class="filter-tf">
-      <button class="filter-btn active" onclick="filterPending('all',this)">הכל (<span id="pnd-all-count">151</span>)</button>
-      <button class="filter-btn" onclick="filterPending('recurring',this)">מנויים חוזרים</button>
-      <button class="filter-btn" onclick="filterPending('trial',this)">Trial</button>
-      <button class="filter-btn" onclick="filterPending('cancelled',this)">❌ מבוטלים</button>
+      <button class="filter-btn active" onclick="filterPending('all',this)">הכל (<span id="pnd-all-count">192</span>)</button>
+      <button class="filter-btn" onclick="filterPending('pending',this)">⏳ ממתינים (151)</button>
+      <button class="filter-btn" onclick="filterPending('cancelled',this)">❌ בוטל אוטו (41)</button>
+      <button class="filter-btn" onclick="filterPending('confirmed',this)">☑️ אושר ידנית (<span id="pnd-confirmed-count">0</span>)</button>
     </div>
     <input id="pnd-search" class="filter-search" type="text" placeholder="🔍 חיפוש שם..." oninput="renderPending()">
     <select id="pnd-sort" class="filter-select" onchange="renderPending()">
@@ -1249,25 +1250,25 @@ const DAYS_IN_MONTH_GLOBAL = new Date(TODAY_YEAR, TODAY_MONTH+1, 0).getDate();
 // ── STATIC DATA ──
 const D = {
   months:['ינואר','פברואר','מרץ','אפריל','מאי'],
-  cardcom:[0,8487,15534,12375,5437],
-  yofi: [18500,21400,24800,23381,19630],
-  combined:[23650,31887,41295,27645,16617],
-  newM:[0,87,108,46,17],
-  churned:[0,12,45,72,28],
+  cardcom:[0, 8483, 15533, 12374, 6060],
+  yofi:[18500, 21400, 24800, 23381, 19630],
+  combined:[18500,29883,40333,35755,25690],
+  newM:[0, 87, 108, 46, 19],
+  churned:[0, 25, 24, 0, 0],
   weekly:{
-    labels:['W11','W12','W13','W14','W15','W16','W17','W18'],
-    rev:[4413,2754,4079,2700,2474,1997,5119,1541],
-    newM:[18,3,12,7,15,7,13,12],
-    rec:[39,38,79,52,25,36,75,24]
+    labels:['W13','W14','W15','W16','W17','W18','W19','W20'],
+    rev:[2754, 4079, 2700, 2474, 1997, 5119, 2164, 0],
+    newM:[3, 12, 7, 15, 7, 13, 14, 0],
+    rec:[48, 83, 56, 44, 41, 80, 42, 0]
   },
   dow:{
     labels:['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'],
-    new:[34,45,39,47,31,31,31],
-    rev:[6976,5361,4604,6176,4833,4873,9010]
+    new:[35, 45, 39, 47, 31, 31, 32],
+    rev:[7589, 5361, 4603, 6176, 4830, 4873, 9018]
   },
   prods:{
     labels:['₪47','₪10','₪69','₪297','₪89','₪39','₪247','₪174','₪197'],
-    counts:[505,258,43,10,14,30,7,8,6]
+    counts:[517,260,43,10,14,31,7,8,6]
   },
   hm:{
     weeks:['W-7','W-6','W-5','W-4','W-3','W-2','W-1','W0'],
@@ -2367,6 +2368,19 @@ function updateDashboard(c) {
   rebuildCharts(c);
 }
 
+
+// ── UPDATE CHART WITH NEW DATA (called from rebuildCharts) ──
+function updateChart(chart, labels, datasets) {
+  if (!chart) return;
+  if (labels) chart.data.labels = labels;
+  datasets.forEach((ds, i) => {
+    if (chart.data.datasets[i] && ds.data !== undefined) {
+      chart.data.datasets[i].data = ds.data;
+    }
+  });
+  chart.update('none');
+}
+
 function rebuildCharts(c) {
   // Get all months sorted
   const months = c.allMonths.sort();
@@ -2858,9 +2872,9 @@ function renderPending() {
 
   // Filter
   let list = enriched.filter(m => {
-    if (pndFilter === 'recurring' && m.type !== 'recurring') return false;
-    if (pndFilter === 'trial'     && m.type !== 'trial')     return false;
-    if (pndFilter === 'cancelled' && !m.manualCancelled && m.autoStatus !== 'cancelled') return false;
+    if (pndFilter === 'pending'   && m.autoStatus !== 'pending') return false;
+    if (pndFilter === 'cancelled' && m.autoStatus !== 'cancelled') return false;
+    if (pndFilter === 'confirmed' && !m.manualCancelled) return false;
     if (search && !m.name.toLowerCase().includes(search)) return false;
     return true;
   });
@@ -2938,6 +2952,7 @@ function renderPending() {
   s('pnd-total-count', pendingOnly.length);
   s('pnd-expected-rev', '₪' + totalExpRev.toLocaleString());
   s('pnd-all-count', allItems.length);
+  s('pnd-confirmed-count', [...window.confirmedCancelled].length);
   s('pnd-count-badge', allItems.length + ' חברים');
   updateCancelledCount();
 
