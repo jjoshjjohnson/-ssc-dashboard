@@ -451,9 +451,9 @@ table.dt .tot td{background:#f8fafc;font-weight:700;color:var(--purple)}
 
   <div class="kpi-row">
     <div class="kpi purple">
-      <div class="kpi-top"><div class="kpi-ico">💰</div><span class="kpi-badge up" id="k-rev-badge">קצב ₪1,846/יום</span></div>
+      <div class="kpi-top"><div class="kpi-ico">💰</div><span class="kpi-badge up" id="k-rev-badge">קצב ₪2,030/יום</span></div>
       <div class="kpi-lbl">הכנסות החודש</div>
-      <div class="kpi-val" id="k-rev">₪26,182</div>
+      <div class="kpi-val" id="k-rev">₪34,511</div>
       <div class="kpi-sub">סך כל ההכנסות מקארדקום ומיופי בחודש הנוכחי</div>
     </div>
     <div class="kpi blue">
@@ -2525,14 +2525,17 @@ function showFallbackData() {
   const el = document.getElementById('last-refresh');
   if (el) el.textContent = '⚠️ מנסה שוב...';
   showToast('⚠️ לא הצליח להתחבר ל-Cardcom · מנסה שוב בעוד 15 שניות', 'warning', 0);
-  const staticVals = {
-    'k-rev':'₪26,182','k-act':'256','k-mrr':'₪11,201',
-    'k-churn':'49','k-renew':'96','k-ytd':'₪150,653','k-ltv':'₪96'
-  };
-  Object.entries(staticVals).forEach(([id,val]) => {
-    const el = document.getElementById(id);
-    if (el) { el.textContent = val; el.style.opacity = '1'; }
-  });
+  // Use baked Youpay data so numbers are never stale
+  const yofiMTD = YOFI_TX.filter(t=>t.date.startsWith(CURRENT_MONTH_GLOBAL)).reduce((s,t)=>s+t.amount,0);
+  const yofiYTD = YOFI_YTD_TOTAL;
+  const set = (id,val) => { const el=document.getElementById(id); if(el){el.textContent=val;el.style.opacity='1';} };
+  set('k-rev', '₪' + yofiMTD.toLocaleString());
+  set('k-ytd', '₪' + yofiYTD.toLocaleString());
+  set('k-act', '257');
+  set('k-mrr', '₪7,915');
+  set('k-churn', '49');
+  set('k-renew', '96');
+  set('k-ltv', '₪96');
   setTimeout(fetchCardcomData, 15000);
 }
 
