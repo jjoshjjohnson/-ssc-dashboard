@@ -1960,37 +1960,47 @@ const PRODUCT_MAP = {
 const RECURRING_AMOUNTS = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
 
 // ── YOFI DATA — loaded from Google Sheets (Youpay_Raw tab) ──
-// Josh uploads CSV here; dashboard reads live on load
+// Josh uploads CSV here → Claude writes rows via Make → dashboard reads live
+const YOUPAY_SHEET_ID = "1psZGxLIDH8w1sKkV0D0SsqhK7tmZ_jpAjkUdwKuxlLs";
 let YOFI_TX = [];
 let YOFI_BY_MONTH = {};
 let YOFI_YTD_TOTAL = 0;
 
 async function fetchYouPayData() {
-  const url = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&sheet=Youpay_Raw";
+  const url = "https://docs.google.com/spreadsheets/d/" + YOUPAY_SHEET_ID + "/gviz/tq?tqx=out:json&sheet=Youpay_Raw&headers=1";
   try {
     const r = await fetch(url);
     const text = await r.text();
     const jsonStr = text.slice(text.indexOf('(') + 1, text.lastIndexOf(')'));
     const data = JSON.parse(jsonStr);
     const rows = data?.table?.rows || [];
-    const cols = data?.table?.cols?.map(c => c.label) || [];
-    if (rows.length < 2) return; // header only = no data
+    const cols = data?.table?.cols || [];
+    if (rows.length < 1) return;
+
+    // Detect if first row is headers or data
+    // Col labels from gviz: if sheet has headers=1, labels are set; otherwise use index
+    // Columns order: 0=אסמכתא, 1=תאריך, 2=חודש, 3=שנה, 4=שם לקוח, 5=4ספרות, 6=סכום, 7=תשלומים, 8=סטטוס, 9=תקף, 10=הערות
+    const COL = { REF:0, DATE:1, MONTH:2, YEAR:3, NAME:4, CARD4:5, AMOUNT:6, PAYMENTS:7, STATUS:8, VALID:9, NOTES:10 };
 
     const txs = [];
     for (const row of rows) {
       if (!row.c) continue;
-      const obj = {};
-      cols.forEach((h, i) => { obj[h] = row.c[i]?.v ?? null; });
-      // Columns: אסמכתא, תאריך, חודש, שנה, שם לקוח, 4 ספרות, סכום ₪, תשלומים, סטטוס, תקף, הערות
-      if (obj['תקף'] !== 'כן') continue; // skip invalid rows
-      const amount = parseFloat(obj['סכום ₪']) || 0;
+      const c = row.c;
+      // Skip if valid column says not כן (or if empty — treat empty as valid since Claude writes כן)
+      const validVal = c[COL.VALID]?.v ?? '';
+      if (validVal && validVal !== 'כן') continue;
+      const amount = parseFloat(c[COL.AMOUNT]?.v ?? 0) || 0;
       if (amount <= 0) continue;
-      const dateRaw = obj['תאריך'];
+      // Date: gviz returns strings for text cells, Date objects for date-formatted cells
       let dateStr = '';
-      if (typeof dateRaw === 'string') {
+      const dateRaw = c[COL.DATE]?.v ?? '';
+      if (typeof dateRaw === 'string' && dateRaw.length >= 10) {
         dateStr = dateRaw.slice(0, 10);
-      } else if (dateRaw) {
-        // Google Sheets returns dates as Date objects in gviz
+      } else if (typeof dateRaw === 'number') {
+        // Excel serial date
+        const d = new Date((dateRaw - 25569) * 86400000);
+        dateStr = d.toISOString().slice(0, 10);
+      } else if (dateRaw instanceof Date || (dateRaw && typeof dateRaw === 'object')) {
         const d = new Date(dateRaw);
         if (!isNaN(d)) dateStr = d.toISOString().slice(0, 10);
       }
@@ -1998,9 +2008,9 @@ async function fetchYouPayData() {
       txs.push({
         date: dateStr,
         amount: amount,
-        name: obj['שם לקוח'] || '',
-        card4: obj['4 ספרות'] || '',
-        payments: parseInt(obj['תשלומים']) || 1,
+        name: c[COL.NAME]?.v ?? '',
+        card4: String(c[COL.CARD4]?.v ?? ''),
+        payments: parseInt(c[COL.PAYMENTS]?.v ?? 1) || 1,
         product: 'יופי',
         type: 'workshop'
       });
@@ -2013,7 +2023,8 @@ async function fetchYouPayData() {
     }
     YOFI_BY_MONTH = byMonth;
     YOFI_YTD_TOTAL = txs.reduce((s, t) => s + t.amount, 0);
-    console.log(`Youpay loaded: ${txs.length} txs, ₪${YOFI_YTD_TOTAL.toLocaleString()} YTD`);
+    console.log(`✅ Youpay loaded from Sheet: ${txs.length} txs, ₪${YOFI_YTD_TOTAL.toLocaleString()} YTD`);
+    console.log('Youpay by month:', YOFI_BY_MONTH);
   } catch(e) {
     console.warn('Youpay Sheet fetch failed, using static fallback:', e.message);
     // Keep existing YOFI_TX as fallback
@@ -3302,9 +3313,7 @@ function updateWidgets(txns) {
 
 
 // ══ GOOGLE SHEETS DATA FEED ══
-// Sheet feeds computed metrics — Make writes here every 30min
-const SHEET_ID = "1psZGxLIDH8w1sKkV0D0SsqhK7tmZ_jpAjkUdwKuxlLs";
-const SHEETS_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&sheet=Youpay_Raw";
+// Sheet feeds Youpay data — Josh uploads CSV → Claude writes rows here
 
 async function fetchSheetsMetrics() {
   try {
