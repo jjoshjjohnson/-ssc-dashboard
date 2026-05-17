@@ -1959,8 +1959,69 @@ const PRODUCT_MAP = {
 
 const RECURRING_AMOUNTS = new Set([39,47,59,69,89,94,127,141,147,174,197,247,297]);
 
-// ── YOFI STATIC DATA (manual CSV updates) ──
-const YOFI_TX = [
+// ── YOFI DATA — loaded from Google Sheets (Youpay_Raw tab) ──
+// Josh uploads CSV here; dashboard reads live on load
+let YOFI_TX = [];
+let YOFI_BY_MONTH = {};
+let YOFI_YTD_TOTAL = 0;
+
+async function fetchYouPayData() {
+  const url = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&sheet=Youpay_Raw";
+  try {
+    const r = await fetch(url);
+    const text = await r.text();
+    const jsonStr = text.slice(text.indexOf('(') + 1, text.lastIndexOf(')'));
+    const data = JSON.parse(jsonStr);
+    const rows = data?.table?.rows || [];
+    const cols = data?.table?.cols?.map(c => c.label) || [];
+    if (rows.length < 2) return; // header only = no data
+
+    const txs = [];
+    for (const row of rows) {
+      if (!row.c) continue;
+      const obj = {};
+      cols.forEach((h, i) => { obj[h] = row.c[i]?.v ?? null; });
+      // Columns: אסמכתא, תאריך, חודש, שנה, שם לקוח, 4 ספרות, סכום ₪, תשלומים, סטטוס, תקף, הערות
+      if (obj['תקף'] !== 'כן') continue; // skip invalid rows
+      const amount = parseFloat(obj['סכום ₪']) || 0;
+      if (amount <= 0) continue;
+      const dateRaw = obj['תאריך'];
+      let dateStr = '';
+      if (typeof dateRaw === 'string') {
+        dateStr = dateRaw.slice(0, 10);
+      } else if (dateRaw) {
+        // Google Sheets returns dates as Date objects in gviz
+        const d = new Date(dateRaw);
+        if (!isNaN(d)) dateStr = d.toISOString().slice(0, 10);
+      }
+      if (!dateStr) continue;
+      txs.push({
+        date: dateStr,
+        amount: amount,
+        name: obj['שם לקוח'] || '',
+        card4: obj['4 ספרות'] || '',
+        payments: parseInt(obj['תשלומים']) || 1,
+        product: 'יופי',
+        type: 'workshop'
+      });
+    }
+    YOFI_TX = txs;
+    const byMonth = {};
+    for (const t of txs) {
+      const m = t.date.slice(0, 7);
+      byMonth[m] = (byMonth[m] || 0) + t.amount;
+    }
+    YOFI_BY_MONTH = byMonth;
+    YOFI_YTD_TOTAL = txs.reduce((s, t) => s + t.amount, 0);
+    console.log(`Youpay loaded: ${txs.length} txs, ₪${YOFI_YTD_TOTAL.toLocaleString()} YTD`);
+  } catch(e) {
+    console.warn('Youpay Sheet fetch failed, using static fallback:', e.message);
+    // Keep existing YOFI_TX as fallback
+  }
+}
+
+// ── YOFI STATIC FALLBACK (used if Sheet unreachable) ──
+const YOFI_TX_STATIC = [
   // Jan 2026
   {date:"2026-01-11",amount:2350,product:"מנוי שנתי",type:"annual"},
   {date:"2026-01-11",amount:2350,product:"מנוי שנתי",type:"annual"},
@@ -2012,8 +2073,11 @@ const YOFI_TX = [
 ];
 
 // Yofi monthly totals (for fast lookup)
-const YOFI_BY_MONTH = {'2026-01':18500,'2026-02':21400,'2026-03':24800,'2026-04':23381,'2026-05':19630};
-const YOFI_YTD_TOTAL = Object.values(YOFI_BY_MONTH).reduce((s,v)=>s+v,0);
+// Fallback static Youpay monthly totals (used if Sheet unreachable)
+const YOFI_BY_MONTH_STATIC = {'2026-01':18500,'2026-02':21400,'2026-03':24800,'2026-04':23381,'2026-05':26276};
+// Initialise dynamic vars from static until Sheet loads
+YOFI_BY_MONTH = {...YOFI_BY_MONTH_STATIC};
+YOFI_YTD_TOTAL = Object.values(YOFI_BY_MONTH).reduce((s,v)=>s+v,0);
 
 // ── PROCESS TRANSACTIONS ──
 function processTransactions(txns) {
@@ -3239,8 +3303,8 @@ function updateWidgets(txns) {
 
 // ══ GOOGLE SHEETS DATA FEED ══
 // Sheet feeds computed metrics — Make writes here every 30min
-const SHEET_ID = "1L_yQ-i-ROpx8jD01fLakGbc9v7wyQAN_LvZSj5DHqSE";
-const SHEETS_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&sheet=metrics";
+const SHEET_ID = "1psZGxLIDH8w1sKkV0D0SsqhK7tmZ_jpAjkUdwKuxlLs";
+const SHEETS_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/gviz/tq?tqx=out:json&sheet=Youpay_Raw";
 
 async function fetchSheetsMetrics() {
   try {
@@ -3358,7 +3422,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   setTimeout(renderMembers, 100);
   setTimeout(renderPending, 150);
-  fetchCardcomData();
+  // Fetch Youpay from Sheet first, then Cardcom
+  fetchYouPayData().then(() => {
+    fetchCardcomData();
+  });
   startAutoRefresh();
   setInterval(checkDateRollover, 60000);
 });
