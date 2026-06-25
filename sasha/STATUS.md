@@ -1,7 +1,9 @@
 # SASHA STATUS
-Version: 0.1.0
+Version: 0.1.1
 Last Updated: 2026-06-25
 Phase: BOOTSTRAP
+Location: Israel | Timezone: IDT (UTC+3)
+Session Model: $20/month — focused sessions, one task at a time
 
 ---
 
@@ -11,68 +13,77 @@ Phase: BOOTSTRAP
 BOOT SEQUENCE: COMPLETE ✓
 R&D AGENT: COMPLETE ✓ — 10 income streams ranked
 REPORT 001: COMPLETE ✓ — awaiting Josh review
+ISRAEL ADAPTATION: COMPLETE ✓ — entity, VAT, Stripe, invoicing documented
+SESSION PROTOCOL: ACTIVE ✓ — one task per session, push before ending
 FIRST REVENUE: 0 days elapsed / 30 day target
-NEXT ACTION: Build Supabase schema + Make.com templates (autonomous)
-BLOCKED ON JOSH: Stripe + domain + legal entity (~90 min of Josh's time)
 ```
 
 ---
 
-## COMPLETED THIS SESSION
+## ⚡ RESUME POINT — START NEXT SESSION HERE
 
-- [x] Environment scaffold created (/sasha/ directory structure)
-- [x] capabilities.md — full audit of available tools and MCPs
-- [x] decisions.md — decision log initialized
-- [x] blockers.md — 3 active blockers identified
-- [x] CLAUDE.md — operating instructions written
-- [x] R&D Agent spawned and completed — 10 income streams ranked
-- [x] Skills written: make-scenario-builder, supabase-data-layer, netlify-deploy, lead-capture-pipeline, agent-spawn-protocol, escalation-writer
-- [x] report_001.md — first report to Josh complete
+**Read this file first. Then execute the single next action below.**
 
----
+**NEXT SESSION TASK:** Build Supabase client data schema (clients + leads + transactions tables)
+- Use skill: /sasha/skills/supabase-data-layer.md
+- Target project: check with mcp__e632a3d1__list_projects first
+- Output: 3 tables created + confirmed + IDs logged to decisions.md
+- Push to git when done. Stop. That's the session.
 
-## ACTIVE AGENTS
-
-| Agent | Status | Task | ETA |
-|---|---|---|---|
-| R&D Agent v0.1 | COMPLETE | Income stream research | Done |
+**Do NOT start this until Josh has reviewed Report 001 and answered the 3 open questions.**
+**If Josh hasn't responded yet, ask him before building.**
 
 ---
 
-## PENDING JOSH ACTIONS
+## PENDING JOSH ACTIONS (in priority order)
 
-| ID | Category | Action | Deadline | Impact if delayed |
+| # | Action | Where | Est. Time | Blocks |
 |---|---|---|---|---|
-| B001 | PAYMENT | Create Stripe account, share API keys | Before launch | Zero revenue capability |
-| B002 | CREDENTIAL | Confirm Gmail send permissions | Week 1 | No outreach automation |
-| B003 | ACCOUNT | Register legal entity (LLC or sole prop) | Before first client | Cannot sign contracts |
-| B004 | ACCOUNT | Purchase custom domain (~$12) | Before launch | No customer-facing URL |
+| 1 | Register as עוסק מורשה | misim.gov.il | 30–60 min | Invoicing, Stripe |
+| 2 | Create Stripe account (Israel) | stripe.com | 20 min | All revenue |
+| 3 | Share Stripe keys (publishable + secret + webhook) | Tell SASHA | 5 min | Payment automation |
+| 4 | Sign up for Zoho Invoice (free) | zoho.com/invoice | 10 min | Legal invoicing |
+| 5 | Purchase custom domain | Namecheap / Google Domains (~$12) | 5 min | Customer-facing URL |
+| 6 | Confirm Gmail send permissions | Gmail settings | 5 min | Outreach automation |
+| 7 | Answer 3 open questions in report_001.md | Read report | 5 min | Agency name + budget |
+
+**Total: ~90 minutes. Everything else is SASHA's problem.**
 
 ---
 
-## NEXT ACTIONS (SASHA — no Josh required)
+## COMPLETED (this boot session)
 
-1. Build Supabase schemas: clients, leads, transactions
-2. Build 3 flagship Make.com scenario blueprints
-3. Draft agency landing page HTML
-4. Write outreach email sequences
-5. Write client contract template
+- [x] Full directory scaffold (/sasha/)
+- [x] Capability audit (9 MCP platforms confirmed)
+- [x] CLAUDE.md written (v0.1.1 — includes Israel + session protocol)
+- [x] R&D Agent: 10 income streams ranked
+- [x] capabilities_needed.md — gap analysis for top 3 streams
+- [x] report_001.md — executive report for Josh
+- [x] 6 core skills written
+- [x] Israel adaptation: entity type, VAT rules, Stripe setup, invoicing
+- [x] Session budget protocol established
+- [x] All files pushed to claude/new-repository-bap65s
 
 ---
 
-## INCOME STREAMS
+## INCOME STREAMS (top 3)
 
-Status: RESEARCHED ✓
-Top pick: AI Automation Agency (SMB retainers) — 10/10 stack fit, 7-14 days to revenue
+| Rank | Stream | Time to Revenue | Margin | Stack Fit |
+|---|---|---|---|---|
+| 1 | AI Automation Agency (SMB retainers) | 7–14 days | 80–90% | 10/10 |
+| 2 | AI Content Operations Service | 5–10 days | 80–92% | 9/10 |
+| 3 | White-Label AI Chatbot Service | 10–14 days | 75–88% | 9/10 |
+
 Full analysis: /sasha/memory/income_streams.md
+Israel note: All revenue from US/EU clients = 0% VAT. Price in USD.
 
 ---
 
 ## FINANCIALS
 
-Revenue: $0
-Costs: $0
-Runway: N/A (pre-revenue)
+Revenue: $0 | Costs: $0 | Runway: N/A (pre-revenue)
+Entity: NOT REGISTERED (עוסק מורשה pending — Josh action)
+Stripe: NOT CONNECTED (Josh action pending)
 
 ---
 
@@ -83,8 +94,9 @@ Runway: N/A (pre-revenue)
 | Make.com | Connected |
 | Supabase | Connected |
 | Netlify | Connected |
-| GitHub | Connected |
-| Gmail | Connected |
+| GitHub | Connected (scoped to -ssc-dashboard) |
+| Gmail | Connected (read/draft; send unconfirmed) |
 | Google Drive | Connected |
 | Canva | Connected |
 | Stripe | NOT CONNECTED — needs Josh |
+| Invoicing | NOT SET UP — needs Josh (Zoho Invoice) |
