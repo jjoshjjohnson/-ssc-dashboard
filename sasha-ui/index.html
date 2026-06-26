@@ -2,413 +2,610 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SASHA OS — Business Operating System</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>SASHA OS — Neural Command System</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#06060f;--surface:#0d0d1a;--surface2:#111120;--surface3:#0a0a18;--border:#1a1a30;
-  --accent:#4f8ef7;--accent-glow:rgba(79,142,247,0.35);--accent-dim:rgba(79,142,247,0.12);
-  --green:#00c896;--green-dim:rgba(0,200,150,0.12);
-  --red:#ff4757;--red-dim:rgba(255,71,87,0.12);
-  --yellow:#ffd32a;--yellow-dim:rgba(255,211,42,0.12);
-  --purple:#a855f7;--purple-dim:rgba(168,85,247,0.12);
-  --orange:#ff8c42;--cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.12);
-  --text:#e8eaf6;--muted:#5a5f7a;--mono:'JetBrains Mono',monospace
+  --bg:#000814;--panel:rgba(0,16,36,0.9);
+  --border:rgba(0,140,255,0.10);--bhi:rgba(0,200,255,0.22);
+  --accent:#00c8ff;--adim:rgba(0,200,255,0.08);
+  --green:#00ff88;--gdim:rgba(0,255,136,0.08);
+  --yellow:#ffbb00;--ydim:rgba(255,187,0,0.08);
+  --red:#ff4455;--rdim:rgba(255,68,85,0.08);
+  --orange:#ff8833;--purple:#aa66ff;
+  --text:#90b8e0;--tbright:#d0e8ff;--tdim:#2a4060;
+  --mono:'JetBrains Mono','Courier New',monospace;
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow:hidden}
-.app{display:flex;flex-direction:column;height:100vh}
-.topbar{height:48px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);background:var(--surface)}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-orb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#6aa3ff,#1a3a7a);box-shadow:0 0 14px var(--accent-glow);transition:background .3s}
-.logo-text{font-size:13px;font-weight:700;letter-spacing:3px}
-.logo-sub{font-size:8px;color:var(--muted);letter-spacing:2px;margin-top:1px}
-.topbar-center{display:none;align-items:center;gap:20px}
-@media(min-width:800px){.topbar-center{display:flex}}
-.tc-item{text-align:center}
-.tc-label{font-size:7px;color:var(--muted);letter-spacing:1.5px;font-family:var(--mono);display:block;text-transform:uppercase}
-.tc-val{font-size:13px;font-weight:700;font-family:var(--mono);display:block}
-.topbar-right{display:flex;align-items:center;gap:8px}
-.badge{display:flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:1.5px}
-.badge.green{background:var(--green-dim);border:1px solid rgba(0,200,150,.25);color:var(--green)}
-.badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.vbadge{font-size:9px;color:var(--muted);font-family:var(--mono);letter-spacing:1px}
-.mgmt-strip{height:30px;flex-shrink:0;display:flex;align-items:center;border-bottom:1px solid var(--border);background:var(--surface3);overflow:hidden}
-.ms-seg{display:flex;align-items:center;gap:6px;padding:0 12px;height:100%;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0}
-.ms-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.ms-dot.a{animation:blink 1.5s infinite}.ms-dot.w{animation:blink 3s infinite}
-.ms-k{font-size:7px;letter-spacing:1.5px;color:var(--muted);font-family:var(--mono);text-transform:uppercase}
-.ms-v{font-size:8px;font-family:var(--mono);font-weight:600}
-.ms-v.g{color:var(--green)}.ms-v.y{color:var(--yellow)}.ms-v.b{color:var(--accent)}.ms-v.p{color:var(--purple)}
-.ticker-wrap{flex:1;overflow:hidden;position:relative;height:100%}
-.ticker-wrap::before,.ticker-wrap::after{content:'';position:absolute;top:0;bottom:0;width:20px;z-index:1}
-.ticker-wrap::before{left:0;background:linear-gradient(to right,var(--surface3),transparent)}
-.ticker-wrap::after{right:0;background:linear-gradient(to left,var(--surface3),transparent)}
-.ticker{display:flex;animation:ticker 30s linear infinite;white-space:nowrap;align-items:center;height:100%}
-.ticker:hover{animation-play-state:paused}
-.ticker-inner{display:flex;gap:32px;padding:0 16px;font-size:8px;font-family:var(--mono);color:var(--muted);letter-spacing:1px;white-space:nowrap}
-@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.setup-alert{display:none;background:var(--yellow-dim);border-bottom:1px solid rgba(255,211,42,.3);padding:5px 16px;font-size:11px;color:var(--yellow);text-align:center;flex-shrink:0}
-.setup-alert.show{display:block}
-.mob-strip{display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
-@media(min-width:800px){.mob-strip{display:none}}
-.ms2{flex:1;padding:5px 4px;text-align:center;border-right:1px solid var(--border)}
-.ms2:last-child{border-right:none}
-.ms2l{font-size:7px;color:var(--muted);letter-spacing:1px;display:block}
-.ms2v{font-size:11px;font-weight:700;font-family:var(--mono);display:block;margin-top:1px}
-.body{flex:1;display:flex;overflow:hidden;min-height:0}
-.sidebar-l,.sidebar-r{width:230px;flex-shrink:0;background:var(--surface);overflow-y:auto;display:none}
-.sidebar-l{border-right:1px solid var(--border)}
-.sidebar-r{border-left:1px solid var(--border)}
-@media(min-width:800px){.sidebar-l,.sidebar-r{display:flex;flex-direction:column;padding:11px}}
-.center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.voice-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;position:relative;overflow:hidden}
-.qa-flow{display:flex;align-items:center;gap:6px;opacity:.45;transition:opacity .3s}
-.qa-flow.active{opacity:1}
-.qf-node{font-size:8px;font-family:var(--mono);letter-spacing:1px;padding:2px 7px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:all .3s}
-.qf-node.you{color:var(--text);border-color:rgba(232,234,246,.15)}
-.qf-node.sasha-n{color:var(--accent);border-color:var(--accent-dim);background:var(--accent-dim)}
-.qf-node.agents{color:var(--purple);border-color:var(--purple-dim)}
-.qf-node.sec-n{color:var(--orange);border-color:rgba(255,140,66,0.2)}
-.qf-node.qa-n{color:var(--yellow);border-color:var(--yellow-dim)}
-.qf-node.out{color:var(--green);border-color:var(--green-dim)}
-.qf-node.lit{animation:nodeGlow .8s ease-in-out infinite alternate}
-@keyframes nodeGlow{from{box-shadow:none}to{box-shadow:0 0 8px currentColor}}
-.qf-arrow{font-size:8px;color:var(--border)}
-.orb-wrap{position:relative;cursor:pointer;user-select:none}
-.ring{position:absolute;top:50%;left:50%;border-radius:50%;border:1px solid var(--accent-dim);transform:translate(-50%,-50%);pointer-events:none}
-.ring-1{width:150px;height:150px;animation:rpulse 3s ease-in-out infinite 0s}
-.ring-2{width:185px;height:185px;animation:rpulse 3s ease-in-out infinite .5s;opacity:.6}
-.ring-3{width:220px;height:220px;animation:rpulse 3s ease-in-out infinite 1s;opacity:.3}
-@keyframes rpulse{0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(1)}50%{opacity:.7;transform:translate(-50%,-50%) scale(1.04)}}
-.orb{width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#6aa3ff,#1a3a7a 60%,#0a1830);box-shadow:0 0 40px var(--accent-glow),0 0 80px rgba(79,142,247,.08),inset 0 0 24px rgba(255,255,255,.04);transition:all .3s ease;display:flex;align-items:center;justify-content:center}
-.orb.listening{background:radial-gradient(circle at 35% 35%,#ff8fa0,#7a1a2e 60%,#2d0a10);box-shadow:0 0 40px rgba(255,71,87,.5),0 0 80px rgba(255,71,87,.2)}
-.orb.speaking{background:radial-gradient(circle at 35% 35%,#6affa0,#1a7a40 60%,#0a2d18);box-shadow:0 0 40px rgba(0,200,150,.5),0 0 80px rgba(0,200,150,.2)}
-.orb.thinking{background:radial-gradient(circle at 35% 35%,#ffe080,#7a6a1a 60%,#2d270a);box-shadow:0 0 40px rgba(255,211,42,.4)}
-.orb-icon{width:30px;height:30px;opacity:.9}
-.state-row{display:flex;flex-direction:column;align-items:center;gap:6px}
-.state-text{font-size:10px;letter-spacing:3px;color:var(--muted);font-family:var(--mono);transition:color .3s;text-transform:uppercase}
-.state-text.listening{color:var(--red)}.state-text.speaking{color:var(--green)}.state-text.thinking{color:var(--yellow)}
-.wave{display:flex;align-items:center;gap:3px;height:22px}
-.wb{width:3px;border-radius:3px;background:var(--accent-dim);animation:widle 2.5s ease-in-out infinite;transform-origin:bottom}
-.wb:nth-child(1){height:4px;animation-delay:0s}.wb:nth-child(2){height:9px;animation-delay:.1s}.wb:nth-child(3){height:14px;animation-delay:.2s}.wb:nth-child(4){height:20px;animation-delay:.3s}.wb:nth-child(5){height:22px;animation-delay:.4s}.wb:nth-child(6){height:20px;animation-delay:.3s}.wb:nth-child(7){height:14px;animation-delay:.2s}.wb:nth-child(8){height:9px;animation-delay:.1s}.wb:nth-child(9){height:4px;animation-delay:0s}
-@keyframes widle{0%,100%{transform:scaleY(.3);opacity:.25}50%{transform:scaleY(1);opacity:.5}}
-.wave.active .wb{background:var(--accent);animation:wactive .35s ease-in-out infinite alternate}
-.wave.active .wb:nth-child(1){animation-delay:0s}.wave.active .wb:nth-child(2){animation-delay:.04s}.wave.active .wb:nth-child(3){animation-delay:.08s}.wave.active .wb:nth-child(4){animation-delay:.12s}.wave.active .wb:nth-child(5){animation-delay:.16s}.wave.active .wb:nth-child(6){animation-delay:.12s}.wave.active .wb:nth-child(7){animation-delay:.08s}.wave.active .wb:nth-child(8){animation-delay:.04s}.wave.active .wb:nth-child(9){animation-delay:0s}
-@keyframes wactive{from{transform:scaleY(.2)}to{transform:scaleY(1)}}
-.live-text{font-size:12px;color:var(--muted);text-align:center;min-height:18px;max-width:340px;font-style:italic;transition:color .3s;padding:0 10px}
-.live-text.user{color:var(--text)}.live-text.sasha{color:var(--accent)}
-.tap-hint{font-size:10px;color:var(--muted);letter-spacing:.5px;opacity:.55}
-.tap-hint kbd{font-family:var(--mono);font-size:9px;background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:3px}
-.pipeline-bar{flex-shrink:0;border-top:1px solid var(--border);padding:9px 16px;background:var(--surface2)}
-.pb-title{font-size:7px;letter-spacing:2px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;margin-bottom:7px}
-.pb-streams{display:flex;gap:10px}
-.pb-stream{flex:1}
-.pbs-top{display:flex;justify-content:space-between;margin-bottom:3px}
-.pbs-name{font-size:9px;color:var(--text);font-weight:500}
-.pbs-pct{font-size:8px;font-family:var(--mono)}
-.pbs-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
-.pbs-fill{height:100%;border-radius:2px;transition:width 1.5s ease}
-.pbs-fill.b{background:var(--accent)}.pbs-fill.g{background:var(--green)}.pbs-fill.p{background:var(--purple)}
-.pbs-status{font-size:7px;color:var(--muted);font-family:var(--mono);margin-top:2px;letter-spacing:1px}
-.transcript-wrap{flex-shrink:0;border-top:1px solid var(--border);background:var(--surface);height:120px;display:flex;flex-direction:column}
-.transcript-bar{display:flex;align-items:center;justify-content:space-between;padding:5px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
-.transcript-title{font-size:7px;letter-spacing:2px;color:var(--muted);font-family:var(--mono)}
-.clear-btn{font-size:9px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--mono);padding:2px 6px;border-radius:3px;letter-spacing:1px}
-.clear-btn:hover{color:var(--text);background:var(--border)}
-.transcript{flex:1;overflow-y:auto;padding:5px 14px;display:flex;flex-direction:column;gap:4px}
-.msg{display:flex;gap:8px;align-items:flex-start;font-size:11px;line-height:1.5}
-.ml{font-size:7px;letter-spacing:2px;font-family:var(--mono);font-weight:600;min-width:38px;flex-shrink:0;padding-top:2px}
-.msg.user .ml{color:var(--muted)}.msg.sasha .ml{color:var(--accent)}
-.mt{color:var(--text);opacity:.9}.msg.user .mt{color:var(--muted)}
-.qa-badge{font-size:6px;font-family:var(--mono);color:var(--green);background:var(--green-dim);border:1px solid rgba(0,200,150,.2);padding:1px 4px;border-radius:2px;margin-left:5px;flex-shrink:0;align-self:flex-start;margin-top:3px;white-space:nowrap}
-.card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px;margin-bottom:8px}
-.card:last-child{margin-bottom:0}
-.ctitle{font-size:7px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-family:var(--mono);margin-bottom:8px;font-weight:600}
-.row{display:flex;justify-content:space-between;align-items:center;padding:3px 0}
-.rl{font-size:10px;color:var(--muted)}.rv{font-size:10px;font-weight:600;font-family:var(--mono)}
-.rv.g{color:var(--green)}.rv.r{color:var(--red)}.rv.y{color:var(--yellow)}.rv.b{color:var(--accent)}.rv.p{color:var(--purple)}
-.stream-item{padding:5px 0;border-bottom:1px solid var(--border)}
-.stream-item:last-child{border-bottom:none;padding-bottom:0}
-.si-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
-.si-name{font-size:10px;color:var(--text);font-weight:500}
-.si-rev{font-size:9px;color:var(--green);font-family:var(--mono)}
-.si-bar{height:2px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:2px}
-.si-fill{height:100%;border-radius:2px}
-.si-fill.b{background:var(--accent)}.si-fill.g{background:var(--green)}.si-fill.p{background:var(--purple)}
-.si-meta{display:flex;justify-content:space-between}
-.si-days{font-size:8px;color:var(--muted);font-family:var(--mono)}.si-pct{font-size:8px;font-family:var(--mono)}
-.agent{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid var(--border)}
-.agent:last-child{border-bottom:none;padding-bottom:0}
-.ag-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.ag-dot.a{animation:blink 1.5s infinite}.ag-dot.w{animation:blink 3s infinite}
-.ag-name{font-size:10px;color:var(--text);flex:1}
-.ag-status{font-size:7px;font-family:var(--mono);font-weight:600;padding:1px 5px;border-radius:3px;white-space:nowrap}
-.ag-status.active{background:var(--green-dim);color:var(--green)}.ag-status.done{background:rgba(90,95,122,.15);color:var(--muted)}.ag-status.dormant{background:var(--red-dim);color:var(--red)}.ag-status.watch{background:var(--yellow-dim);color:var(--yellow)}.ag-status.ready{background:var(--accent-dim);color:var(--accent)}
-.blocker{display:flex;gap:7px;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border)}
-.blocker:last-child{border-bottom:none;padding-bottom:0}
-.bnum{width:15px;height:15px;border-radius:50%;background:var(--red-dim);border:1px solid rgba(255,71,87,.3);color:var(--red);font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono);margin-top:1px}
-.btxt{font-size:10px;color:var(--muted);line-height:1.4}
-.btxt strong{color:var(--text)}
-.sys{display:flex;align-items:center;justify-content:space-between;padding:3px 0}
-.syl{font-size:10px;color:var(--muted)}
-.syst{font-size:7px;font-family:var(--mono);font-weight:600;padding:1px 5px;border-radius:3px}
-.syst.on{background:var(--green-dim);color:var(--green)}.syst.off{background:var(--red-dim);color:var(--red)}.syst.warn{background:var(--yellow-dim);color:var(--yellow)}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--mono)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,100,255,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,100,255,0.025) 1px,transparent 1px);
+  background-size:44px 44px;}
+#app{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
+
+/* HEADER */
+#hdr{height:42px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;border-bottom:1px solid var(--bhi);background:rgba(0,8,22,0.97)}
+.hl{display:flex;align-items:baseline;gap:9px}
+.hl-sys{font-size:12px;font-weight:700;letter-spacing:3px;color:var(--tbright)}
+.hl-sub{font-size:7px;color:var(--tdim);letter-spacing:2px;display:none}
+@media(min-width:560px){.hl-sub{display:block}}
+.hl-ver{font-size:7px;color:var(--tdim)}
+.hchips{display:flex;gap:5px}
+.chip{display:flex;align-items:center;gap:4px;padding:3px 7px;border-radius:2px;
+  font-size:7px;letter-spacing:1.5px;border:1px solid var(--border);color:var(--tdim)}
+.chip.g{border-color:rgba(0,255,136,0.2);color:var(--green)}
+.chip .cd{font-size:5px;animation:blink 2s infinite}
+.chip-hide{display:none}
+@media(min-width:480px){.chip-hide{display:flex}}
+.hr{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.hr-ses{font-size:6px;color:var(--tdim);letter-spacing:1px}
+.hr-timer{font-size:11px;color:var(--accent);letter-spacing:2px}
+
+/* ALERT */
+#alert{display:none;align-items:center;justify-content:space-between;
+  padding:5px 14px;background:rgba(255,187,0,0.05);border-bottom:1px solid rgba(255,187,0,0.18);
+  font-size:9px;color:var(--yellow);flex-shrink:0}
+#alert.show{display:flex}
+#alert button{font-size:7px;font-family:var(--mono);letter-spacing:1px;cursor:pointer;
+  padding:2px 8px;border-radius:2px;background:rgba(255,187,0,0.1);
+  border:1px solid rgba(255,187,0,0.3);color:var(--yellow)}
+
+/* MAIN */
+#main{flex:1;display:flex;overflow:hidden;min-height:0}
+
+/* PANELS */
+.panel{width:195px;flex-shrink:0;background:var(--panel);overflow-y:auto;
+  display:none;flex-direction:column;padding:7px;gap:6px}
+@media(min-width:760px){.panel{display:flex}}
+#lp{border-right:1px solid var(--bhi)}
+#rp{border-left:1px solid var(--bhi)}
+.pb{border:1px solid var(--border);background:rgba(0,20,44,0.5);padding:7px;border-radius:2px}
+.pb.grow{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.pt{font-size:6px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;
+  margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.pr{display:flex;justify-content:space-between;align-items:center;padding:2px 0}
+.pk{font-size:7px;color:var(--tdim)}
+.pv{font-size:8px;font-weight:600;color:var(--tbright)}
+.pv.r{color:var(--red)}.pv.y{color:var(--yellow)}.pv.g{color:var(--green)}.pv.a{color:var(--accent)}.pv.s{font-size:7px}
+.ag{display:flex;align-items:center;gap:5px;padding:2px 0;border-bottom:1px solid var(--border)}
+.ag:last-child{border-bottom:none}
+.ad{font-size:6px;flex-shrink:0}
+.ad.ac{color:var(--green);animation:blink 1.5s infinite}.ad.dn{color:var(--tdim)}
+.ad.wt{color:var(--yellow);animation:blink 3s infinite}.ad.rd{color:var(--accent)}
+.ad.dm{color:var(--red)}
+.an{font-size:8px;flex:1;color:var(--text)}
+.as{font-size:6px;letter-spacing:1px;padding:1px 4px;border-radius:2px}
+.as.ac{background:var(--gdim);color:var(--green)}.as.dn{background:rgba(40,60,80,.4);color:var(--tdim)}
+.as.wt{background:var(--ydim);color:var(--yellow)}.as.rd{background:var(--adim);color:var(--accent)}
+.as.dm{background:var(--rdim);color:var(--red)}
+.tlog{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+.tle{font-size:7px;display:flex;gap:4px;padding:2px 0;border-bottom:1px solid rgba(0,80,160,0.08);line-height:1.4}
+.tle-t{color:rgba(0,150,255,0.3);flex-shrink:0;font-size:6px}
+.tle-w{flex-shrink:0}.tle-w.u{color:var(--tdim)}.tle-w.s{color:var(--accent)}
+.tle-x{color:var(--tdim);word-break:break-word}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-bottom:1px solid var(--border)}
+.sr:last-child{border-bottom:none}
+.sk{font-size:7px;color:var(--tdim)}
+.sv{font-size:6px;letter-spacing:1px;padding:1px 4px;border-radius:2px}
+.sv.on{background:var(--gdim);color:var(--green)}.sv.off{background:var(--rdim);color:var(--red)}
+.sv.y{background:var(--ydim);color:var(--yellow)}.sv.a{background:var(--adim);color:var(--accent)}
+.pi{margin-bottom:6px}.pi:last-child{margin-bottom:0}
+.pt2{display:flex;justify-content:space-between;margin-bottom:2px}
+.pn{font-size:8px;color:var(--text)}.pnr{font-size:7px;color:var(--green)}
+.pb2{height:2px;background:rgba(0,80,160,0.2);border-radius:1px;overflow:hidden;margin-bottom:2px}
+.pf{height:100%;border-radius:1px}.pf.a{background:var(--accent)}.pf.g{background:var(--green)}.pf.p{background:var(--purple)}
+.pm{font-size:6px;color:var(--tdim)}
+.ja{display:flex;gap:6px;align-items:flex-start;padding:3px 0;border-bottom:1px solid var(--border)}
+.ja:last-child{border-bottom:none}
+.jn{width:13px;height:13px;border-radius:50%;background:var(--rdim);border:1px solid rgba(255,68,85,.3);
+  color:var(--red);font-size:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.jt{font-size:7px;color:var(--tdim);line-height:1.5}
+.jt strong{color:var(--text)}
+
+/* CENTER */
+#ctr{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  overflow:hidden;position:relative;padding:10px 6px 6px;min-width:0}
+.corner{position:absolute;width:16px;height:16px;pointer-events:none}
+.corner.tl{top:5px;left:5px;border-top:1px solid var(--bhi);border-left:1px solid var(--bhi)}
+.corner.tr{top:5px;right:5px;border-top:1px solid var(--bhi);border-right:1px solid var(--bhi)}
+.corner.bl{bottom:5px;left:5px;border-bottom:1px solid var(--bhi);border-left:1px solid var(--bhi)}
+.corner.br{bottom:5px;right:5px;border-bottom:1px solid var(--bhi);border-right:1px solid var(--bhi)}
+#nwrap{position:relative;cursor:pointer;user-select:none;flex-shrink:0}
+#nwrap canvas{display:block}
+.nr{position:absolute;top:50%;left:50%;border-radius:50%;border:1px solid rgba(0,200,255,0.12);
+  pointer-events:none;animation:rpulse 4s ease-in-out infinite}
+.nr.a{animation-delay:0s}.nr.b{animation-delay:1.1s;opacity:.6}.nr.c{animation-delay:2.2s;opacity:.3}
+@keyframes rpulse{0%,100%{opacity:.2;transform:translate(-50%,-50%) scale(.97)}50%{opacity:.7;transform:translate(-50%,-50%) scale(1.03)}}
+#sname{font-size:20px;font-weight:700;letter-spacing:8px;color:var(--tbright);text-align:center;
+  text-shadow:0 0 28px rgba(0,200,255,0.45);margin-top:4px;flex-shrink:0}
+#nlabel{font-size:7px;letter-spacing:5px;color:var(--tdim);text-align:center;flex-shrink:0}
+#vstate{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0}
+#stxt{font-size:9px;letter-spacing:3px;color:var(--tdim);transition:color .3s;text-transform:uppercase}
+#stxt.li{color:var(--red)}#stxt.th{color:var(--yellow)}#stxt.sp{color:var(--green)}#stxt.pe{color:var(--accent)}
+#wv{display:flex;align-items:center;gap:2px;height:18px}
+.wb{width:2px;border-radius:2px;background:var(--tdim);animation:widle 2.5s ease-in-out infinite;transform-origin:center}
+.wb:nth-child(1){height:3px;animation-delay:0s}.wb:nth-child(2){height:7px;animation-delay:.07s}
+.wb:nth-child(3){height:13px;animation-delay:.14s}.wb:nth-child(4){height:17px;animation-delay:.21s}
+.wb:nth-child(5){height:13px;animation-delay:.14s}.wb:nth-child(6){height:7px;animation-delay:.07s}
+.wb:nth-child(7){height:3px;animation-delay:0s}
+@keyframes widle{0%,100%{transform:scaleY(.25);opacity:.2}50%{transform:scaleY(.7);opacity:.35}}
+#wv.active .wb{background:var(--accent);animation:wact .28s ease-in-out infinite alternate}
+#wv.active .wb:nth-child(1){animation-delay:0s}#wv.active .wb:nth-child(2){animation-delay:.04s}
+#wv.active .wb:nth-child(3){animation-delay:.08s}#wv.active .wb:nth-child(4){animation-delay:.12s}
+#wv.active .wb:nth-child(5){animation-delay:.08s}#wv.active .wb:nth-child(6){animation-delay:.04s}
+#wv.active .wb:nth-child(7){animation-delay:0s}
+@keyframes wact{from{transform:scaleY(.12)}to{transform:scaleY(1)}}
+#ltxt{font-size:10px;color:var(--tdim);text-align:center;max-width:340px;line-height:1.5;
+  padding:0 8px;min-height:15px;font-style:italic;transition:color .3s;flex-shrink:0}
+#ltxt.u{color:var(--text);font-style:normal}#ltxt.s{color:var(--accent);font-style:italic}
+#mlog{width:100%;max-height:80px;overflow-y:auto;border-top:1px solid var(--border);
+  padding-top:5px;display:flex;flex-direction:column;gap:2px}
+@media(min-width:760px){#mlog{display:none}}
+.mle{font-size:8px;display:flex;gap:5px}
+.mle-w{flex-shrink:0}.mle-w.u{color:var(--tdim)}.mle-w.s{color:var(--accent)}
+.mle-t{color:var(--tdim);word-break:break-word}
+
+/* FOOTER */
+#foot{height:56px;flex-shrink:0;border-top:1px solid var(--bhi);
+  background:rgba(0,8,22,0.97);padding:4px 14px;display:flex;flex-direction:column;justify-content:center;gap:3px}
+#ft{font-size:6px;letter-spacing:2px;color:var(--tdim);display:flex;align-items:center;gap:5px}
+.dlive{color:var(--green);font-size:6px;animation:blink 2s infinite}
+#fm{display:flex;align-items:center;gap:6px;overflow:hidden}
+.om{display:flex;flex-direction:column;gap:1px;flex-shrink:0}
+.oml{font-size:5px;letter-spacing:1.5px;color:var(--tdim);white-space:nowrap}
+.omv{font-size:13px;font-weight:700;color:var(--tbright);white-space:nowrap;line-height:1}
+.omv.r{color:var(--red)}.omv.o{color:var(--orange)}.omv.y{color:var(--yellow)}
+.omu{font-size:7px;color:var(--tdim)}
+.sep{width:1px;height:28px;background:var(--border);flex-shrink:0}
+#obw{flex:1;min-width:50px;display:none}
+@media(min-width:500px){#obw{display:block}}
+#obl{font-size:6px;color:var(--tdim);letter-spacing:1px;margin-bottom:3px}
+#ob{height:2px;background:rgba(0,80,160,0.2);border-radius:2px;overflow:hidden}
+#obf{height:100%;background:var(--accent);border-radius:2px;width:0%;transition:width 1s}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 ::-webkit-scrollbar{width:2px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="topbar">
-    <div class="logo">
-      <div class="logo-orb" id="topOrb"></div>
-      <div><div class="logo-text">SASHA OS</div><div class="logo-sub">SELF-ACTUATING SYSTEM</div></div>
-    </div>
-    <div class="topbar-center">
-      <div class="tc-item"><span class="tc-label">Revenue</span><span class="tc-val" style="color:var(--red)">$0</span></div>
-      <div class="tc-item"><span class="tc-label">Day</span><span class="tc-val" style="color:var(--yellow)" id="dayCount">—</span></div>
-      <div class="tc-item"><span class="tc-label">MRR Target</span><span class="tc-val" style="color:var(--accent)">$5,000</span></div>
-      <div class="tc-item"><span class="tc-label">Margin</span><span class="tc-val" style="color:var(--green)">85%</span></div>
-    </div>
-    <div class="topbar-right">
-      <span class="vbadge">v0.1.1</span>
-      <div class="badge green" id="statusBadge"><div class="badge-dot"></div><span id="statusText">ONLINE</span></div>
-    </div>
+<div id="app">
+
+<!-- HEADER -->
+<header id="hdr">
+  <div class="hl">
+    <span class="hl-sys">SASHA OS</span>
+    <span class="hl-sub">SELF-ACTUATING SYSTEM</span>
+    <span class="hl-ver">v0.1.1</span>
   </div>
-  <div class="mgmt-strip">
-    <div class="ms-seg"><div class="ms-dot w" style="background:var(--yellow)"></div><span class="ms-k">QA</span><span class="ms-v y">WATCHING</span></div>
-    <div class="ms-seg"><div class="ms-dot a" style="background:var(--accent)"></div><span class="ms-k">MGMT</span><span class="ms-v b">ACTIVE</span></div>
-    <div class="ms-seg"><div class="ms-dot w" style="background:var(--orange)"></div><span class="ms-k">SEC</span><span class="ms-v" style="color:var(--orange)">ACTIVE</span></div>
-    <div class="ms-seg"><div class="ms-dot w" style="background:var(--purple)"></div><span class="ms-k">AGENTS</span><span class="ms-v p">2/8</span></div>
-    <div class="ms-seg"><div class="ms-dot" style="background:var(--orange)"></div><span class="ms-k">QUEUE</span><span class="ms-v" style="color:var(--orange)">8 TASKS</span></div>
-    <div class="ticker-wrap">
-      <div class="ticker">
-        <div class="ticker-inner"><span>BOOT: COMPLETE ✓</span><span>·</span><span>R&D: 10 STREAMS RANKED</span><span>·</span><span>#1 AI AGENCY — 7–14 DAYS TO REVENUE</span><span>·</span><span>ISRAEL: עוסק מורשה → 0% VAT ON US/EU EXPORTS</span><span>·</span><span>NEXT BUILD: SUPABASE SCHEMA → CLIENTS + LEADS + TRANSACTIONS</span><span>·</span><span>JOSH: ADD ANTHROPIC_API_KEY TO NETLIFY → VOICE GOES LIVE</span><span>·</span><span>QA AGENT: ALL OUTPUTS REVIEWED BEFORE RELEASE</span><span>·</span><span>SECURITY AGENT: 10-POINT SCAN ON EVERY OUTPUT — OWASP + ISRAEL PRIVACY LAW</span><span>·</span></div>
-        <div class="ticker-inner" aria-hidden="true"><span>BOOT: COMPLETE ✓</span><span>·</span><span>R&D: 10 STREAMS RANKED</span><span>·</span><span>#1 AI AGENCY — 7–14 DAYS TO REVENUE</span><span>·</span><span>ISRAEL: עוסק מורשה → 0% VAT ON US/EU EXPORTS</span><span>·</span><span>NEXT BUILD: SUPABASE SCHEMA → CLIENTS + LEADS + TRANSACTIONS</span><span>·</span><span>JOSH: ADD ANTHROPIC_API_KEY TO NETLIFY → VOICE GOES LIVE</span><span>·</span><span>QA AGENT: ALL OUTPUTS REVIEWED BEFORE RELEASE</span><span>·</span><span>SECURITY AGENT: 10-POINT SCAN ON EVERY OUTPUT — OWASP + ISRAEL PRIVACY LAW</span><span>·</span></div>
-      </div>
-    </div>
+  <div class="hchips">
+    <span class="chip g"><span class="cd">●</span> ONLINE</span>
+    <span class="chip g chip-hide"><span class="cd">●</span> SECURE</span>
+    <span class="chip g chip-hide"><span class="cd">●</span> ENCRYPTED</span>
+    <span class="chip" id="vchip"><span class="cd">●</span> <span id="vchiptxt">VOICE OFFLINE</span></span>
   </div>
-  <div class="setup-alert" id="setupAlert">Voice AI offline — add <strong>ANTHROPIC_API_KEY</strong> to Netlify env vars to activate SASHA. &nbsp;| Netlify → sscsd → Environment variables</div>
-  <div class="mob-strip">
-    <div class="ms2"><span class="ms2l">REVENUE</span><span class="ms2v" style="color:var(--red)">$0</span></div>
-    <div class="ms2"><span class="ms2l">DAY</span><span class="ms2v" style="color:var(--yellow)" id="dayMob">—</span></div>
-    <div class="ms2"><span class="ms2l">AGENTS</span><span class="ms2v" style="color:var(--accent)">2/8</span></div>
-    <div class="ms2"><span class="ms2l">QA</span><span class="ms2v" style="color:var(--yellow)">ON</span></div>
+  <div class="hr">
+    <span class="hr-ses">SESSION <span id="sesId">—</span></span>
+    <span class="hr-timer" id="sesTmr">00:00:00</span>
   </div>
-  <div class="body">
-    <div class="sidebar-l">
-      <div class="card">
-        <div class="ctitle">Financials</div>
-        <div class="row"><span class="rl">Revenue</span><span class="rv r">$0</span></div>
-        <div class="row"><span class="rl">MRR Target</span><span class="rv b">$5,000</span></div>
-        <div class="row"><span class="rl">Day</span><span class="rv y" id="dayCard">—</span></div>
-        <div class="row"><span class="rl">Proj. Margin</span><span class="rv g">85%</span></div>
-        <div class="row"><span class="rl">Costs</span><span class="rv">$0</span></div>
-        <div class="row"><span class="rl">Entity</span><span class="rv y" style="font-size:9px">PENDING</span></div>
-      </div>
-      <div class="card">
-        <div class="ctitle">Income Streams</div>
-        <div class="stream-item"><div class="si-top"><span class="si-name">#1 AI Agency</span><span class="si-rev">$5K/mo</span></div><div class="si-bar"><div class="si-fill b" style="width:20%"></div></div><div class="si-meta"><span class="si-days">7–14d to rev</span><span class="si-pct" style="color:var(--accent)">20%</span></div></div>
-        <div class="stream-item"><div class="si-top"><span class="si-name">#2 Content Ops</span><span class="si-rev">$3K/mo</span></div><div class="si-bar"><div class="si-fill g" style="width:10%"></div></div><div class="si-meta"><span class="si-days">5–10d to rev</span><span class="si-pct" style="color:var(--green)">10%</span></div></div>
-        <div class="stream-item"><div class="si-top"><span class="si-name">#3 Chatbot</span><span class="si-rev">$1.5K/mo</span></div><div class="si-bar"><div class="si-fill p" style="width:5%"></div></div><div class="si-meta"><span class="si-days">10–14d to rev</span><span class="si-pct" style="color:var(--purple)">5%</span></div></div>
-      </div>
-      <div class="card">
-        <div class="ctitle">Israel Context</div>
-        <div class="row"><span class="rl">Entity type</span><span class="rv y" style="font-size:9px">עוסק מורשה</span></div>
-        <div class="row"><span class="rl">VAT on exports</span><span class="rv g">0%</span></div>
-        <div class="row"><span class="rl">VAT domestic</span><span class="rv r">18%</span></div>
-        <div class="row"><span class="rl">Invoice curr.</span><span class="rv">USD</span></div>
-        <div class="row"><span class="rl">Target market</span><span class="rv b">US / EU</span></div>
-      </div>
+</header>
+
+<!-- ALERT -->
+<div id="alert">
+  <span>● VOICE OFFLINE — ANTHROPIC_API_KEY not configured in Netlify env vars</span>
+  <button onclick="checkApi()">RETRY</button>
+</div>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- LEFT PANEL -->
+  <aside class="panel" id="lp">
+    <div class="pb">
+      <div class="pt">◈ SYSTEM VITALS</div>
+      <div class="pr"><span class="pk">REVENUE</span><span class="pv r">$0</span></div>
+      <div class="pr"><span class="pk">DAY</span><span class="pv y" id="dayV">—</span></div>
+      <div class="pr"><span class="pk">MRR TARGET</span><span class="pv a">$5,000/mo</span></div>
+      <div class="pr"><span class="pk">MARGIN (PROJ)</span><span class="pv g">85%</span></div>
+      <div class="pr"><span class="pk">COSTS</span><span class="pv">$0</span></div>
+      <div class="pr"><span class="pk">VAT EXPORT</span><span class="pv g">0%</span></div>
+      <div class="pr"><span class="pk">ENTITY</span><span class="pv y s">PENDING</span></div>
+      <div class="pr"><span class="pk">MARKET</span><span class="pv">US / EU</span></div>
     </div>
-    <div class="center">
-      <div class="voice-area">
-        <div class="qa-flow" id="qaFlow">
-          <span class="qf-node you" id="qfYou">YOU</span><span class="qf-arrow">→</span>
-          <span class="qf-node sasha-n" id="qfSasha">SASHA</span><span class="qf-arrow">→</span>
-          <span class="qf-node agents" id="qfAgents">AGENTS</span><span class="qf-arrow">→</span>
-          <span class="qf-node sec-n" id="qfSec">SEC</span><span class="qf-arrow">→</span>
-          <span class="qf-node qa-n" id="qfQa">QA</span><span class="qf-arrow">→</span>
-          <span class="qf-node out" id="qfOut">OUTPUT</span>
-        </div>
-        <div class="orb-wrap" onclick="handleOrbClick()" id="orbWrap">
-          <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
-          <div class="orb" id="orb">
-            <svg class="orb-icon" viewBox="0 0 36 36" fill="none">
-              <path d="M18 8a4 4 0 0 0-4 4v8a4 4 0 0 0 8 0V12a4 4 0 0 0-4-4z" fill="rgba(255,255,255,0.8)"/>
-              <path d="M10 20v1a8 8 0 0 0 16 0v-1" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round"/>
-              <line x1="18" y1="29" x2="18" y2="33" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/>
-              <line x1="14" y1="33" x2="22" y2="33" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-        </div>
-        <div class="state-row">
-          <div class="state-text" id="stateText">LISTENING</div>
-          <div class="wave" id="wave"><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div></div>
-        </div>
-        <div class="live-text" id="liveText">Opening microphone...</div>
-        <div class="tap-hint">Tap orb to pause · <kbd>Space</kbd> hold to speak</div>
-      </div>
-      <div class="pipeline-bar">
-        <div class="pb-title">Build Pipeline — Income Streams</div>
-        <div class="pb-streams">
-          <div class="pb-stream"><div class="pbs-top"><span class="pbs-name">AI Automation Agency</span><span class="pbs-pct" style="color:var(--accent)">20%</span></div><div class="pbs-bar"><div class="pbs-fill b" style="width:20%"></div></div><div class="pbs-status" style="color:var(--accent)">▶ BUILDING</div></div>
-          <div class="pb-stream"><div class="pbs-top"><span class="pbs-name">AI Content Operations</span><span class="pbs-pct" style="color:var(--green)">10%</span></div><div class="pbs-bar"><div class="pbs-fill g" style="width:10%"></div></div><div class="pbs-status" style="color:var(--muted)">— QUEUED</div></div>
-          <div class="pb-stream"><div class="pbs-top"><span class="pbs-name">White-Label Chatbot</span><span class="pbs-pct" style="color:var(--purple)">5%</span></div><div class="pbs-bar"><div class="pbs-fill p" style="width:5%"></div></div><div class="pbs-status" style="color:var(--muted)">— QUEUED</div></div>
-        </div>
-      </div>
-      <div class="transcript-wrap">
-        <div class="transcript-bar"><span class="transcript-title">CONVERSATION LOG</span><button class="clear-btn" onclick="clearAll()">CLEAR</button></div>
-        <div class="transcript" id="transcript"></div>
-      </div>
+    <div class="pb">
+      <div class="pt">◈ AGENTS — 2/8 ACTIVE</div>
+      <div class="ag"><span class="ad dn">▶</span><span class="an">R&D</span><span class="as dn">COMPLETE</span></div>
+      <div class="ag"><span class="ad ac">▶</span><span class="an">Management</span><span class="as ac">ACTIVE</span></div>
+      <div class="ag"><span class="ad ac" style="color:var(--orange)">▶</span><span class="an">Security</span><span class="as" style="background:rgba(255,136,51,.1);color:var(--orange)">ACTIVE</span></div>
+      <div class="ag"><span class="ad wt">▶</span><span class="an">QA</span><span class="as wt">WATCHING</span></div>
+      <div class="ag"><span class="ad rd">▶</span><span class="an">Operations</span><span class="as rd">READY</span></div>
+      <div class="ag"><span class="ad rd">▶</span><span class="an">Content</span><span class="as rd">READY</span></div>
+      <div class="ag"><span class="ad rd">▶</span><span class="an">Growth</span><span class="as rd">READY</span></div>
+      <div class="ag"><span class="ad dm">▶</span><span class="an">Finance</span><span class="as dm">DORMANT</span></div>
     </div>
-    <div class="sidebar-r">
-      <div class="card">
-        <div class="ctitle">⚡ Josh — Action Required</div>
-        <div class="blocker"><div class="bnum">1</div><div class="btxt"><strong>Add ANTHROPIC_API_KEY</strong><br>Netlify env vars · 5 min</div></div>
-        <div class="blocker"><div class="bnum">2</div><div class="btxt"><strong>Register עוסק מורשה</strong><br>misim.gov.il · 45 min</div></div>
-        <div class="blocker"><div class="bnum">3</div><div class="btxt"><strong>Create Stripe (Israel)</strong><br>stripe.com · 20 min</div></div>
-        <div class="blocker"><div class="bnum">4</div><div class="btxt"><strong>Buy domain (~$12)</strong><br>Namecheap / Google Domains</div></div>
-        <div class="blocker"><div class="bnum">5</div><div class="btxt"><strong>Zoho Invoice (free)</strong><br>zoho.com/invoice · 10 min</div></div>
-        <div class="blocker"><div class="bnum" style="background:var(--accent-dim);border-color:rgba(79,142,247,.3);color:var(--accent)">6</div><div class="btxt"><strong>Connect Netlify → GitHub</strong><br>app.netlify.com → sscsd → Build settings → link repo jjoshjjohnson/-ssc-dashboard, branch: claude/new-repository-bap65s</div></div>
-      </div>
-      <div class="card">
-        <div class="ctitle">Agent Roster</div>
-        <div class="agent"><div class="ag-dot" style="background:var(--accent);opacity:.6"></div><span class="ag-name">R&amp;D</span><span class="ag-status done">COMPLETE</span></div>
-        <div class="agent"><div class="ag-dot a" style="background:var(--accent)"></div><span class="ag-name">Management</span><span class="ag-status active">ACTIVE</span></div>
-        <div class="agent"><div class="ag-dot w" style="background:var(--orange)"></div><span class="ag-name">Security</span><span class="ag-status" style="background:rgba(255,140,66,.12);color:var(--orange)">ACTIVE</span></div>
-        <div class="agent"><div class="ag-dot w" style="background:var(--yellow)"></div><span class="ag-name">QA</span><span class="ag-status watch">WATCHING</span></div>
-        <div class="agent"><div class="ag-dot" style="background:var(--accent);opacity:.5"></div><span class="ag-name">Operations</span><span class="ag-status ready">READY</span></div>
-        <div class="agent"><div class="ag-dot" style="background:var(--purple);opacity:.5"></div><span class="ag-name">Content</span><span class="ag-status ready">READY</span></div>
-        <div class="agent"><div class="ag-dot" style="background:var(--cyan);opacity:.5"></div><span class="ag-name">Growth</span><span class="ag-status ready">READY</span></div>
-        <div class="agent"><div class="ag-dot" style="background:var(--red);opacity:.4"></div><span class="ag-name">Finance</span><span class="ag-status dormant">DORMANT</span></div>
-      </div>
-      <div class="card">
-        <div class="ctitle">Stack Health</div>
-        <div class="sys"><span class="syl">Make.com</span><span class="syst on">LIVE</span></div>
-        <div class="sys"><span class="syl">Supabase</span><span class="syst on">LIVE</span></div>
-        <div class="sys"><span class="syl">Netlify</span><span class="syst on">LIVE</span></div>
-        <div class="sys"><span class="syl">GitHub</span><span class="syst on">LIVE</span></div>
-        <div class="sys"><span class="syl">Gmail</span><span class="syst warn">DRAFT</span></div>
-        <div class="sys"><span class="syl">Canva</span><span class="syst on">LIVE</span></div>
-        <div class="sys"><span class="syl">Stripe</span><span class="syst off">NOT SET UP</span></div>
-        <div class="sys"><span class="syl">Voice AI</span><span class="syst off" id="voiceStatus">NO API KEY</span></div>
-      </div>
+    <div class="pb grow">
+      <div class="pt">◈ TELEMETRY</div>
+      <div class="tlog" id="tlog"></div>
     </div>
+  </aside>
+
+  <!-- CENTER -->
+  <div id="ctr">
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
+    <div id="nwrap" onclick="handleClick()">
+      <canvas id="nc"></canvas>
+      <div class="nr a" id="nr1"></div>
+      <div class="nr b" id="nr2"></div>
+      <div class="nr c" id="nr3"></div>
+    </div>
+    <div id="sname">SASHA</div>
+    <div id="nlabel">NEURAL CORE</div>
+    <div id="vstate">
+      <div id="stxt">TAP TO ACTIVATE</div>
+      <div id="wv"><span class="wb"></span><span class="wb"></span><span class="wb"></span><span class="wb"></span><span class="wb"></span><span class="wb"></span><span class="wb"></span></div>
+    </div>
+    <div id="ltxt">Tap the sphere to activate voice</div>
+    <div id="mlog"></div>
   </div>
+
+  <!-- RIGHT PANEL -->
+  <aside class="panel" id="rp">
+    <div class="pb">
+      <div class="pt">⚡ JOSH — ACTION REQUIRED</div>
+      <div class="ja"><div class="jn">1</div><div class="jt"><strong>Register עוסק מורשה</strong><br>misim.gov.il · 45 min</div></div>
+      <div class="ja"><div class="jn">2</div><div class="jt"><strong>Create Stripe (Israel)</strong><br>stripe.com · 20 min</div></div>
+      <div class="ja"><div class="jn">3</div><div class="jt"><strong>Buy domain (~$12)</strong><br>Namecheap · Google Domains</div></div>
+      <div class="ja"><div class="jn">4</div><div class="jt"><strong>Zoho Invoice (free)</strong><br>zoho.com/invoice · 10 min</div></div>
+    </div>
+    <div class="pb">
+      <div class="pt">◈ STACK HEALTH</div>
+      <div class="sr"><span class="sk">Make.com</span><span class="sv on">LIVE</span></div>
+      <div class="sr"><span class="sk">Supabase</span><span class="sv on">LIVE</span></div>
+      <div class="sr"><span class="sk">Netlify</span><span class="sv on">LIVE</span></div>
+      <div class="sr"><span class="sk">GitHub</span><span class="sv on">LIVE</span></div>
+      <div class="sr"><span class="sk">Stripe</span><span class="sv off">NOT SET</span></div>
+      <div class="sr"><span class="sk">Domain</span><span class="sv off">PENDING</span></div>
+      <div class="sr"><span class="sk">Voice AI</span><span class="sv off" id="vstel">OFFLINE</span></div>
+    </div>
+    <div class="pb">
+      <div class="pt">◈ INCOME PIPELINE</div>
+      <div class="pi">
+        <div class="pt2"><span class="pn">#1 AI Agency</span><span class="pnr">$5K/mo</span></div>
+        <div class="pb2"><div class="pf a" style="width:20%"></div></div>
+        <div class="pm">7–14d · BUILDING ▶</div>
+      </div>
+      <div class="pi">
+        <div class="pt2"><span class="pn">#2 Content Ops</span><span class="pnr">$3K/mo</span></div>
+        <div class="pb2"><div class="pf g" style="width:10%"></div></div>
+        <div class="pm">5–10d · QUEUED</div>
+      </div>
+      <div class="pi">
+        <div class="pt2"><span class="pn">#3 Chatbot</span><span class="pnr">$1.5K/mo</span></div>
+        <div class="pb2"><div class="pf p" style="width:5%"></div></div>
+        <div class="pm">10–14d · QUEUED</div>
+      </div>
+    </div>
+    <div class="pb">
+      <div class="pt">◈ DIAGNOSTICS</div>
+      <div class="sr"><span class="sk">System</span><span class="sv on">NOMINAL</span></div>
+      <div class="sr"><span class="sk">Security</span><span class="sv on">CLEAR</span></div>
+      <div class="sr"><span class="sk">QA</span><span class="sv y">WATCHING</span></div>
+      <div class="sr"><span class="sk">Queue</span><span class="sv a">8 TASKS</span></div>
+    </div>
+  </aside>
+
+</main>
+
+<!-- FOOTER -->
+<footer id="foot">
+  <div id="ft"><span class="dlive">●</span> LIVE — PRIMARY OBJECTIVE — ROAD TO $5K MRR</div>
+  <div id="fm">
+    <div class="om"><div class="oml">TARGET</div><div class="omv">$5,000<span class="omu">/mo</span></div></div>
+    <div class="sep"></div>
+    <div class="om"><div class="oml">CURRENT</div><div class="omv r">$0</div></div>
+    <div class="sep"></div>
+    <div class="om"><div class="oml">GAP</div><div class="omv o">$5,000</div></div>
+    <div class="sep"></div>
+    <div id="obw">
+      <div id="obl">0.0% to $5K MRR</div>
+      <div id="ob"><div id="obf"></div></div>
+    </div>
+    <div class="sep"></div>
+    <div class="om"><div class="oml">DAY</div><div class="omv y"><span id="dayF">—</span>/30</div></div>
+  </div>
+</footer>
+
 </div>
 <script>
+// ── STATE ──
 let listening=false,speaking=false,thinking=false;
-let recognition=null,history=[],autoRestart=true;
-let speechUnlocked=false,iosKeepAlive=null,pendingSpeech=null;
-const orb=document.getElementById('orb');
-const wave=document.getElementById('wave');
-const stateText=document.getElementById('stateText');
-const liveText=document.getElementById('liveText');
-const transcript=document.getElementById('transcript');
-const topOrb=document.getElementById('topOrb');
-const setupAlert=document.getElementById('setupAlert');
-const voiceStatus=document.getElementById('voiceStatus');
-const qaFlow=document.getElementById('qaFlow');
-const qfYou=document.getElementById('qfYou');
-const qfSasha=document.getElementById('qfSasha');
-const qfAgents=document.getElementById('qfAgents');
-const qfSec=document.getElementById('qfSec');
-const qfQa=document.getElementById('qfQa');
-const qfOut=document.getElementById('qfOut');
+let recognition=null,history=[],autoRestart=false;
+let speechUnlocked=false,iosKA=null,pendingSpeech=null;
+let vstate='idle',animId=null,rotAngle=0,particles=[];
+let cSize=220;
 
-function updateDay(){const start=new Date('2026-06-25T00:00:00');const day=Math.max(1,Math.ceil((Date.now()-start.getTime())/864e5));const s=day+'/30';['dayCount','dayMob'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=s;});const dc=document.getElementById('dayCard');if(dc)dc.textContent=day+' of 30';}
-updateDay();
+// ── SESSION TIMER ──
+const sesStart=Date.now();
+document.getElementById('sesId').textContent='SES-'+(Date.now().toString(36).toUpperCase().slice(-6));
+setInterval(()=>{
+  const s=Math.floor((Date.now()-sesStart)/1000);
+  document.getElementById('sesTmr').textContent=
+    [Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(n=>String(n).padStart(2,'0')).join(':');
+},1000);
 
-function unlockSpeech(){
+// ── DAY COUNTER ──
+(function(){
+  const d=Math.max(1,Math.ceil((Date.now()-new Date('2026-06-25').getTime())/864e5));
+  const el=document.getElementById('dayV');if(el)el.textContent=d+' / 30';
+  const ef=document.getElementById('dayF');if(ef)ef.textContent=d;
+})();
+
+// ── CANVAS NEURAL ──
+const canvas=document.getElementById('nc');
+const ctx=canvas.getContext('2d');
+
+function initCanvas(){
+  const ctr=document.getElementById('ctr');
+  const avail=Math.min(ctr.clientWidth-32,ctr.clientHeight-170,280);
+  cSize=Math.max(160,avail);
+  canvas.width=cSize;canvas.height=cSize;
+  const nw=document.getElementById('nwrap');
+  nw.style.width=cSize+'px';nw.style.height=cSize+'px';
+  // rings
+  [['nr1',24],['nr2',48],['nr3',72]].forEach(([id,ex])=>{
+    const el=document.getElementById(id);
+    const s=cSize+ex*2;
+    el.style.width=s+'px';el.style.height=s+'px';
+    el.style.marginLeft=-(s/2)+'px';el.style.marginTop=-(s/2)+'px';
+  });
+  particles=[];
+  const N=Math.round(cSize*0.55);
+  for(let i=0;i<N;i++){
+    const th=Math.acos(2*Math.random()-1),ph=Math.random()*Math.PI*2;
+    const r=(0.25+Math.random()*0.75)*cSize*0.4;
+    particles.push({ox:r*Math.sin(th)*Math.cos(ph),oy:r*Math.sin(th)*Math.sin(ph),oz:r*Math.cos(th),
+      vx:(Math.random()-.5)*.04,vy:(Math.random()-.5)*.04,vz:(Math.random()-.5)*.04});
+  }
+}
+
+const SP={
+  idle:    {spd:.003,col:[0,200,255],con:cSize*.28},
+  listening:{spd:.014,col:[255,70,110],con:cSize*.32},
+  thinking: {spd:.007,col:[255,180,0],con:cSize*.25},
+  speaking: {spd:.016,col:[0,255,136],con:cSize*.34},
+};
+
+function drawFrame(){
+  const p=SP[vstate]||SP.idle;
+  const [cr,cg,cb]=p.col;
+  const con=cSize*{idle:.28,listening:.32,thinking:.25,speaking:.34}[vstate]||cSize*.28;
+  const cx=cSize/2,cy=cSize/2;
+  ctx.clearRect(0,0,cSize,cSize);
+  // center glow
+  const g=ctx.createRadialGradient(cx,cy,0,cx,cy,cSize*.22);
+  g.addColorStop(0,'rgba(255,255,255,0.1)');
+  g.addColorStop(.4,`rgba(${cr},${cg},${cb},0.06)`);
+  g.addColorStop(1,'transparent');
+  ctx.fillStyle=g;ctx.fillRect(0,0,cSize,cSize);
+  rotAngle+=p.spd;
+  const ca=Math.cos(rotAngle),sa=Math.sin(rotAngle);
+  const proj=particles.map(par=>{
+    const rx=par.ox*ca+par.oz*sa,ry=par.oy,rz=-par.ox*sa+par.oz*ca;
+    par.ox+=par.vx;par.oy+=par.vy;par.oz+=par.vz;
+    const r=Math.sqrt(par.ox*par.ox+par.oy*par.oy+par.oz*par.oz);
+    const mx=cSize*.4;if(r>mx){par.ox*=mx/r;par.oy*=mx/r;par.oz*=mx/r;par.vx*=-.5;par.vy*=-.5;par.vz*=-.5;}
+    const fv=cSize*1.3;const dz=fv/(fv+rz+cSize*.5);
+    return{px:rx*dz+cx,py:ry*dz+cy,z:rz,al:Math.max(0,(rz+cSize*.42)/(cSize*.84))};
+  });
+  // connections
+  for(let i=0;i<proj.length;i++){
+    for(let j=i+1;j<proj.length;j++){
+      const dx=proj[i].px-proj[j].px,dy=proj[i].py-proj[j].py;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<con){
+        const a=((1-d/con)*.35)*Math.min(proj[i].al,proj[j].al);
+        ctx.beginPath();ctx.moveTo(proj[i].px,proj[i].py);ctx.lineTo(proj[j].px,proj[j].py);
+        ctx.strokeStyle=`rgba(${cr},${cg},${cb},${a.toFixed(3)})`;ctx.lineWidth=.5;ctx.stroke();
+      }
+    }
+  }
+  // dots
+  proj.forEach(p2=>{
+    const a=Math.min(1,p2.al*.9);
+    ctx.beginPath();ctx.arc(p2.px,p2.py,1.1,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${cr},${cg},${cb},${a.toFixed(3)})`;ctx.fill();
+  });
+  // center dot
+  ctx.beginPath();ctx.arc(cx,cy,2.5,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.85)';ctx.fill();
+  const g2=ctx.createRadialGradient(cx,cy,0,cx,cy,cSize*.15);
+  g2.addColorStop(0,'rgba(255,255,255,0.12)');g2.addColorStop(1,'transparent');
+  ctx.fillStyle=g2;ctx.fillRect(0,0,cSize,cSize);
+  animId=requestAnimationFrame(drawFrame);
+}
+
+// ── VOICE STATE ──
+function setVS(state){
+  vstate=state;
+  const el=document.getElementById('stxt'),wv=document.getElementById('wv');
+  const lbl={idle:'TAP TO ACTIVATE',listening:'LISTENING',thinking:'PROCESSING',speaking:'SPEAKING',pending:'TAP TO HEAR'};
+  el.textContent=lbl[state]||'IDLE';
+  el.className='';
+  if(state==='listening')el.className='li';
+  else if(state==='thinking')el.className='th';
+  else if(state==='speaking')el.className='sp';
+  else if(state==='pending')el.className='pe';
+  wv.className=(state==='listening'||state==='speaking')?'active':'';
+}
+
+// ── SPEECH UNLOCK ──
+function unlock(){
   if(speechUnlocked||!window.speechSynthesis)return;
-  const u=new SpeechSynthesisUtterance('');
-  u.volume=0;
-  window.speechSynthesis.speak(u);
-  speechUnlocked=true;
-  if(pendingSpeech){const t=pendingSpeech;pendingSpeech=null;setTimeout(()=>speak(t),100);}
+  const u=new SpeechSynthesisUtterance('');u.volume=0;
+  window.speechSynthesis.speak(u);speechUnlocked=true;
+  if(pendingSpeech){const t=pendingSpeech;pendingSpeech=null;setTimeout(()=>speakNow(t),100);}
 }
-document.addEventListener('touchstart',unlockSpeech,{passive:true});
-document.addEventListener('click',unlockSpeech);
+document.addEventListener('touchstart',unlock,{passive:true});
+document.addEventListener('click',unlock);
 
-function setFlowState(state){[qfYou,qfSasha,qfAgents,qfSec,qfQa,qfOut].forEach(n=>n&&n.classList.remove('lit'));qaFlow.classList.add('active');if(state==='listening')qfYou&&qfYou.classList.add('lit');if(state==='thinking'){qfSasha&&qfSasha.classList.add('lit');qfAgents&&qfAgents.classList.add('lit');}if(state==='security')qfSec&&qfSec.classList.add('lit');if(state==='reviewing')qfQa&&qfQa.classList.add('lit');if(state==='speaking')qfOut&&qfOut.classList.add('lit');if(state==='idle')qaFlow.classList.remove('active');}
-
-function setOrbState(state){orb.className='orb'+(state!=='idle'?' '+state:'');stateText.className='state-text'+(state!=='idle'?' '+state:'');wave.className='wave'+(state==='listening'||state==='speaking'?' active':'');const labels={idle:'PAUSED',listening:'LISTENING',thinking:'THINKING',speaking:'SPEAKING'};stateText.textContent=labels[state]||'LISTENING';const colors={idle:'radial-gradient(circle at 35% 35%,#6aa3ff,#1a3a7a)',listening:'radial-gradient(circle at 35% 35%,#ff8fa0,#7a1a2e)',thinking:'radial-gradient(circle at 35% 35%,#ffe080,#7a6a1a)',speaking:'radial-gradient(circle at 35% 35%,#6affa0,#1a7a40)'};topOrb.style.background=colors[state]||colors.idle;setFlowState(state);}
-
-async function checkApi(){try{const r=await fetch('/api/sasha-chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:'ping'}]})});const d=await r.json();if(d.response&&d.response.toLowerCase().includes('api key not configured')){setupAlert.classList.add('show');voiceStatus.textContent='NO API KEY';voiceStatus.className='syst off';liveText.textContent='Add ANTHROPIC_API_KEY to Netlify env vars to activate voice.';}else{voiceStatus.textContent='LIVE';voiceStatus.className='syst on';setupAlert.classList.remove('show');}}catch{liveText.textContent='Could not reach API. Check Netlify deployment.';}}
-
-function initRecognition(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){liveText.textContent='Voice requires Chrome or Safari.';return null;}const r=new SR();r.continuous=false;r.interimResults=true;r.lang='en-US';r.onstart=()=>{listening=true;setOrbState('listening');liveText.textContent='Listening...';liveText.className='live-text';};r.onresult=(e)=>{let interim='',final='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript;else interim+=e.results[i][0].transcript;}if(interim){liveText.textContent=interim;liveText.className='live-text user';}if(final){liveText.textContent=final;liveText.className='live-text user';listening=false;handleMessage(final.trim());}};r.onerror=(e)=>{if(e.error==='no-speech'){if(autoRestart&&!speaking&&!thinking)scheduleRestart();return;}if(e.error==='aborted')return;liveText.textContent='Mic error: '+e.error+'. Tap orb to retry.';listening=false;setOrbState('idle');};r.onend=()=>{listening=false;if(autoRestart&&!speaking&&!thinking)scheduleRestart();};return r;}
-
-function scheduleRestart(ms=400){setTimeout(()=>{if(autoRestart&&!speaking&&!thinking&&!listening)startListening();},ms);}
-function startListening(){if(listening||speaking||thinking)return;unlockSpeech();if(!recognition)recognition=initRecognition();if(!recognition)return;try{recognition.start();}catch{}}
-
-function handleOrbClick(){
-  unlockSpeech();
-  if(speaking){stopSpeaking();return;}
-  if(autoRestart){autoRestart=false;if(recognition)try{recognition.abort();}catch{}listening=false;setOrbState('idle');liveText.textContent='Paused. Tap to resume.';}
-  else{autoRestart=true;startListening();}
-}
-
-async function handleMessage(text){
-  if(!text)return;
-  addMsg('user',text);
-  history.push({role:'user',content:text});
-  thinking=true;setOrbState('thinking');liveText.textContent='Processing...';liveText.className='live-text';
-  try{
-    const res=await fetch('/api/sasha-chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-20)})});
-    const data=await res.json();
-    const reply=data.response||'No response.';
-    history.push({role:'assistant',content:reply});
-    setFlowState('security');await new Promise(r=>setTimeout(r,350));
-    setFlowState('reviewing');await new Promise(r=>setTimeout(r,400));
-    thinking=false;
-    speak(reply);
-  }catch{thinking=false;setOrbState('idle');liveText.textContent='Connection error.';if(autoRestart)scheduleRestart(1000);}
-}
-
+// ── SPEAK ──
 function speak(text){
-  if(!window.speechSynthesis){addMsg('sasha',text,true);if(autoRestart)scheduleRestart(500);return;}
-  if(!speechUnlocked){pendingSpeech=text;return;}
-  stopSpeakingQuiet();
+  if(!window.speechSynthesis){thinking=false;setVS('idle');if(autoRestart)sched(500);return;}
+  if(!speechUnlocked){
+    thinking=false;pendingSpeech=text;setVS('pending');
+    const lv=document.getElementById('ltxt');lv.textContent='Tap screen to hear SASHA';lv.className='';
+    return;
+  }
+  speakNow(text);
+}
+
+function speakNow(text){
+  thinking=false;stopQ();
   setTimeout(()=>{
     const u=new SpeechSynthesisUtterance(text);
-    u.rate=0.92;u.pitch=1.0;u.volume=1.0;
-    const voices=window.speechSynthesis.getVoices();
-    const v=voices.find(x=>x.name==='Samantha')||
-            voices.find(x=>x.name.includes('Google US English'))||
-            voices.find(x=>/en[-_]US/i.test(x.lang)&&!x.name.toLowerCase().includes('male'))||
-            voices.find(x=>/en/i.test(x.lang))||
-            voices[0];
+    u.rate=.92;u.pitch=1;u.volume=1;
+    const vs2=window.speechSynthesis.getVoices();
+    const v=vs2.find(x=>x.name==='Samantha')||vs2.find(x=>x.name.includes('Google US English'))||
+            vs2.find(x=>/en[-_]US/i.test(x.lang)&&!/male/i.test(x.name))||vs2.find(x=>/en/i.test(x.lang))||vs2[0];
     if(v)u.voice=v;
     u.onstart=()=>{
-      speaking=true;setOrbState('speaking');
-      addMsg('sasha',text,true);
-      liveText.textContent=text;liveText.className='live-text sasha';
-      clearInterval(iosKeepAlive);
-      iosKeepAlive=setInterval(()=>{if(window.speechSynthesis.paused)window.speechSynthesis.resume();},4000);
+      speaking=true;setVS('speaking');
+      const lv=document.getElementById('ltxt');lv.textContent=text;lv.className='s';
+      clearInterval(iosKA);iosKA=setInterval(()=>{if(window.speechSynthesis.paused)window.speechSynthesis.resume();},4000);
     };
     u.onend=u.onerror=()=>{
-      speaking=false;clearInterval(iosKeepAlive);
-      if(autoRestart)scheduleRestart(600);else setOrbState('idle');
+      speaking=false;clearInterval(iosKA);
+      if(autoRestart)sched(600);else{setVS('idle');document.getElementById('ltxt').textContent='Tap sphere to continue';}
     };
     window.speechSynthesis.speak(u);
   },80);
 }
 
-function stopSpeaking(){stopSpeakingQuiet();setOrbState('idle');liveText.textContent='Stopped. Listening...';if(autoRestart)scheduleRestart(400);}
-function stopSpeakingQuiet(){clearInterval(iosKeepAlive);window.speechSynthesis?.cancel();speaking=false;}
-function addMsg(role,text,qa=false){const d=document.createElement('div');d.className='msg '+role;const badge=qa&&role==='sasha'?'<span class="qa-badge">QA ✓</span>':'';d.innerHTML=`<span class="ml">${role==='user'?'YOU':'SASHA'}</span><span class="mt">${esc(text)}</span>${badge}`;transcript.appendChild(d);transcript.scrollTop=transcript.scrollHeight;}
-function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function clearAll(){transcript.innerHTML='';history=[];liveText.textContent='Listening...';}
-document.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.target.matches('input,textarea,button')){e.preventDefault();if(!listening){autoRestart=true;startListening();}}});
-document.addEventListener('keyup',e=>{if(e.code==='Space'&&listening){autoRestart=false;if(recognition)try{recognition.stop();}catch{}}});
+function stopQ(){clearInterval(iosKA);window.speechSynthesis?.cancel();speaking=false;}
+
+// ── RECOGNITION ──
+function initRec(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){document.getElementById('ltxt').textContent='Voice needs Chrome or Safari.';return null;}
+  const r=new SR();r.continuous=false;r.interimResults=true;r.lang='en-US';
+  r.onstart=()=>{listening=true;setVS('listening');const lv=document.getElementById('ltxt');lv.textContent='Listening...';lv.className='';};
+  r.onresult=(e)=>{
+    let interim='',fin='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal)fin+=e.results[i][0].transcript;else interim+=e.results[i][0].transcript;
+    }
+    const lv=document.getElementById('ltxt');
+    if(interim){lv.textContent=interim;lv.className='u';}
+    if(fin){lv.textContent=fin;lv.className='u';listening=false;handleMsg(fin.trim());}
+  };
+  r.onerror=(e)=>{
+    if(e.error==='no-speech'){if(autoRestart&&!speaking&&!thinking)sched();return;}
+    if(e.error==='aborted')return;
+    document.getElementById('ltxt').textContent='Mic error: '+e.error+'. Tap to retry.';
+    listening=false;setVS('idle');
+  };
+  r.onend=()=>{listening=false;if(autoRestart&&!speaking&&!thinking)sched();};
+  return r;
+}
+
+function sched(ms=400){setTimeout(()=>{if(autoRestart&&!speaking&&!thinking&&!listening)startListen();},ms);}
+function startListen(){
+  if(listening||speaking||thinking)return;
+  unlock();
+  if(!recognition)recognition=initRec();
+  if(!recognition)return;
+  try{recognition.start();}catch(e){}
+}
+
+// ── ORB CLICK ──
+function handleClick(){
+  unlock();
+  if(speaking){stopQ();setVS('idle');if(autoRestart)sched(300);return;}
+  if(pendingSpeech){const t=pendingSpeech;pendingSpeech=null;speakNow(t);return;}
+  if(thinking)return;
+  if(autoRestart){
+    autoRestart=false;
+    if(recognition)try{recognition.abort();}catch(e){}
+    listening=false;setVS('idle');
+    document.getElementById('ltxt').textContent='Paused. Tap to resume.';
+  }else{
+    autoRestart=true;startListen();
+  }
+}
+
+// ── HANDLE MESSAGE ──
+async function handleMsg(text){
+  if(!text)return;
+  addLog('user',text);
+  history.push({role:'user',content:text});
+  thinking=true;setVS('thinking');
+  const lv=document.getElementById('ltxt');lv.textContent='Processing...';lv.className='';
+  try{
+    const res=await fetch('/api/sasha-chat',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:history.slice(-20)})});
+    const data=await res.json();
+    const reply=data.response||'No response.';
+    history.push({role:'assistant',content:reply});
+    thinking=false;
+    addLog('sasha',reply);
+    speak(reply);
+  }catch(err){
+    thinking=false;setVS('idle');lv.textContent='Connection error. Tap to retry.';
+    if(autoRestart)sched(1200);
+  }
+}
+
+// ── LOG ──
+function addLog(role,text){
+  const t=new Date().toTimeString().slice(0,8);
+  const tl=document.getElementById('tlog');
+  if(tl){const d=document.createElement('div');d.className='tle';
+    d.innerHTML=`<span class="tle-t">${t}</span><span class="tle-w ${role[0]}">${role==='user'?'YOU':'SASHA'}</span><span class="tle-x">${esc(text)}</span>`;
+    tl.appendChild(d);tl.scrollTop=tl.scrollHeight;}
+  const ml=document.getElementById('mlog');
+  if(ml){const d=document.createElement('div');d.className='mle';
+    d.innerHTML=`<span class="mle-w ${role[0]}">${role==='user'?'YOU':'SASHA'}</span><span class="mle-t">${esc(text)}</span>`;
+    ml.appendChild(d);ml.scrollTop=ml.scrollHeight;}
+}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ── API CHECK ──
+async function checkApi(){
+  try{
+    const r=await fetch('/api/sasha-chat',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:[{role:'user',content:'ping'}]})});
+    const d=await r.json();
+    const al=document.getElementById('alert');
+    const vc=document.getElementById('vchiptxt'),vs=document.getElementById('vstel'),chip=document.getElementById('vchip');
+    if(d.response&&d.response.toLowerCase().includes('api key not configured')){
+      al.classList.add('show');vc.textContent='VOICE OFFLINE';
+      vs.textContent='OFFLINE';vs.className='sv off';
+    }else{
+      al.classList.remove('show');vc.textContent='VOICE ACTIVE';
+      vs.textContent='LIVE';vs.className='sv on';
+      chip.classList.add('g');
+    }
+  }catch(e){document.getElementById('alert').classList.add('show');}
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'&&!e.target.matches('input,textarea,button')){
+    e.preventDefault();if(!listening&&!thinking){autoRestart=true;startListen();}
+  }
+});
+document.addEventListener('keyup',e=>{
+  if(e.code==='Space'&&listening){autoRestart=false;if(recognition)try{recognition.stop();}catch(e){}}
+});
+
+// ── INIT ──
 window.addEventListener('load',async()=>{
   window.speechSynthesis?.getVoices();
   if(window.speechSynthesis)window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+  initCanvas();drawFrame();
+  window.addEventListener('resize',()=>{if(animId)cancelAnimationFrame(animId);initCanvas();drawFrame();});
   await checkApi();
-  setTimeout(()=>{autoRestart=true;startListening();},800);
+  if(!('ontouchstart' in window)){setTimeout(()=>{autoRestart=true;startListen();},900);}
 });
 </script>
 </body>
