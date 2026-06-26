@@ -1,5 +1,16 @@
 [build]
-  publish = "."
+  publish = "sasha-ui"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/sasha-chat"
+  to = "/.netlify/functions/sasha-chat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [[headers]]
   for = "/*"
