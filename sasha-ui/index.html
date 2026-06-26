@@ -302,6 +302,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter'
 <script>
 let listening=false,speaking=false,thinking=false;
 let recognition=null,history=[],autoRestart=true;
+let speechUnlocked=false,iosKeepAlive=null,pendingSpeech=null;
 const orb=document.getElementById('orb');
 const wave=document.getElementById('wave');
 const stateText=document.getElementById('stateText');
@@ -317,25 +318,98 @@ const qfAgents=document.getElementById('qfAgents');
 const qfSec=document.getElementById('qfSec');
 const qfQa=document.getElementById('qfQa');
 const qfOut=document.getElementById('qfOut');
+
 function updateDay(){const start=new Date('2026-06-25T00:00:00');const day=Math.max(1,Math.ceil((Date.now()-start.getTime())/864e5));const s=day+'/30';['dayCount','dayMob'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=s;});const dc=document.getElementById('dayCard');if(dc)dc.textContent=day+' of 30';}
 updateDay();
+
+function unlockSpeech(){
+  if(speechUnlocked||!window.speechSynthesis)return;
+  const u=new SpeechSynthesisUtterance('');
+  u.volume=0;
+  window.speechSynthesis.speak(u);
+  speechUnlocked=true;
+  if(pendingSpeech){const t=pendingSpeech;pendingSpeech=null;setTimeout(()=>speak(t),100);}
+}
+document.addEventListener('touchstart',unlockSpeech,{passive:true});
+document.addEventListener('click',unlockSpeech);
+
 function setFlowState(state){[qfYou,qfSasha,qfAgents,qfSec,qfQa,qfOut].forEach(n=>n&&n.classList.remove('lit'));qaFlow.classList.add('active');if(state==='listening')qfYou&&qfYou.classList.add('lit');if(state==='thinking'){qfSasha&&qfSasha.classList.add('lit');qfAgents&&qfAgents.classList.add('lit');}if(state==='security')qfSec&&qfSec.classList.add('lit');if(state==='reviewing')qfQa&&qfQa.classList.add('lit');if(state==='speaking')qfOut&&qfOut.classList.add('lit');if(state==='idle')qaFlow.classList.remove('active');}
+
 function setOrbState(state){orb.className='orb'+(state!=='idle'?' '+state:'');stateText.className='state-text'+(state!=='idle'?' '+state:'');wave.className='wave'+(state==='listening'||state==='speaking'?' active':'');const labels={idle:'PAUSED',listening:'LISTENING',thinking:'THINKING',speaking:'SPEAKING'};stateText.textContent=labels[state]||'LISTENING';const colors={idle:'radial-gradient(circle at 35% 35%,#6aa3ff,#1a3a7a)',listening:'radial-gradient(circle at 35% 35%,#ff8fa0,#7a1a2e)',thinking:'radial-gradient(circle at 35% 35%,#ffe080,#7a6a1a)',speaking:'radial-gradient(circle at 35% 35%,#6affa0,#1a7a40)'};topOrb.style.background=colors[state]||colors.idle;setFlowState(state);}
-async function checkApi(){try{const r=await fetch('/api/sasha-chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:'ping'}]})});const d=await r.json();if(d.response&&d.response.toLowerCase().includes('api key not configured')){setupAlert.classList.add('show');voiceStatus.textContent='NO API KEY';voiceStatus.className='syst off';liveText.textContent='Add ANTHROPIC_API_KEY to Netlify env vars to activate voice.';}else{voiceStatus.textContent='LIVE';voiceStatus.className='syst on';}}catch{liveText.textContent='Could not reach API. Check Netlify deployment.';}}
+
+async function checkApi(){try{const r=await fetch('/api/sasha-chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:'ping'}]})});const d=await r.json();if(d.response&&d.response.toLowerCase().includes('api key not configured')){setupAlert.classList.add('show');voiceStatus.textContent='NO API KEY';voiceStatus.className='syst off';liveText.textContent='Add ANTHROPIC_API_KEY to Netlify env vars to activate voice.';}else{voiceStatus.textContent='LIVE';voiceStatus.className='syst on';setupAlert.classList.remove('show');}}catch{liveText.textContent='Could not reach API. Check Netlify deployment.';}}
+
 function initRecognition(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){liveText.textContent='Voice requires Chrome or Safari.';return null;}const r=new SR();r.continuous=false;r.interimResults=true;r.lang='en-US';r.onstart=()=>{listening=true;setOrbState('listening');liveText.textContent='Listening...';liveText.className='live-text';};r.onresult=(e)=>{let interim='',final='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript;else interim+=e.results[i][0].transcript;}if(interim){liveText.textContent=interim;liveText.className='live-text user';}if(final){liveText.textContent=final;liveText.className='live-text user';listening=false;handleMessage(final.trim());}};r.onerror=(e)=>{if(e.error==='no-speech'){if(autoRestart&&!speaking&&!thinking)scheduleRestart();return;}if(e.error==='aborted')return;liveText.textContent='Mic error: '+e.error+'. Tap orb to retry.';listening=false;setOrbState('idle');};r.onend=()=>{listening=false;if(autoRestart&&!speaking&&!thinking)scheduleRestart();};return r;}
+
 function scheduleRestart(ms=400){setTimeout(()=>{if(autoRestart&&!speaking&&!thinking&&!listening)startListening();},ms);}
-function startListening(){if(listening||speaking||thinking)return;if(!recognition)recognition=initRecognition();if(!recognition)return;try{recognition.start();}catch{}}
-function handleOrbClick(){if(speaking){stopSpeaking();return;}if(autoRestart){autoRestart=false;if(recognition)try{recognition.abort();}catch{}listening=false;setOrbState('idle');liveText.textContent='Paused. Tap to resume.';}else{autoRestart=true;startListening();}}
-async function handleMessage(text){if(!text)return;addMsg('user',text);history.push({role:'user',content:text});thinking=true;setOrbState('thinking');liveText.textContent='Processing...';liveText.className='live-text';try{const res=await fetch('/api/sasha-chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-20)})});const data=await res.json();const reply=data.response||'No response.';history.push({role:'assistant',content:reply});setFlowState('security');await new Promise(r=>setTimeout(r,350));setFlowState('reviewing');await new Promise(r=>setTimeout(r,400));thinking=false;speak(reply);}catch{thinking=false;setOrbState('idle');liveText.textContent='Connection error.';if(autoRestart)scheduleRestart(1000);}}
-function speak(text){if(!window.speechSynthesis){addMsg('sasha',text,true);if(autoRestart)scheduleRestart(500);return;}stopSpeakingQuiet();const u=new SpeechSynthesisUtterance(text);u.rate=0.93;u.pitch=1.0;u.volume=1.0;const voices=window.speechSynthesis.getVoices();const v=voices.find(x=>x.name.includes('Samantha'))||voices.find(x=>x.name.includes('Google US English'))||voices.find(x=>x.lang==='en-US');if(v)u.voice=v;u.onstart=()=>{speaking=true;setOrbState('speaking');addMsg('sasha',text,true);liveText.textContent=text;liveText.className='live-text sasha';};u.onend=u.onerror=()=>{speaking=false;if(autoRestart)scheduleRestart(600);else setOrbState('idle');};window.speechSynthesis.speak(u);}
+function startListening(){if(listening||speaking||thinking)return;unlockSpeech();if(!recognition)recognition=initRecognition();if(!recognition)return;try{recognition.start();}catch{}}
+
+function handleOrbClick(){
+  unlockSpeech();
+  if(speaking){stopSpeaking();return;}
+  if(autoRestart){autoRestart=false;if(recognition)try{recognition.abort();}catch{}listening=false;setOrbState('idle');liveText.textContent='Paused. Tap to resume.';}
+  else{autoRestart=true;startListening();}
+}
+
+async function handleMessage(text){
+  if(!text)return;
+  addMsg('user',text);
+  history.push({role:'user',content:text});
+  thinking=true;setOrbState('thinking');liveText.textContent='Processing...';liveText.className='live-text';
+  try{
+    const res=await fetch('/api/sasha-chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-20)})});
+    const data=await res.json();
+    const reply=data.response||'No response.';
+    history.push({role:'assistant',content:reply});
+    setFlowState('security');await new Promise(r=>setTimeout(r,350));
+    setFlowState('reviewing');await new Promise(r=>setTimeout(r,400));
+    thinking=false;
+    speak(reply);
+  }catch{thinking=false;setOrbState('idle');liveText.textContent='Connection error.';if(autoRestart)scheduleRestart(1000);}
+}
+
+function speak(text){
+  if(!window.speechSynthesis){addMsg('sasha',text,true);if(autoRestart)scheduleRestart(500);return;}
+  if(!speechUnlocked){pendingSpeech=text;return;}
+  stopSpeakingQuiet();
+  setTimeout(()=>{
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=0.92;u.pitch=1.0;u.volume=1.0;
+    const voices=window.speechSynthesis.getVoices();
+    const v=voices.find(x=>x.name==='Samantha')||
+            voices.find(x=>x.name.includes('Google US English'))||
+            voices.find(x=>/en[-_]US/i.test(x.lang)&&!x.name.toLowerCase().includes('male'))||
+            voices.find(x=>/en/i.test(x.lang))||
+            voices[0];
+    if(v)u.voice=v;
+    u.onstart=()=>{
+      speaking=true;setOrbState('speaking');
+      addMsg('sasha',text,true);
+      liveText.textContent=text;liveText.className='live-text sasha';
+      clearInterval(iosKeepAlive);
+      iosKeepAlive=setInterval(()=>{if(window.speechSynthesis.paused)window.speechSynthesis.resume();},4000);
+    };
+    u.onend=u.onerror=()=>{
+      speaking=false;clearInterval(iosKeepAlive);
+      if(autoRestart)scheduleRestart(600);else setOrbState('idle');
+    };
+    window.speechSynthesis.speak(u);
+  },80);
+}
+
 function stopSpeaking(){stopSpeakingQuiet();setOrbState('idle');liveText.textContent='Stopped. Listening...';if(autoRestart)scheduleRestart(400);}
-function stopSpeakingQuiet(){window.speechSynthesis?.cancel();speaking=false;}
+function stopSpeakingQuiet(){clearInterval(iosKeepAlive);window.speechSynthesis?.cancel();speaking=false;}
 function addMsg(role,text,qa=false){const d=document.createElement('div');d.className='msg '+role;const badge=qa&&role==='sasha'?'<span class="qa-badge">QA ✓</span>':'';d.innerHTML=`<span class="ml">${role==='user'?'YOU':'SASHA'}</span><span class="mt">${esc(text)}</span>${badge}`;transcript.appendChild(d);transcript.scrollTop=transcript.scrollHeight;}
 function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function clearAll(){transcript.innerHTML='';history=[];liveText.textContent='Listening...';}
 document.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.target.matches('input,textarea,button')){e.preventDefault();if(!listening){autoRestart=true;startListening();}}});
 document.addEventListener('keyup',e=>{if(e.code==='Space'&&listening){autoRestart=false;if(recognition)try{recognition.stop();}catch{}}});
-window.addEventListener('load',async()=>{await checkApi();setTimeout(()=>{autoRestart=true;startListening();},800);window.speechSynthesis?.getVoices();if(window.speechSynthesis)window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();});
+window.addEventListener('load',async()=>{
+  window.speechSynthesis?.getVoices();
+  if(window.speechSynthesis)window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+  await checkApi();
+  setTimeout(()=>{autoRestart=true;startListening();},800);
+});
 </script>
 </body>
 </html>
