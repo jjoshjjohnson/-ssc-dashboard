@@ -14,10 +14,8 @@ PENDING JOSH ACTIONS (blocking revenue):
 3. Share Stripe API keys with SASHA
 4. Sign up for Zoho Invoice (free) for legal invoicing
 5. Buy a domain (~$12)
-6. Provide Anthropic API key for SASHA chat UI
-7. Answer: agency name? client approval flow? tool budget?
 
-SASHA STATUS: Boot complete. All infrastructure built. Waiting on Josh for payment layer.
+SASHA STATUS: Boot complete. All infrastructure built. Voice AI online. Waiting on Josh for payment layer.
 
 VOICE RESPONSE RULES:
 - Keep responses to 1-3 sentences maximum unless Josh asks for detail
