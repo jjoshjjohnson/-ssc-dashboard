@@ -71,6 +71,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter'
 .qf-node.you{color:var(--text);border-color:rgba(232,234,246,.15)}
 .qf-node.sasha-n{color:var(--accent);border-color:var(--accent-dim);background:var(--accent-dim)}
 .qf-node.agents{color:var(--purple);border-color:var(--purple-dim)}
+.qf-node.sec-n{color:var(--orange);border-color:rgba(255,140,66,0.2)}
 .qf-node.qa-n{color:var(--yellow);border-color:var(--yellow-dim)}
 .qf-node.out{color:var(--green);border-color:var(--green-dim)}
 .qf-node.lit{animation:nodeGlow .8s ease-in-out infinite alternate}
@@ -179,12 +180,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter'
   <div class="mgmt-strip">
     <div class="ms-seg"><div class="ms-dot w" style="background:var(--yellow)"></div><span class="ms-k">QA</span><span class="ms-v y">WATCHING</span></div>
     <div class="ms-seg"><div class="ms-dot a" style="background:var(--accent)"></div><span class="ms-k">MGMT</span><span class="ms-v b">ACTIVE</span></div>
-    <div class="ms-seg"><div class="ms-dot w" style="background:var(--purple)"></div><span class="ms-k">AGENTS</span><span class="ms-v p">2/7</span></div>
+    <div class="ms-seg"><div class="ms-dot w" style="background:var(--orange)"></div><span class="ms-k">SEC</span><span class="ms-v" style="color:var(--orange)">ACTIVE</span></div>
+    <div class="ms-seg"><div class="ms-dot w" style="background:var(--purple)"></div><span class="ms-k">AGENTS</span><span class="ms-v p">2/8</span></div>
     <div class="ms-seg"><div class="ms-dot" style="background:var(--orange)"></div><span class="ms-k">QUEUE</span><span class="ms-v" style="color:var(--orange)">8 TASKS</span></div>
     <div class="ticker-wrap">
       <div class="ticker">
-        <div class="ticker-inner"><span>BOOT: COMPLETE ✓</span><span>·</span><span>R&D: 10 STREAMS RANKED</span><span>·</span><span>#1 AI AGENCY — 7–14 DAYS TO REVENUE</span><span>·</span><span>ISRAEL: עוסק מורשה → 0% VAT ON US/EU EXPORTS</span><span>·</span><span>NEXT BUILD: SUPABASE SCHEMA → CLIENTS + LEADS + TRANSACTIONS</span><span>·</span><span>JOSH: ADD ANTHROPIC_API_KEY TO NETLIFY → VOICE GOES LIVE</span><span>·</span><span>QA AGENT: ALL OUTPUTS REVIEWED BEFORE RELEASE</span><span>·</span></div>
-        <div class="ticker-inner" aria-hidden="true"><span>BOOT: COMPLETE ✓</span><span>·</span><span>R&D: 10 STREAMS RANKED</span><span>·</span><span>#1 AI AGENCY — 7–14 DAYS TO REVENUE</span><span>·</span><span>ISRAEL: עוסק מורשה → 0% VAT ON US/EU EXPORTS</span><span>·</span><span>NEXT BUILD: SUPABASE SCHEMA → CLIENTS + LEADS + TRANSACTIONS</span><span>·</span><span>JOSH: ADD ANTHROPIC_API_KEY TO NETLIFY → VOICE GOES LIVE</span><span>·</span><span>QA AGENT: ALL OUTPUTS REVIEWED BEFORE RELEASE</span><span>·</span></div>
+        <div class="ticker-inner"><span>BOOT: COMPLETE ✓</span><span>·</span><span>R&D: 10 STREAMS RANKED</span><span>·</span><span>#1 AI AGENCY — 7–14 DAYS TO REVENUE</span><span>·</span><span>ISRAEL: עוסק מורשה → 0% VAT ON US/EU EXPORTS</span><span>·</span><span>NEXT BUILD: SUPABASE SCHEMA → CLIENTS + LEADS + TRANSACTIONS</span><span>·</span><span>JOSH: ADD ANTHROPIC_API_KEY TO NETLIFY → VOICE GOES LIVE</span><span>·</span><span>QA AGENT: ALL OUTPUTS REVIEWED BEFORE RELEASE</span><span>·</span><span>SECURITY AGENT: 10-POINT SCAN ON EVERY OUTPUT — OWASP + ISRAEL PRIVACY LAW</span><span>·</span></div>
+        <div class="ticker-inner" aria-hidden="true"><span>BOOT: COMPLETE ✓</span><span>·</span><span>R&D: 10 STREAMS RANKED</span><span>·</span><span>#1 AI AGENCY — 7–14 DAYS TO REVENUE</span><span>·</span><span>ISRAEL: עוסק מורשה → 0% VAT ON US/EU EXPORTS</span><span>·</span><span>NEXT BUILD: SUPABASE SCHEMA → CLIENTS + LEADS + TRANSACTIONS</span><span>·</span><span>JOSH: ADD ANTHROPIC_API_KEY TO NETLIFY → VOICE GOES LIVE</span><span>·</span><span>QA AGENT: ALL OUTPUTS REVIEWED BEFORE RELEASE</span><span>·</span><span>SECURITY AGENT: 10-POINT SCAN ON EVERY OUTPUT — OWASP + ISRAEL PRIVACY LAW</span><span>·</span></div>
       </div>
     </div>
   </div>
@@ -192,7 +194,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter'
   <div class="mob-strip">
     <div class="ms2"><span class="ms2l">REVENUE</span><span class="ms2v" style="color:var(--red)">$0</span></div>
     <div class="ms2"><span class="ms2l">DAY</span><span class="ms2v" style="color:var(--yellow)" id="dayMob">—</span></div>
-    <div class="ms2"><span class="ms2l">AGENTS</span><span class="ms2v" style="color:var(--accent)">2/7</span></div>
+    <div class="ms2"><span class="ms2l">AGENTS</span><span class="ms2v" style="color:var(--accent)">2/8</span></div>
     <div class="ms2"><span class="ms2l">QA</span><span class="ms2v" style="color:var(--yellow)">ON</span></div>
   </div>
   <div class="body">
@@ -227,6 +229,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter'
           <span class="qf-node you" id="qfYou">YOU</span><span class="qf-arrow">→</span>
           <span class="qf-node sasha-n" id="qfSasha">SASHA</span><span class="qf-arrow">→</span>
           <span class="qf-node agents" id="qfAgents">AGENTS</span><span class="qf-arrow">→</span>
+          <span class="qf-node sec-n" id="qfSec">SEC</span><span class="qf-arrow">→</span>
           <span class="qf-node qa-n" id="qfQa">QA</span><span class="qf-arrow">→</span>
           <span class="qf-node out" id="qfOut">OUTPUT</span>
         </div>
@@ -269,11 +272,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter'
         <div class="blocker"><div class="bnum">3</div><div class="btxt"><strong>Create Stripe (Israel)</strong><br>stripe.com · 20 min</div></div>
         <div class="blocker"><div class="bnum">4</div><div class="btxt"><strong>Buy domain (~$12)</strong><br>Namecheap / Google Domains</div></div>
         <div class="blocker"><div class="bnum">5</div><div class="btxt"><strong>Zoho Invoice (free)</strong><br>zoho.com/invoice · 10 min</div></div>
+        <div class="blocker"><div class="bnum" style="background:var(--accent-dim);border-color:rgba(79,142,247,.3);color:var(--accent)">6</div><div class="btxt"><strong>Connect Netlify → GitHub</strong><br>app.netlify.com → sscsd → Build settings → link repo jjoshjjohnson/-ssc-dashboard, branch: claude/new-repository-bap65s</div></div>
       </div>
       <div class="card">
         <div class="ctitle">Agent Roster</div>
         <div class="agent"><div class="ag-dot" style="background:var(--accent);opacity:.6"></div><span class="ag-name">R&amp;D</span><span class="ag-status done">COMPLETE</span></div>
         <div class="agent"><div class="ag-dot a" style="background:var(--accent)"></div><span class="ag-name">Management</span><span class="ag-status active">ACTIVE</span></div>
+        <div class="agent"><div class="ag-dot w" style="background:var(--orange)"></div><span class="ag-name">Security</span><span class="ag-status" style="background:rgba(255,140,66,.12);color:var(--orange)">ACTIVE</span></div>
         <div class="agent"><div class="ag-dot w" style="background:var(--yellow)"></div><span class="ag-name">QA</span><span class="ag-status watch">WATCHING</span></div>
         <div class="agent"><div class="ag-dot" style="background:var(--accent);opacity:.5"></div><span class="ag-name">Operations</span><span class="ag-status ready">READY</span></div>
         <div class="agent"><div class="ag-dot" style="background:var(--purple);opacity:.5"></div><span class="ag-name">Content</span><span class="ag-status ready">READY</span></div>
@@ -309,18 +314,19 @@ const qaFlow=document.getElementById('qaFlow');
 const qfYou=document.getElementById('qfYou');
 const qfSasha=document.getElementById('qfSasha');
 const qfAgents=document.getElementById('qfAgents');
+const qfSec=document.getElementById('qfSec');
 const qfQa=document.getElementById('qfQa');
 const qfOut=document.getElementById('qfOut');
 function updateDay(){const start=new Date('2026-06-25T00:00:00');const day=Math.max(1,Math.ceil((Date.now()-start.getTime())/864e5));const s=day+'/30';['dayCount','dayMob'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=s;});const dc=document.getElementById('dayCard');if(dc)dc.textContent=day+' of 30';}
 updateDay();
-function setFlowState(state){[qfYou,qfSasha,qfAgents,qfQa,qfOut].forEach(n=>n&&n.classList.remove('lit'));qaFlow.classList.add('active');if(state==='listening')qfYou&&qfYou.classList.add('lit');if(state==='thinking'){qfSasha&&qfSasha.classList.add('lit');qfAgents&&qfAgents.classList.add('lit');}if(state==='reviewing')qfQa&&qfQa.classList.add('lit');if(state==='speaking')qfOut&&qfOut.classList.add('lit');if(state==='idle')qaFlow.classList.remove('active');}
+function setFlowState(state){[qfYou,qfSasha,qfAgents,qfSec,qfQa,qfOut].forEach(n=>n&&n.classList.remove('lit'));qaFlow.classList.add('active');if(state==='listening')qfYou&&qfYou.classList.add('lit');if(state==='thinking'){qfSasha&&qfSasha.classList.add('lit');qfAgents&&qfAgents.classList.add('lit');}if(state==='security')qfSec&&qfSec.classList.add('lit');if(state==='reviewing')qfQa&&qfQa.classList.add('lit');if(state==='speaking')qfOut&&qfOut.classList.add('lit');if(state==='idle')qaFlow.classList.remove('active');}
 function setOrbState(state){orb.className='orb'+(state!=='idle'?' '+state:'');stateText.className='state-text'+(state!=='idle'?' '+state:'');wave.className='wave'+(state==='listening'||state==='speaking'?' active':'');const labels={idle:'PAUSED',listening:'LISTENING',thinking:'THINKING',speaking:'SPEAKING'};stateText.textContent=labels[state]||'LISTENING';const colors={idle:'radial-gradient(circle at 35% 35%,#6aa3ff,#1a3a7a)',listening:'radial-gradient(circle at 35% 35%,#ff8fa0,#7a1a2e)',thinking:'radial-gradient(circle at 35% 35%,#ffe080,#7a6a1a)',speaking:'radial-gradient(circle at 35% 35%,#6affa0,#1a7a40)'};topOrb.style.background=colors[state]||colors.idle;setFlowState(state);}
 async function checkApi(){try{const r=await fetch('/api/sasha-chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:'ping'}]})});const d=await r.json();if(d.response&&d.response.toLowerCase().includes('api key not configured')){setupAlert.classList.add('show');voiceStatus.textContent='NO API KEY';voiceStatus.className='syst off';liveText.textContent='Add ANTHROPIC_API_KEY to Netlify env vars to activate voice.';}else{voiceStatus.textContent='LIVE';voiceStatus.className='syst on';}}catch{liveText.textContent='Could not reach API. Check Netlify deployment.';}}
 function initRecognition(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){liveText.textContent='Voice requires Chrome or Safari.';return null;}const r=new SR();r.continuous=false;r.interimResults=true;r.lang='en-US';r.onstart=()=>{listening=true;setOrbState('listening');liveText.textContent='Listening...';liveText.className='live-text';};r.onresult=(e)=>{let interim='',final='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript;else interim+=e.results[i][0].transcript;}if(interim){liveText.textContent=interim;liveText.className='live-text user';}if(final){liveText.textContent=final;liveText.className='live-text user';listening=false;handleMessage(final.trim());}};r.onerror=(e)=>{if(e.error==='no-speech'){if(autoRestart&&!speaking&&!thinking)scheduleRestart();return;}if(e.error==='aborted')return;liveText.textContent='Mic error: '+e.error+'. Tap orb to retry.';listening=false;setOrbState('idle');};r.onend=()=>{listening=false;if(autoRestart&&!speaking&&!thinking)scheduleRestart();};return r;}
 function scheduleRestart(ms=400){setTimeout(()=>{if(autoRestart&&!speaking&&!thinking&&!listening)startListening();},ms);}
 function startListening(){if(listening||speaking||thinking)return;if(!recognition)recognition=initRecognition();if(!recognition)return;try{recognition.start();}catch{}}
 function handleOrbClick(){if(speaking){stopSpeaking();return;}if(autoRestart){autoRestart=false;if(recognition)try{recognition.abort();}catch{}listening=false;setOrbState('idle');liveText.textContent='Paused. Tap to resume.';}else{autoRestart=true;startListening();}}
-async function handleMessage(text){if(!text)return;addMsg('user',text);history.push({role:'user',content:text});thinking=true;setOrbState('thinking');liveText.textContent='Processing...';liveText.className='live-text';try{const res=await fetch('/api/sasha-chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-20)})});const data=await res.json();const reply=data.response||'No response.';history.push({role:'assistant',content:reply});setFlowState('reviewing');await new Promise(r=>setTimeout(r,600));thinking=false;speak(reply);}catch{thinking=false;setOrbState('idle');liveText.textContent='Connection error.';if(autoRestart)scheduleRestart(1000);}}
+async function handleMessage(text){if(!text)return;addMsg('user',text);history.push({role:'user',content:text});thinking=true;setOrbState('thinking');liveText.textContent='Processing...';liveText.className='live-text';try{const res=await fetch('/api/sasha-chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-20)})});const data=await res.json();const reply=data.response||'No response.';history.push({role:'assistant',content:reply});setFlowState('security');await new Promise(r=>setTimeout(r,350));setFlowState('reviewing');await new Promise(r=>setTimeout(r,400));thinking=false;speak(reply);}catch{thinking=false;setOrbState('idle');liveText.textContent='Connection error.';if(autoRestart)scheduleRestart(1000);}}
 function speak(text){if(!window.speechSynthesis){addMsg('sasha',text,true);if(autoRestart)scheduleRestart(500);return;}stopSpeakingQuiet();const u=new SpeechSynthesisUtterance(text);u.rate=0.93;u.pitch=1.0;u.volume=1.0;const voices=window.speechSynthesis.getVoices();const v=voices.find(x=>x.name.includes('Samantha'))||voices.find(x=>x.name.includes('Google US English'))||voices.find(x=>x.lang==='en-US');if(v)u.voice=v;u.onstart=()=>{speaking=true;setOrbState('speaking');addMsg('sasha',text,true);liveText.textContent=text;liveText.className='live-text sasha';};u.onend=u.onerror=()=>{speaking=false;if(autoRestart)scheduleRestart(600);else setOrbState('idle');};window.speechSynthesis.speak(u);}
 function stopSpeaking(){stopSpeakingQuiet();setOrbState('idle');liveText.textContent='Stopped. Listening...';if(autoRestart)scheduleRestart(400);}
 function stopSpeakingQuiet(){window.speechSynthesis?.cancel();speaking=false;}

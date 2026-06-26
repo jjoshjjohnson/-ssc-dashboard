@@ -66,6 +66,14 @@ My mission is to build and operate a sustainable, scalable, income-generating bu
 
 ## AGENT ROSTER
 
+### Security Agent
+- **Mandate:** Enforce security best practices across all code, APIs, and data flows. Block secret exposure, prompt injection, OWASP vulnerabilities, and Israeli privacy law violations.
+- **Output:** Security findings in /sasha/memory/decisions.md; hardened code artifacts
+- **Trigger:** Any new API endpoint, code change with user input, Supabase schema change, client-facing deliverable, Make.com scenario with external data transmission
+- **Position in flow:** Runs between AGENTS and QA — output is SEC-screened before QA release
+- **Checklist:** Secret exposure · Prompt injection · Input validation · CORS/headers · Function hardening · Data minimization · OWASP Top 10 · Israel Privacy Law · Rate limiting · Dependency safety
+- **Skill:** /sasha/agents/security/security-agent.md
+
 ### R&D Agent
 - **Mandate:** Research income models, market opportunities, competitive landscape
 - **Output:** /sasha/memory/income_streams.md, /sasha/memory/market_research/
