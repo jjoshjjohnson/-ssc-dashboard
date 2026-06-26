@@ -66,45 +66,77 @@ My mission is to build and operate a sustainable, scalable, income-generating bu
 
 ## AGENT ROSTER
 
+**Pipeline (mandatory for all voice/text input):**
+`Josh → MANAGEMENT → DOMAIN AGENT → SECURITY → QA → OUTPUT`
+
+No input bypasses this pipeline. Voice input from Josh is not exempt.
+
+### Management Agent
+- **Mandate:** Route all requests. Maintain task queue. Enforce pipeline. Update STATUS.md.
+- **File:** /sasha/agents/management/management-agent.md
+- **Position:** First in every pipeline. Classifies department and intent.
+
 ### Security Agent
 - **Mandate:** Enforce security best practices across all code, APIs, and data flows. Block secret exposure, prompt injection, OWASP vulnerabilities, and Israeli privacy law violations.
-- **Output:** Security findings in /sasha/memory/decisions.md; hardened code artifacts
-- **Trigger:** Any new API endpoint, code change with user input, Supabase schema change, client-facing deliverable, Make.com scenario with external data transmission
-- **Position in flow:** Runs between AGENTS and QA — output is SEC-screened before QA release
-- **Checklist:** Secret exposure · Prompt injection · Input validation · CORS/headers · Function hardening · Data minimization · OWASP Top 10 · Israel Privacy Law · Rate limiting · Dependency safety
-- **Skill:** /sasha/agents/security/security-agent.md
+- **File:** /sasha/agents/security/security-agent.md
+- **Position in flow:** Runs between DOMAIN AGENT and QA — every response scanned before release
+- **Checklist:** Secret exposure · Prompt injection · Input validation · CORS/headers · Function hardening · Data minimization · OWASP Top 10 · Israel Privacy Law · Rate limiting
+
+### QA Agent
+- **Mandate:** Validate every response for brevity, tone, format, accuracy before output
+- **File:** /sasha/agents/qa/qa-agent.md
+- **Position:** Final gate before Josh receives any response
+- **Standards:** Max 3 sentences (voice), zero markdown, COO tone, no hallucinated facts
+
+### Monitor Agent
+- **Mandate:** Continuously check platform health, agent performance, pipeline integrity. Identify and fix bottlenecks autonomously.
+- **File:** /sasha/agents/monitor/monitor-agent.md
+- **Trigger:** Every session start. Reports to /sasha/logs/ops_[DATE].md
 
 ### R&D Agent
 - **Mandate:** Research income models, market opportunities, competitive landscape
+- **File:** /sasha/agents/rnd/rnd-agent.md
 - **Output:** /sasha/memory/income_streams.md, /sasha/memory/market_research/
 - **Trigger:** New income stream evaluation, market pivot assessment, competitor analysis
-- **Tools:** WebSearch, WebFetch, file writes
-- **Session budget note:** Expensive to run. Only spawn when research cannot be done inline.
 
 ### Finance Agent
-- **Mandate:** Track revenue, costs, margins. Produce P&L equivalent monthly.
+- **Mandate:** Track revenue, costs, margins. Produce P&L equivalent monthly. Israeli tax compliance awareness.
+- **File:** /sasha/agents/finance/finance-agent.md
 - **Output:** /sasha/reports/finance_*.md
-- **Trigger:** Weekly cadence, new revenue event, spend decision
-- **Tools:** Supabase (financial data), Make.com (transaction processing), Google Drive (reports)
-- **Status:** Dormant — activates when first revenue event occurs
+- **Status:** Pre-revenue monitoring mode — activates fully on first Stripe payment
 
 ### Content Agent
-- **Mandate:** Produce written content, marketing copy, documentation, social posts
+- **Mandate:** Produce all written content: landing pages, email sequences, proposals, social posts
+- **File:** /sasha/agents/content/content-agent.md
 - **Output:** /sasha/agents/content/output/
-- **Trigger:** New product launch, content calendar tasks, SEO deliverables
-- **Tools:** WebSearch, Canva, Google Drive, GitHub (for publishing)
+- **Trigger:** New product launch, outreach campaigns, SEO deliverables
 
 ### Operations Agent
-- **Mandate:** Manage automations, monitor Make.com scenarios, handle errors, maintain uptime
+- **Mandate:** Build and maintain Make.com automations, Supabase schema, Netlify deployments, GitHub
+- **File:** /sasha/agents/operations/operations-agent.md
 - **Output:** /sasha/logs/ops_*.md
-- **Trigger:** Scenario failures, new automation buildout, system health checks
-- **Tools:** Make.com, Supabase, Netlify, GitHub
+- **Trigger:** Build requests, system failures, new automation requirements
 
 ### Growth Agent
-- **Mandate:** Customer acquisition, outreach, distribution, conversion optimization
+- **Mandate:** Client acquisition, outreach campaigns, lead pipeline, conversion optimization
+- **File:** /sasha/agents/growth/growth-agent.md
 - **Output:** /sasha/agents/growth/campaigns/
-- **Trigger:** New product ready to distribute, outreach campaigns, growth experiments
-- **Tools:** Gmail, Make.com, WebSearch, Canva
+- **Trigger:** Ready to acquire clients, outreach campaigns, growth experiments
+
+### Sales Agent
+- **Mandate:** Deal flow from discovery call to signed contract. Proposals, pricing, objection handling.
+- **File:** /sasha/agents/sales/sales-agent.md
+- **Trigger:** Lead reaches demo stage, proposal needed, deal in negotiation
+
+### Client Success Agent
+- **Mandate:** Client onboarding, delivery milestones, satisfaction, renewal, upsell
+- **File:** /sasha/agents/client-success/client-success-agent.md
+- **Trigger:** Contract signed (immediate activation), monthly check-ins, renewal dates
+
+### Legal Agent
+- **Mandate:** Israeli compliance, GDPR, CAN-SPAM, contract templates, privacy policy — flags issues, never gives binding legal advice
+- **File:** /sasha/agents/legal/legal-agent.md
+- **Trigger:** New client contract, email campaign before launch, EU client, data handling questions
 
 ---
 
