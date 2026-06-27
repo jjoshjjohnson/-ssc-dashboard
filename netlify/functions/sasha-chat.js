@@ -99,18 +99,19 @@ Rules:
 - Design/visual/Canva/video/proposal PDF/graphics/creative → media`;
 
 // ── QA AGENT PROMPT ──────────────────────────────────────────────────────────
-const QA_PROMPT = `You are SASHA's QA Agent. Review the draft response for these criteria:
+const QA_PROMPT = `You are SASHA's QA Agent. Your output is ONLY the final spoken response — nothing else.
 
-1. CONVERSATIONAL: Does it sound like a real person talking? Natural, warm, direct — like JARVIS talking to Tony Stark
-2. BREVITY: Max 3 sentences. Voice output — cut anything that doesn't need to be said
-3. FORMAT: Zero markdown. No asterisks, no headers, no bullet points. Plain spoken English only.
-4. ACCURACY: No invented facts about Josh's business. Stick to what is known.
-5. VOICE-SAFE: Numbers spoken out ("fifteen hundred"), no special characters that sound weird spoken aloud
-6. NO FILLER OPENERS: Remove "Certainly", "Of course", "Absolutely", "Great question", "Sure thing" — cut straight to the response
+CRITICAL: Do NOT write critique, commentary, headers, ratings, or analysis. Output the response text only.
 
-If the response passes all criteria, return it exactly as-is.
-If it fails, fix only what is wrong — preserve warmth and natural tone.
-Return ONLY the final response text. No QA notes, no commentary, no prefix.`;
+Fix these issues if present, then output the corrected text:
+1. Remove markdown (asterisks, headers, bullet points, dashes) — plain spoken English only
+2. Trim to max 3 sentences — cut filler, keep substance
+3. Spell out numbers ("fifteen hundred", not "$1,500")
+4. Remove filler openers: "Certainly", "Of course", "Absolutely", "Great question", "Sure"
+5. Keep it warm and natural — JARVIS talking to Tony Stark, not a help desk
+
+If the response already passes all criteria, output it unchanged.
+Output the response text directly. First word is the response. No labels, no "Here is the corrected response:", no QA notes.`;
 
 // ── SECURITY SCANNER ─────────────────────────────────────────────────────────
 function securityScan(text) {
@@ -175,10 +176,11 @@ async function runPipeline(apiKey, userMessage, conversationHistory) {
       apiKey,
       MANAGEMENT_CLASSIFIER,
       userMsg,
-      60
+      100
     );
-    const parsed = JSON.parse(classifyResponse.trim());
-    if (parsed.department) routing = parsed;
+    const jsonMatch = classifyResponse.match(/\{[^}]+\}/s);
+    const parsed = JSON.parse((jsonMatch ? jsonMatch[0] : classifyResponse).trim());
+    if (parsed.department && DOMAIN_PROMPTS[parsed.department]) routing = parsed;
   } catch {
     // Classification failed — fall through to general
   }
@@ -209,8 +211,19 @@ async function runPipeline(apiKey, userMessage, conversationHistory) {
         content: `User said: "${userMessage}"\n\nDraft response:\n${secCheck.sanitized}`
       }
     ];
-    finalResponse = await callClaude(apiKey, QA_PROMPT, qaMessages, 300);
-    finalResponse = securityScan(finalResponse).sanitized;
+    let qaRaw = await callClaude(apiKey, QA_PROMPT, qaMessages, 300);
+    // Strip leaked critique preambles if QA agent ignores output instructions
+    const critiqueMarkers = [
+      /^(here is|here's|the corrected|corrected response|final response)[^:]*:/i,
+      /^(i need to stop|this response fails|qa (notes?|review|check)|criteria\s*\d)/i
+    ];
+    for (const marker of critiqueMarkers) {
+      if (marker.test(qaRaw.trim())) {
+        qaRaw = secCheck.sanitized;
+        break;
+      }
+    }
+    finalResponse = securityScan(qaRaw).sanitized;
   } catch {
     // QA failed — use security-scanned draft
     finalResponse = secCheck.sanitized;
