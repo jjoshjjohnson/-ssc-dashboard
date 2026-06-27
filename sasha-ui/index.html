@@ -1205,7 +1205,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 <script>
 // ── STATE ──
 let listening=false,speaking=false,thinking=false;
-let recognition=null,history=[],autoRestart=false,netRetries=0;
+let mediaRecorder=null,audioChunks=[],mediaStream=null,audioCtx=null,analyserNode=null,vadInterval=null;
+let history=[],autoRestart=false;
 let speechUnlocked=false,iosKA=null,pendingSpeech=null;
 let vstate='idle',animId=null,rotAngle=0,particles=[];
 let cSize=220;
@@ -1422,7 +1423,7 @@ document.addEventListener('click',unlock);
 
 // ── SPEAK ──
 function speak(text){
-  if(!window.speechSynthesis){thinking=false;setVS('idle');if(autoRestart)sched(500);return;}
+  if(!window.speechSynthesis){thinking=false;setVS('idle');if(autoRestart)setTimeout(startRecording,500);return;}
   if(!speechUnlocked){
     thinking=false;pendingSpeech=text;setVS('pending');
     const lv=document.getElementById('ltxt');lv.textContent='Tap screen to hear SASHA';lv.className='';return;
@@ -1446,7 +1447,7 @@ function speakNow(text){
     };
     u.onend=u.onerror=()=>{
       speaking=false;clearInterval(iosKA);
-      if(autoRestart)sched(600);else{setVS('idle');document.getElementById('ltxt').textContent='Tap sphere to continue';}
+      if(autoRestart)setTimeout(startRecording,600);else{setVS('idle');document.getElementById('ltxt').textContent='Tap sphere to continue';}
     };
     window.speechSynthesis.speak(u);
   },80);
@@ -1454,89 +1455,108 @@ function speakNow(text){
 
 function stopQ(){clearInterval(iosKA);window.speechSynthesis?.cancel();speaking=false;}
 
-// ── RECOGNITION ──
-function initRec(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){document.getElementById('ltxt').textContent='Voice needs Chrome or Safari.';return null;}
-  const r=new SR();r.continuous=true;r.interimResults=true;r.lang='en-US';
-  // per-instance flag: onerror claims restart responsibility so onend doesn't double-schedule
-  let errorHandled=false;
-
-  r.onstart=()=>{
-    listening=true;setVS('listening');
-    const lv=document.getElementById('ltxt');lv.textContent='Listening...';lv.className='';
-  };
-
-  r.onresult=(e)=>{
-    let interim='',fin='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal)fin+=e.results[i][0].transcript;else interim+=e.results[i][0].transcript;
-    }
-    const lv=document.getElementById('ltxt');
-    if(interim){lv.textContent=interim;lv.className='u';}
-    if(fin){
-      netRetries=0; // successful speech — clear retry counter
-      lv.textContent=fin;lv.className='u';
-      listening=false;
-      try{recognition.stop();}catch(ex){} // pause mic while processing; onend won't restart (thinking=true)
-      handleMsg(fin.trim());
-    }
-  };
-
-  r.onerror=(e)=>{
-    if(e.error==='aborted'||e.error==='no-speech')return;
-    errorHandled=true; // tell onend not to double-schedule
-    listening=false;
-    const lv=document.getElementById('ltxt');
-    if(e.error==='network'){
-      netRetries++;
-      // never give up on network errors — backoff up to 5s then keep retrying
-      const delay=Math.min(1500*netRetries,5000);
-      lv.textContent=netRetries>3?'Voice service offline — retrying…':'Reconnecting…';
-      if(autoRestart)sched(delay);
-      return;
-    }
-    setVS('idle');autoRestart=false;netRetries=0;
-    if(e.error==='not-allowed'||e.error==='service-not-allowed'){
-      lv.textContent='Mic access denied — allow microphone in browser settings, then tap the orb.';
-    } else if(e.error==='audio-capture'){
-      lv.textContent='No microphone found. Plug one in and tap the orb.';
-    } else {
-      lv.textContent='Mic error: '+e.error+'. Tap the orb to retry.';
-    }
-  };
-
-  r.onend=()=>{
-    listening=false;
-    if(errorHandled){errorHandled=false;return;} // onerror already owns the restart
-    if(autoRestart&&!speaking&&!thinking)sched();
-  };
-
-  return r;
-}
-
-function sched(ms=400){setTimeout(()=>{if(autoRestart&&!speaking&&!thinking&&!listening)startListen();},ms);}
-function startListen(){
+// ── RECORDING (Groq Whisper) ──
+async function startRecording(){
   if(listening||speaking||thinking)return;
   unlock();
-  recognition=initRec(); // always fresh object — prevents Chrome state machine bugs
-  if(!recognition)return;
-  try{recognition.start();}catch(e){}
+  const lv=document.getElementById('ltxt');
+  try{
+    mediaStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+  }catch(e){
+    autoRestart=false;setVS('idle');
+    lv.textContent=e.name==='NotAllowedError'?'Mic access denied — allow microphone in browser settings, then tap the orb.':'No microphone found. Plug one in and tap the orb.';
+    return;
+  }
+  // VAD via AnalyserNode
+  try{
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    const src=audioCtx.createMediaStreamSource(mediaStream);
+    analyserNode=audioCtx.createAnalyser();analyserNode.fftSize=512;
+    src.connect(analyserNode);
+  }catch(e){}
+  // Pick best supported mime type
+  const mimeType=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':
+                 MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':'audio/webm';
+  audioChunks=[];
+  mediaRecorder=new MediaRecorder(mediaStream,{mimeType});
+  mediaRecorder.ondataavailable=(e)=>{if(e.data&&e.data.size>0)audioChunks.push(e.data);};
+  mediaRecorder.onstop=()=>transcribeAudio(mimeType);
+  mediaRecorder.start(100);
+  listening=true;setVS('listening');lv.textContent='Listening...';lv.className='';
+  startVAD();
+}
+
+function startVAD(){
+  if(!analyserNode)return;
+  const data=new Uint8Array(analyserNode.frequencyBinCount);
+  let hasSpoken=false,silenceStart=null;
+  const MAX_MS=30000,startTime=Date.now();
+  vadInterval=setInterval(()=>{
+    if(!mediaRecorder||mediaRecorder.state!=='recording'){clearInterval(vadInterval);return;}
+    if(Date.now()-startTime>MAX_MS){stopRecording();return;} // 30s max safety
+    analyserNode.getByteFrequencyData(data);
+    const avg=data.reduce((a,b)=>a+b,0)/data.length;
+    if(avg>12){
+      hasSpoken=true;silenceStart=null;
+      document.getElementById('ltxt').className='u';
+    }else if(hasSpoken){
+      if(!silenceStart)silenceStart=Date.now();
+      if(Date.now()-silenceStart>1500)stopRecording();
+    }
+  },100);
+}
+
+function stopRecording(){
+  clearInterval(vadInterval);vadInterval=null;
+  if(mediaRecorder&&mediaRecorder.state==='recording'){listening=false;mediaRecorder.stop();}
+  if(mediaStream){mediaStream.getTracks().forEach(t=>t.stop());mediaStream=null;}
+  if(audioCtx){audioCtx.close().catch(()=>{});audioCtx=null;}analyserNode=null;
+}
+
+async function transcribeAudio(mimeType){
+  if(!audioChunks.length){
+    setVS('idle');document.getElementById('ltxt').textContent='No audio captured. Tap to try again.';
+    if(autoRestart)setTimeout(startRecording,1000);return;
+  }
+  thinking=true;setVS('thinking');
+  const lv=document.getElementById('ltxt');lv.textContent='Transcribing...';lv.className='';
+  const blob=new Blob(audioChunks,{type:mimeType});
+  const base64=await new Promise(res=>{const r=new FileReader();r.onloadend=()=>res(r.result.split(',')[1]);r.readAsDataURL(blob);});
+  try{
+    const resp=await fetch('/api/sasha-transcribe',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({audio:base64,mimeType:mimeType.split(';')[0]})});
+    const d=await resp.json();
+    if(d.error&&!d.text){
+      thinking=false;setVS('idle');
+      lv.textContent=d.error.includes('GROQ_API_KEY')?'Add GROQ_API_KEY to Netlify env vars to enable voice.':'Transcription error. Tap to retry.';
+      if(autoRestart&&!d.error.includes('GROQ_API_KEY'))setTimeout(startRecording,1500);
+      return;
+    }
+    const text=(d.text||'').trim();
+    if(!text){
+      thinking=false;setVS('idle');lv.textContent='Could not understand. Tap to try again.';
+      if(autoRestart)setTimeout(startRecording,1000);return;
+    }
+    lv.textContent=text;lv.className='u';
+    handleMsg(text);
+  }catch(err){
+    thinking=false;setVS('idle');lv.textContent='Transcription error. Tap to retry.';
+    if(autoRestart)setTimeout(startRecording,1500);
+  }
 }
 
 // ── ORB CLICK ──
 function handleClick(){
   unlock();
-  if(speaking){stopQ();setVS('idle');if(autoRestart)sched(300);return;}
+  if(speaking){stopQ();setVS('idle');if(autoRestart)setTimeout(startRecording,300);return;}
   if(pendingSpeech){const t=pendingSpeech;pendingSpeech=null;speakNow(t);return;}
   if(thinking)return;
   if(autoRestart){
-    autoRestart=false;
-    if(recognition)try{recognition.abort();}catch(e){}
-    listening=false;setVS('idle');
+    autoRestart=false;stopRecording();listening=false;setVS('idle');
     document.getElementById('ltxt').textContent='Paused. Tap to resume.';
   }else{
-    autoRestart=true;netRetries=0;startListen();
+    autoRestart=true;startRecording();
   }
 }
 
@@ -1558,7 +1578,7 @@ async function handleMsg(text){
     speak(reply);
   }catch(err){
     thinking=false;setVS('idle');lv.textContent='Connection error. Tap to retry.';
-    if(autoRestart)sched(1200);
+    if(autoRestart)setTimeout(startRecording,1200);
   }
 }
 
@@ -1598,11 +1618,11 @@ async function checkApi(){
 // ── KEYBOARD ──
 document.addEventListener('keydown',e=>{
   if(e.code==='Space'&&!e.target.matches('input,textarea,button')){
-    e.preventDefault();if(!listening&&!thinking){autoRestart=true;startListen();}
+    e.preventDefault();if(!listening&&!thinking){autoRestart=true;startRecording();}
   }
 });
 document.addEventListener('keyup',e=>{
-  if(e.code==='Space'&&listening){autoRestart=false;if(recognition)try{recognition.stop();}catch(e){}}
+  if(e.code==='Space'&&listening){autoRestart=false;stopRecording();}
 });
 
 // ── INIT ──
@@ -1612,7 +1632,7 @@ window.addEventListener('load',async()=>{
   initCanvas();drawFrame();
   window.addEventListener('resize',()=>{if(animId)cancelAnimationFrame(animId);animId=null;initCanvas();drawFrame();});
   await checkApi();
-  if(!('ontouchstart' in window)){setTimeout(()=>{autoRestart=true;startListen();},900);}
+  if(!('ontouchstart' in window)){setTimeout(()=>{autoRestart=true;startRecording();},900);}
 });
 </script>
 </body>
