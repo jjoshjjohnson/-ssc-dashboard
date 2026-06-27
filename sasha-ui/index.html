@@ -1435,10 +1435,17 @@ function speakNow(text){
   thinking=false;stopQ();
   setTimeout(()=>{
     const u=new SpeechSynthesisUtterance(text);
-    u.rate=.92;u.pitch=1;u.volume=1;
+    u.rate=0.88;u.pitch=0.95;u.volume=1;
     const vs2=window.speechSynthesis.getVoices();
-    const v=vs2.find(x=>x.name==='Samantha')||vs2.find(x=>x.name.includes('Google US English'))||
-            vs2.find(x=>/en[-_]US/i.test(x.lang)&&!/male/i.test(x.name))||vs2.find(x=>/en/i.test(x.lang))||vs2[0];
+    // Priority: Edge/Chrome neural (Aria, Jenny) > Google UK Female > Samantha > fallbacks
+    const v=vs2.find(x=>/aria/i.test(x.name)&&/natural|neural|online/i.test(x.name))||
+            vs2.find(x=>/jenny/i.test(x.name)&&/natural|neural|online/i.test(x.name))||
+            vs2.find(x=>/microsoft/i.test(x.name)&&/natural|online/i.test(x.name)&&/en/i.test(x.lang))||
+            vs2.find(x=>x.name==='Google UK English Female')||
+            vs2.find(x=>x.name==='Samantha')||
+            vs2.find(x=>x.name.includes('Google US English'))||
+            vs2.find(x=>/en[-_]US/i.test(x.lang)&&!/male/i.test(x.name))||
+            vs2.find(x=>/en/i.test(x.lang))||vs2[0];
     if(v)u.voice=v;
     u.onstart=()=>{
       speaking=true;setVS('speaking');
