@@ -13,7 +13,7 @@
   --green:#00ff88;--gdim:rgba(0,255,136,0.08);
   --yellow:#ffbb00;--ydim:rgba(255,187,0,0.08);
   --red:#ff4455;--rdim:rgba(255,68,85,0.08);
-  --orange:#ff8833;--purple:#aa66ff;
+  --orange:#ff8833;--purple:#aa66ff;--pdim:rgba(170,102,255,0.08);
   --text:#90b8e0;--tbright:#d0e8ff;--tdim:#2a4060;
   --mono:'JetBrains Mono','Courier New',monospace;
 }
@@ -52,10 +52,23 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   padding:2px 8px;border-radius:2px;background:rgba(255,187,0,0.1);
   border:1px solid rgba(255,187,0,0.3);color:var(--yellow)}
 
-/* MAIN */
-#main{flex:1;display:flex;overflow:hidden;min-height:0}
+/* TAB NAV */
+#tabnav{display:flex;flex-shrink:0;border-bottom:1px solid var(--bhi);background:rgba(0,8,22,0.97)}
+.tnb{flex:1;padding:8px 2px;font-size:7px;letter-spacing:1.5px;font-family:var(--mono);
+  background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;
+  color:var(--tdim);transition:all .2s;white-space:nowrap}
+.tnb.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(0,200,255,0.04)}
+.tnb:hover:not(.active){color:var(--text)}
+@media(min-width:480px){.tnb{font-size:8px;letter-spacing:2px;padding:8px 6px}}
 
-/* PANELS */
+/* MAIN */
+#main{flex:1;overflow:hidden;min-height:0;position:relative}
+.tab-pane{display:none;width:100%;height:100%}
+.tab-pane.active{display:flex}
+#tab-voice{flex-direction:row}
+#tab-tasks,#tab-pipeline,#tab-agents{flex-direction:column;overflow-y:auto;padding:10px;gap:10px}
+
+/* PANELS (shared) */
 .panel{width:195px;flex-shrink:0;background:var(--panel);overflow-y:auto;
   display:none;flex-direction:column;padding:7px;gap:6px}
 @media(min-width:760px){.panel{display:flex}}
@@ -74,12 +87,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .ad{font-size:6px;flex-shrink:0}
 .ad.ac{color:var(--green);animation:blink 1.5s infinite}.ad.dn{color:var(--tdim)}
 .ad.wt{color:var(--yellow);animation:blink 3s infinite}.ad.rd{color:var(--accent)}
-.ad.dm{color:var(--red)}
+.ad.dm{color:var(--red)}.ad.it{color:var(--purple)}
 .an{font-size:8px;flex:1;color:var(--text)}
 .as{font-size:6px;letter-spacing:1px;padding:1px 4px;border-radius:2px}
 .as.ac{background:var(--gdim);color:var(--green)}.as.dn{background:rgba(40,60,80,.4);color:var(--tdim)}
 .as.wt{background:var(--ydim);color:var(--yellow)}.as.rd{background:var(--adim);color:var(--accent)}
-.as.dm{background:var(--rdim);color:var(--red)}
+.as.dm{background:var(--rdim);color:var(--red)}.as.it{background:var(--pdim);color:var(--purple)}
 .tlog{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
 .tle{font-size:7px;display:flex;gap:4px;padding:2px 0;border-bottom:1px solid rgba(0,80,160,0.08);line-height:1.4}
 .tle-t{color:rgba(0,150,255,0.3);flex-shrink:0;font-size:6px}
@@ -101,10 +114,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .ja:last-child{border-bottom:none}
 .jn{width:13px;height:13px;border-radius:50%;background:var(--rdim);border:1px solid rgba(255,68,85,.3);
   color:var(--red);font-size:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.jn.done{background:var(--gdim);border-color:rgba(0,255,136,.3);color:var(--green)}
 .jt{font-size:7px;color:var(--tdim);line-height:1.5}
 .jt strong{color:var(--text)}
 
-/* CENTER */
+/* CENTER (VOICE TAB) */
 #ctr{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between;
   overflow:hidden;position:relative;padding:10px 6px 6px;min-width:0}
 .corner{position:absolute;width:16px;height:16px;pointer-events:none}
@@ -147,6 +161,104 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .mle-w{flex-shrink:0}.mle-w.u{color:var(--tdim)}.mle-w.s{color:var(--accent)}
 .mle-t{color:var(--tdim);word-break:break-word}
 
+/* ── TASKS TAB ── */
+.dash-grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:640px){.dash-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1000px){.dash-grid.c3{grid-template-columns:1fr 1fr 1fr}}
+.card{border:1px solid var(--border);background:rgba(0,20,44,0.5);border-radius:3px;padding:10px}
+.card-title{font-size:7px;letter-spacing:2px;color:var(--accent);margin-bottom:8px;
+  padding-bottom:5px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between}
+.card-title span{color:var(--tdim)}
+.ti{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,80,160,0.1)}
+.ti:last-child{border-bottom:none}
+.ti-num{font-size:6px;color:var(--tdim);flex-shrink:0;width:12px;padding-top:2px}
+.ti-body{flex:1;min-width:0}
+.ti-title{font-size:8px;color:var(--tbright);line-height:1.4}
+.ti-sub{font-size:6px;color:var(--tdim);margin-top:1px}
+.badge{font-size:6px;letter-spacing:1px;padding:1px 5px;border-radius:2px;flex-shrink:0;margin-top:2px}
+.badge.ready{background:var(--adim);color:var(--accent)}
+.badge.blocked{background:var(--rdim);color:var(--red)}
+.badge.waiting{background:var(--ydim);color:var(--yellow)}
+.badge.done{background:var(--gdim);color:var(--green)}
+.badge.active{background:rgba(170,102,255,.1);color:var(--purple)}
+.blocker{display:flex;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid rgba(0,80,160,0.1)}
+.blocker:last-child{border-bottom:none}
+.blocker-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.blocker-dot.r{background:var(--red)}.blocker-dot.y{background:var(--yellow)}.blocker-dot.g{background:var(--green)}
+.blocker-text{font-size:7px;color:var(--text);flex:1}
+.blocker-owner{font-size:6px;color:var(--tdim)}
+.next-item{padding:5px 0;border-bottom:1px solid rgba(0,80,160,0.1)}
+.next-item:last-child{border-bottom:none}
+.next-label{font-size:6px;color:var(--accent);letter-spacing:1px;margin-bottom:2px}
+.next-text{font-size:8px;color:var(--tbright);line-height:1.4}
+.next-sub{font-size:6px;color:var(--tdim);margin-top:1px}
+
+/* ── PIPELINE TAB ── */
+.stage-track{display:flex;gap:0;overflow-x:auto;padding-bottom:4px;margin-bottom:8px}
+.stage{display:flex;flex-direction:column;align-items:center;flex:1;min-width:80px;position:relative}
+.stage::after{content:'›';position:absolute;right:-6px;top:12px;color:var(--tdim);font-size:10px;z-index:1}
+.stage:last-child::after{display:none}
+.stage-dot{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:8px;margin-bottom:4px}
+.stage-dot.done{border-color:rgba(0,255,136,.4);background:var(--gdim);color:var(--green)}
+.stage-dot.active{border-color:rgba(0,200,255,.5);background:var(--adim);color:var(--accent);
+  animation:rpulse 2s ease-in-out infinite}
+.stage-dot.pending{border-color:var(--border);color:var(--tdim)}
+.stage-name{font-size:6px;letter-spacing:1px;color:var(--tdim);text-align:center;line-height:1.3}
+.stage-name.done{color:var(--green)}.stage-name.active{color:var(--accent)}
+.stream-card{border:1px solid var(--border);background:rgba(0,20,44,0.5);border-radius:3px;padding:10px;margin-bottom:8px}
+.stream-card:last-child{margin-bottom:0}
+.stream-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.stream-rank{font-size:8px;color:var(--accent);font-weight:700}
+.stream-name{font-size:9px;color:var(--tbright);font-weight:600;flex:1;margin:0 8px}
+.stream-target{font-size:8px;color:var(--green)}
+.stream-bar{height:3px;background:rgba(0,80,160,0.2);border-radius:2px;overflow:hidden;margin:6px 0}
+.stream-fill{height:100%;border-radius:2px;transition:width 1s}
+.stream-fill.a{background:var(--accent)}.stream-fill.g{background:var(--green)}.stream-fill.p{background:var(--purple)}
+.stream-meta{display:flex;gap:12px}
+.sm-item{font-size:6px;color:var(--tdim)}
+.sm-item strong{color:var(--text)}
+.campaign-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,80,160,0.1)}
+.campaign-row:last-child{border-bottom:none}
+.cr-name{font-size:7px;color:var(--text);flex:1}
+.cr-status{font-size:6px;padding:1px 5px;border-radius:2px}
+.cr-status.r{background:var(--adim);color:var(--accent)}
+.cr-status.g{background:var(--gdim);color:var(--green)}
+.cr-status.y{background:var(--ydim);color:var(--yellow)}
+.cr-status.b{background:var(--rdim);color:var(--red)}
+.workflow-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(0,80,160,0.1)}
+.workflow-row:last-child{border-bottom:none}
+.wr-name{font-size:7px;color:var(--text);flex:1}
+.wr-pct{font-size:6px;color:var(--tdim);width:28px;text-align:right}
+.wr-bar{flex:1;max-width:80px;height:2px;background:rgba(0,80,160,0.2);border-radius:1px;overflow:hidden}
+.wr-fill{height:100%;background:var(--accent);border-radius:1px}
+
+/* ── AGENTS TAB ── */
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.agent-card{border:1px solid var(--border);background:rgba(0,20,44,0.5);border-radius:3px;padding:10px}
+.agent-card.ac{border-color:rgba(0,255,136,0.2)}
+.agent-card.wt{border-color:rgba(255,187,0,0.15)}
+.agent-card.rd{border-color:rgba(0,200,255,0.15)}
+.agent-card.it{border-color:rgba(170,102,255,0.2)}
+.agent-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.agent-name{font-size:9px;color:var(--tbright);font-weight:600}
+.agent-status{font-size:6px;letter-spacing:1px;padding:1px 5px;border-radius:2px}
+.agent-status.ac{background:var(--gdim);color:var(--green)}
+.agent-status.wt{background:var(--ydim);color:var(--yellow)}
+.agent-status.rd{background:var(--adim);color:var(--accent)}
+.agent-status.dn{background:rgba(40,60,80,.4);color:var(--tdim)}
+.agent-status.dm{background:var(--rdim);color:var(--red)}
+.agent-status.it{background:var(--pdim);color:var(--purple)}
+.agent-role{font-size:6px;color:var(--tdim);letter-spacing:1px;margin-bottom:4px}
+.agent-mandate{font-size:7px;color:var(--text);line-height:1.5}
+.pipeline-flow{display:flex;align-items:center;gap:0;overflow-x:auto;padding:10px 0}
+.pf-node{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.pf-box{border:1px solid var(--border);background:rgba(0,20,44,0.5);border-radius:3px;
+  padding:5px 8px;font-size:7px;color:var(--accent);letter-spacing:1px;white-space:nowrap}
+.pf-box.hi{border-color:var(--accent);background:var(--adim)}
+.pf-sub{font-size:5px;color:var(--tdim);margin-top:2px;text-align:center}
+.pf-arrow{color:var(--tdim);font-size:12px;padding:0 4px;flex-shrink:0}
+
 /* FOOTER */
 #foot{height:56px;flex-shrink:0;border-top:1px solid var(--bhi);
   background:rgba(0,8,22,0.97);padding:4px 14px;display:flex;flex-direction:column;justify-content:center;gap:3px}
@@ -176,7 +288,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <div class="hl">
     <span class="hl-sys">SASHA OS</span>
     <span class="hl-sub">SELF-ACTUATING SYSTEM</span>
-    <span class="hl-ver">v0.1.1</span>
+    <span class="hl-ver">v0.2.0</span>
   </div>
   <div class="hchips">
     <span class="chip g"><span class="cd">●</span> ONLINE</span>
@@ -196,8 +308,19 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <button onclick="checkApi()">RETRY</button>
 </div>
 
+<!-- TAB NAV -->
+<nav id="tabnav">
+  <button class="tnb active" onclick="switchTab('voice')">◈ VOICE</button>
+  <button class="tnb" onclick="switchTab('tasks')">⚡ TASKS</button>
+  <button class="tnb" onclick="switchTab('pipeline')">◈ PIPELINE</button>
+  <button class="tnb" onclick="switchTab('agents')">◈ AGENTS</button>
+</nav>
+
 <!-- MAIN -->
 <main id="main">
+
+<!-- ══ TAB: VOICE ══ -->
+<div class="tab-pane active" id="tab-voice">
 
   <!-- LEFT PANEL -->
   <aside class="panel" id="lp">
@@ -207,21 +330,26 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       <div class="pr"><span class="pk">DAY</span><span class="pv y" id="dayV">—</span></div>
       <div class="pr"><span class="pk">MRR TARGET</span><span class="pv a">$5,000/mo</span></div>
       <div class="pr"><span class="pk">MARGIN (PROJ)</span><span class="pv g">85%</span></div>
-      <div class="pr"><span class="pk">COSTS</span><span class="pv">$0</span></div>
+      <div class="pr"><span class="pk">COSTS</span><span class="pv">~$20/mo</span></div>
       <div class="pr"><span class="pk">VAT EXPORT</span><span class="pv g">0%</span></div>
       <div class="pr"><span class="pk">ENTITY</span><span class="pv y s">PENDING</span></div>
       <div class="pr"><span class="pk">MARKET</span><span class="pv">US / EU</span></div>
     </div>
     <div class="pb">
-      <div class="pt">◈ AGENTS — 2/8 ACTIVE</div>
-      <div class="ag"><span class="ad dn">▶</span><span class="an">R&D</span><span class="as dn">COMPLETE</span></div>
+      <div class="pt">◈ AGENTS — 13 ACTIVE</div>
       <div class="ag"><span class="ad ac">▶</span><span class="an">Management</span><span class="as ac">ACTIVE</span></div>
       <div class="ag"><span class="ad ac" style="color:var(--orange)">▶</span><span class="an">Security</span><span class="as" style="background:rgba(255,136,51,.1);color:var(--orange)">ACTIVE</span></div>
       <div class="ag"><span class="ad wt">▶</span><span class="an">QA</span><span class="as wt">WATCHING</span></div>
       <div class="ag"><span class="ad rd">▶</span><span class="an">Operations</span><span class="as rd">READY</span></div>
-      <div class="ag"><span class="ad rd">▶</span><span class="an">Content</span><span class="as rd">READY</span></div>
       <div class="ag"><span class="ad rd">▶</span><span class="an">Growth</span><span class="as rd">READY</span></div>
-      <div class="ag"><span class="ad dm">▶</span><span class="an">Finance</span><span class="as dm">DORMANT</span></div>
+      <div class="ag"><span class="ad rd">▶</span><span class="an">Sales</span><span class="as rd">READY</span></div>
+      <div class="ag"><span class="ad rd">▶</span><span class="an">Content</span><span class="as rd">READY</span></div>
+      <div class="ag"><span class="ad rd">▶</span><span class="an">Finance</span><span class="as rd">READY</span></div>
+      <div class="ag"><span class="ad rd">▶</span><span class="an">Legal</span><span class="as rd">READY</span></div>
+      <div class="ag"><span class="ad rd">▶</span><span class="an">Strategic</span><span class="as rd">READY</span></div>
+      <div class="ag"><span class="ad dn">▶</span><span class="an">R&D</span><span class="as dn">COMPLETE</span></div>
+      <div class="ag"><span class="ad wt">▶</span><span class="an">Monitor</span><span class="as wt">WATCHING</span></div>
+      <div class="ag"><span class="ad it">▶</span><span class="an">IT</span><span class="as it">ONLINE</span></div>
     </div>
     <div class="pb grow">
       <div class="pt">◈ TELEMETRY</div>
@@ -253,17 +381,18 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <aside class="panel" id="rp">
     <div class="pb">
       <div class="pt">⚡ JOSH — ACTION REQUIRED</div>
-      <div class="ja"><div class="jn">1</div><div class="jt"><strong>Register עוסק מורשה</strong><br>misim.gov.il · 45 min</div></div>
-      <div class="ja"><div class="jn">2</div><div class="jt"><strong>Create Stripe (Israel)</strong><br>stripe.com · 20 min</div></div>
-      <div class="ja"><div class="jn">3</div><div class="jt"><strong>Buy domain (~$12)</strong><br>Namecheap · Google Domains</div></div>
+      <div class="ja"><div class="jn">1</div><div class="jt"><strong>Register עוסק מורשה</strong><br>misim.gov.il · 45 min · BLOCKS EVERYTHING</div></div>
+      <div class="ja"><div class="jn">2</div><div class="jt"><strong>Create Stripe (Israel)</strong><br>stripe.com · 20 min · BLOCKS REVENUE</div></div>
+      <div class="ja"><div class="jn">3</div><div class="jt"><strong>Buy domain (~$12)</strong><br>Namecheap · BLOCKS LANDING PAGE</div></div>
       <div class="ja"><div class="jn">4</div><div class="jt"><strong>Zoho Invoice (free)</strong><br>zoho.com/invoice · 10 min</div></div>
+      <div class="ja"><div class="jn">5</div><div class="jt"><strong>Share Stripe keys</strong><br>Tell SASHA · 5 min</div></div>
     </div>
     <div class="pb">
       <div class="pt">◈ STACK HEALTH</div>
-      <div class="sr"><span class="sk">Make.com</span><span class="sv on">LIVE</span></div>
-      <div class="sr"><span class="sk">Supabase</span><span class="sv on">LIVE</span></div>
       <div class="sr"><span class="sk">Netlify</span><span class="sv on">LIVE</span></div>
       <div class="sr"><span class="sk">GitHub</span><span class="sv on">LIVE</span></div>
+      <div class="sr"><span class="sk">Make.com</span><span class="sv on">LIVE</span></div>
+      <div class="sr"><span class="sk">Supabase</span><span class="sv y">SCHEMA PENDING</span></div>
       <div class="sr"><span class="sk">Stripe</span><span class="sv off">NOT SET</span></div>
       <div class="sr"><span class="sk">Domain</span><span class="sv off">PENDING</span></div>
       <div class="sr"><span class="sk">Voice AI</span><span class="sv off" id="vstel">OFFLINE</span></div>
@@ -290,16 +419,687 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
       <div class="pt">◈ DIAGNOSTICS</div>
       <div class="sr"><span class="sk">System</span><span class="sv on">NOMINAL</span></div>
       <div class="sr"><span class="sk">Security</span><span class="sv on">CLEAR</span></div>
+      <div class="sr"><span class="sk">Pipeline</span><span class="sv on">4-STAGE</span></div>
       <div class="sr"><span class="sk">QA</span><span class="sv y">WATCHING</span></div>
-      <div class="sr"><span class="sk">Queue</span><span class="sv a">8 TASKS</span></div>
+      <div class="sr"><span class="sk">Queue</span><span class="sv a">10 TASKS</span></div>
     </div>
   </aside>
 
-</main>
+</div><!-- end tab-voice -->
+
+<!-- ══ TAB: TASKS ══ -->
+<div class="tab-pane" id="tab-tasks">
+
+  <!-- Bootstrap phase tracker -->
+  <div class="card">
+    <div class="card-title">◈ BOOTSTRAP PHASE — DAY <span id="dayT">—</span> / 30</div>
+    <div class="stage-track">
+      <div class="stage">
+        <div class="stage-dot done">✓</div>
+        <div class="stage-name done">BOOT</div>
+      </div>
+      <div class="pf-arrow">›</div>
+      <div class="stage">
+        <div class="stage-dot done">✓</div>
+        <div class="stage-name done">R&D</div>
+      </div>
+      <div class="pf-arrow">›</div>
+      <div class="stage">
+        <div class="stage-dot done">✓</div>
+        <div class="stage-name done">PIPELINE</div>
+      </div>
+      <div class="pf-arrow">›</div>
+      <div class="stage">
+        <div class="stage-dot active">►</div>
+        <div class="stage-name active">BUILD</div>
+      </div>
+      <div class="pf-arrow">›</div>
+      <div class="stage">
+        <div class="stage-dot pending">◌</div>
+        <div class="stage-name">OUTREACH</div>
+      </div>
+      <div class="pf-arrow">›</div>
+      <div class="stage">
+        <div class="stage-dot pending">◌</div>
+        <div class="stage-name">FIRST CLIENT</div>
+      </div>
+      <div class="pf-arrow">›</div>
+      <div class="stage">
+        <div class="stage-dot pending">◌</div>
+        <div class="stage-name">$5K MRR</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+
+    <!-- SASHA Task Queue -->
+    <div class="card">
+      <div class="card-title">◈ SASHA TASK QUEUE <span>10 ITEMS</span></div>
+
+      <div class="ti">
+        <div class="ti-num">P1</div>
+        <div class="ti-body">
+          <div class="ti-title">Build Supabase Schema</div>
+          <div class="ti-sub">clients + leads + transactions tables · Operations Agent</div>
+        </div>
+        <div class="badge ready">NEXT</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">P2</div>
+        <div class="ti-body">
+          <div class="ti-title">Identify 50 Target SMB Prospects</div>
+          <div class="ti-sub">Growth Agent · US/EU markets · no blocker</div>
+        </div>
+        <div class="badge ready">READY</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">P3</div>
+        <div class="ti-body">
+          <div class="ti-title">Draft Service Proposal Template</div>
+          <div class="ti-sub">Sales Agent · discovery → retainer flow</div>
+        </div>
+        <div class="badge ready">READY</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">P4</div>
+        <div class="ti-body">
+          <div class="ti-title">Build Client Onboarding Workflow</div>
+          <div class="ti-sub">Client Success Agent · 30-day sequence</div>
+        </div>
+        <div class="badge ready">READY</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">P5</div>
+        <div class="ti-body">
+          <div class="ti-title">Build Make.com Lead Capture Scenario</div>
+          <div class="ti-sub">Operations Agent · blocked by Supabase schema</div>
+        </div>
+        <div class="badge waiting">WAITING</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">P6</div>
+        <div class="ti-body">
+          <div class="ti-title">Write Cold Outreach Email Sequence</div>
+          <div class="ti-sub">Content Agent · blocked by agency name decision</div>
+        </div>
+        <div class="badge blocked">BLOCKED</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">P7</div>
+        <div class="ti-body">
+          <div class="ti-title">Build Agency Landing Page</div>
+          <div class="ti-sub">Content Agent · blocked by domain + agency name</div>
+        </div>
+        <div class="badge blocked">BLOCKED</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">P8</div>
+        <div class="ti-body">
+          <div class="ti-title">Connect Stripe to SASHA</div>
+          <div class="ti-sub">Finance Agent · waiting on Josh's Stripe setup</div>
+        </div>
+        <div class="badge waiting">WAITING</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">P9</div>
+        <div class="ti-body">
+          <div class="ti-title">Set Up Make.com Outreach Automation</div>
+          <div class="ti-sub">Operations + Growth · needs prospect list first</div>
+        </div>
+        <div class="badge waiting">WAITING</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">P10</div>
+        <div class="ti-body">
+          <div class="ti-title">Attorney Review — Service Contract</div>
+          <div class="ti-sub">Legal Agent · Josh books Israeli attorney</div>
+        </div>
+        <div class="badge waiting">WAITING</div>
+      </div>
+    </div>
+
+    <!-- Josh Required Actions -->
+    <div class="card">
+      <div class="card-title">⚡ JOSH REQUIRED ACTIONS <span>8 ITEMS</span></div>
+
+      <div class="ti">
+        <div class="ti-num">1</div>
+        <div class="ti-body">
+          <div class="ti-title">Register as עוסק מורשה</div>
+          <div class="ti-sub">misim.gov.il · ~45 min · BLOCKS invoicing + Stripe + legal operation</div>
+        </div>
+        <div class="badge blocked">CRITICAL</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">2</div>
+        <div class="ti-body">
+          <div class="ti-title">Create Stripe Account (Israel)</div>
+          <div class="ti-sub">stripe.com · Israeli bank + ת.ז. required · 20 min</div>
+        </div>
+        <div class="badge blocked">BLOCKS $$$</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">3</div>
+        <div class="ti-body">
+          <div class="ti-title">Share Stripe API Keys with SASHA</div>
+          <div class="ti-sub">Publishable + Secret + Webhook · 5 min after Stripe setup</div>
+        </div>
+        <div class="badge waiting">AFTER #2</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">4</div>
+        <div class="ti-body">
+          <div class="ti-title">Sign up for Zoho Invoice (free)</div>
+          <div class="ti-sub">zoho.com/invoice · Israeli legal invoicing · 10 min</div>
+        </div>
+        <div class="badge ready">READY NOW</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">5</div>
+        <div class="ti-body">
+          <div class="ti-title">Purchase Custom Domain (~$12)</div>
+          <div class="ti-sub">Namecheap · BLOCKS landing page + professional email</div>
+        </div>
+        <div class="badge ready">READY NOW</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">6</div>
+        <div class="ti-body">
+          <div class="ti-title">Confirm Gmail Send Permissions</div>
+          <div class="ti-sub">Gmail settings · enables outreach automation</div>
+        </div>
+        <div class="badge ready">READY NOW</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">7</div>
+        <div class="ti-body">
+          <div class="ti-title">Answer 3 Open Questions in report_001.md</div>
+          <div class="ti-sub">Agency name + budget + client approval flow · 5 min</div>
+        </div>
+        <div class="badge ready">READY NOW</div>
+      </div>
+
+      <div class="ti">
+        <div class="ti-num">8</div>
+        <div class="ti-body">
+          <div class="ti-title">Consult Israeli Attorney (עורך דין)</div>
+          <div class="ti-sub">Before first client contract · $200–400 · book now</div>
+        </div>
+        <div class="badge waiting">SCHEDULE</div>
+      </div>
+    </div>
+
+  </div><!-- end dash-grid -->
+
+  <div class="dash-grid">
+
+    <!-- Blockers -->
+    <div class="card">
+      <div class="card-title">◈ ACTIVE BLOCKERS</div>
+
+      <div class="blocker">
+        <div class="blocker-dot r"></div>
+        <div class="blocker-text">עוסק מורשה not registered — no legal operation</div>
+        <div class="blocker-owner">JOSH</div>
+      </div>
+      <div class="blocker">
+        <div class="blocker-dot r"></div>
+        <div class="blocker-text">Stripe not connected — zero payment capability</div>
+        <div class="blocker-owner">JOSH</div>
+      </div>
+      <div class="blocker">
+        <div class="blocker-dot r"></div>
+        <div class="blocker-text">Domain not purchased — no landing page possible</div>
+        <div class="blocker-owner">JOSH</div>
+      </div>
+      <div class="blocker">
+        <div class="blocker-dot y"></div>
+        <div class="blocker-text">Agency name undecided — blocks outreach content</div>
+        <div class="blocker-owner">JOSH</div>
+      </div>
+      <div class="blocker">
+        <div class="blocker-dot y"></div>
+        <div class="blocker-text">Supabase schema not built — blocks Make.com</div>
+        <div class="blocker-owner">SASHA</div>
+      </div>
+      <div class="blocker">
+        <div class="blocker-dot y"></div>
+        <div class="blocker-text">Zoho Invoice not set up — can't issue legal invoices</div>
+        <div class="blocker-owner">JOSH</div>
+      </div>
+      <div class="blocker">
+        <div class="blocker-dot g"></div>
+        <div class="blocker-text">ANTHROPIC_API_KEY: SET — pipeline operational</div>
+        <div class="blocker-owner">DONE</div>
+      </div>
+      <div class="blocker">
+        <div class="blocker-dot g"></div>
+        <div class="blocker-text">4-stage agent pipeline: LIVE — all agents routing</div>
+        <div class="blocker-owner">DONE</div>
+      </div>
+    </div>
+
+    <!-- Next Session + Completed -->
+    <div class="card">
+      <div class="card-title">◈ NEXT SESSION</div>
+
+      <div class="next-item">
+        <div class="next-label">OBJECTIVE</div>
+        <div class="next-text">Build Supabase Schema</div>
+        <div class="next-sub">clients + leads + transactions tables · ~30 min</div>
+      </div>
+      <div class="next-item">
+        <div class="next-label">HOW</div>
+        <div class="next-text">mcp__Supabase__list_projects → apply_migration</div>
+        <div class="next-sub">Schema defined in: /sasha/agents/operations/operations-agent.md</div>
+      </div>
+      <div class="next-item">
+        <div class="next-label">AFTER THAT</div>
+        <div class="next-text">Identify 50 SMB targets (Growth Agent)</div>
+        <div class="next-sub">No blockers — can run same session</div>
+      </div>
+      <div class="next-item">
+        <div class="next-label">PREREQUISITE</div>
+        <div class="next-text">Josh review report_001.md first</div>
+        <div class="next-sub">Agency name decision unblocks Content Agent</div>
+      </div>
+
+      <div class="pt" style="margin-top:10px">◈ COMPLETED</div>
+      <div class="blocker"><div class="blocker-dot g"></div><div class="blocker-text">Full directory scaffold (/sasha/)</div><div class="blocker-owner">✓</div></div>
+      <div class="blocker"><div class="blocker-dot g"></div><div class="blocker-text">R&D Agent: 10 income streams ranked</div><div class="blocker-owner">✓</div></div>
+      <div class="blocker"><div class="blocker-dot g"></div><div class="blocker-text">13-agent full roster created</div><div class="blocker-owner">✓</div></div>
+      <div class="blocker"><div class="blocker-dot g"></div><div class="blocker-text">JARVIS voice UI live — sscsd.netlify.app</div><div class="blocker-owner">✓</div></div>
+      <div class="blocker"><div class="blocker-dot g"></div><div class="blocker-text">4-stage pipeline: Management→Domain→Security→QA</div><div class="blocker-owner">✓</div></div>
+      <div class="blocker"><div class="blocker-dot g"></div><div class="blocker-text">Israel adaptation documented (VAT, entity, Stripe)</div><div class="blocker-owner">✓</div></div>
+    </div>
+
+  </div>
+</div><!-- end tab-tasks -->
+
+<!-- ══ TAB: PIPELINE ══ -->
+<div class="tab-pane" id="tab-pipeline">
+
+  <!-- Income Streams -->
+  <div class="card">
+    <div class="card-title">◈ INCOME STREAMS — RANKED BY PRIORITY</div>
+
+    <div class="stream-card">
+      <div class="stream-header">
+        <div class="stream-rank">#1</div>
+        <div class="stream-name">AI Automation Agency — SMB Retainers</div>
+        <div class="stream-target">$5K/mo</div>
+      </div>
+      <div class="stream-bar"><div class="stream-fill a" style="width:20%"></div></div>
+      <div class="stream-meta">
+        <div class="sm-item"><strong>STAGE</strong> Infrastructure build</div>
+        <div class="sm-item"><strong>TIME TO REV</strong> 7–14 days</div>
+        <div class="sm-item"><strong>MARGIN</strong> 80–90%</div>
+        <div class="sm-item"><strong>STACK FIT</strong> 10/10</div>
+        <div class="sm-item"><strong>BLOCKER</strong> עוסק מורשה + Stripe</div>
+      </div>
+    </div>
+
+    <div class="stream-card">
+      <div class="stream-header">
+        <div class="stream-rank">#2</div>
+        <div class="stream-name">AI Content Operations Service</div>
+        <div class="stream-target">$3K/mo</div>
+      </div>
+      <div class="stream-bar"><div class="stream-fill g" style="width:10%"></div></div>
+      <div class="stream-meta">
+        <div class="sm-item"><strong>STAGE</strong> Queued after #1</div>
+        <div class="sm-item"><strong>TIME TO REV</strong> 5–10 days</div>
+        <div class="sm-item"><strong>MARGIN</strong> 80–92%</div>
+        <div class="sm-item"><strong>STACK FIT</strong> 9/10</div>
+        <div class="sm-item"><strong>BLOCKER</strong> Focus on #1 first</div>
+      </div>
+    </div>
+
+    <div class="stream-card">
+      <div class="stream-header">
+        <div class="stream-rank">#3</div>
+        <div class="stream-name">White-Label AI Chatbot Service</div>
+        <div class="stream-target">$1.5K/mo</div>
+      </div>
+      <div class="stream-bar"><div class="stream-fill p" style="width:5%"></div></div>
+      <div class="stream-meta">
+        <div class="sm-item"><strong>STAGE</strong> Queued after #2</div>
+        <div class="sm-item"><strong>TIME TO REV</strong> 10–14 days</div>
+        <div class="sm-item"><strong>MARGIN</strong> 75–88%</div>
+        <div class="sm-item"><strong>STACK FIT</strong> 9/10</div>
+        <div class="sm-item"><strong>BLOCKER</strong> Stripe + domain</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+
+    <!-- Campaign Tracker -->
+    <div class="card">
+      <div class="card-title">◈ CAMPAIGNS</div>
+
+      <div class="pt" style="margin-bottom:6px;margin-top:0">Outreach Campaign #1</div>
+      <div class="campaign-row"><div class="cr-name">Define 50 SMB target list</div><div class="cr-status r">READY TO BUILD</div></div>
+      <div class="campaign-row"><div class="cr-name">Finalize agency name</div><div class="cr-status b">NEEDS JOSH</div></div>
+      <div class="campaign-row"><div class="cr-name">Write cold email sequence (5 emails)</div><div class="cr-status b">BLOCKED</div></div>
+      <div class="campaign-row"><div class="cr-name">Build Make.com send automation</div><div class="cr-status b">BLOCKED</div></div>
+      <div class="campaign-row"><div class="cr-name">Set up tracking (opens/clicks)</div><div class="cr-status b">BLOCKED</div></div>
+      <div class="campaign-row"><div class="cr-name">Launch Campaign #1</div><div class="cr-status b">BLOCKED</div></div>
+
+      <div class="pt" style="margin-top:10px;margin-bottom:6px">Sales Pipeline</div>
+      <div class="campaign-row"><div class="cr-name">Discovery call template</div><div class="cr-status r">READY TO BUILD</div></div>
+      <div class="campaign-row"><div class="cr-name">Automation audit offer ($500)</div><div class="cr-status r">READY TO BUILD</div></div>
+      <div class="campaign-row"><div class="cr-name">Retainer proposal template</div><div class="cr-status r">READY TO BUILD</div></div>
+      <div class="campaign-row"><div class="cr-name">First signed retainer</div><div class="cr-status b">TARGET: DAY 14</div></div>
+    </div>
+
+    <!-- Workflow Build Status -->
+    <div class="card">
+      <div class="card-title">◈ WORKFLOW BUILD STATUS</div>
+
+      <div class="workflow-row">
+        <div class="wr-name">Agent Pipeline (4-stage)</div>
+        <div class="wr-bar"><div class="wr-fill" style="width:100%"></div></div>
+        <div class="wr-pct">100%</div>
+      </div>
+      <div class="workflow-row">
+        <div class="wr-name">SASHA Voice UI</div>
+        <div class="wr-bar"><div class="wr-fill" style="width:100%"></div></div>
+        <div class="wr-pct">100%</div>
+      </div>
+      <div class="workflow-row">
+        <div class="wr-name">Supabase Schema</div>
+        <div class="wr-bar"><div class="wr-fill" style="width:0%"></div></div>
+        <div class="wr-pct">0%</div>
+      </div>
+      <div class="workflow-row">
+        <div class="wr-name">Lead Capture Automation</div>
+        <div class="wr-bar"><div class="wr-fill" style="width:0%"></div></div>
+        <div class="wr-pct">0%</div>
+      </div>
+      <div class="workflow-row">
+        <div class="wr-name">Outreach Email Sequence</div>
+        <div class="wr-bar"><div class="wr-fill" style="width:0%"></div></div>
+        <div class="wr-pct">0%</div>
+      </div>
+      <div class="workflow-row">
+        <div class="wr-name">Agency Landing Page</div>
+        <div class="wr-bar"><div class="wr-fill" style="width:0%"></div></div>
+        <div class="wr-pct">0%</div>
+      </div>
+      <div class="workflow-row">
+        <div class="wr-name">Stripe Integration</div>
+        <div class="wr-bar"><div class="wr-fill" style="width:0%"></div></div>
+        <div class="wr-pct">0%</div>
+      </div>
+      <div class="workflow-row">
+        <div class="wr-name">Client Onboarding Flow</div>
+        <div class="wr-bar"><div class="wr-fill" style="width:15%"></div></div>
+        <div class="wr-pct">15%</div>
+      </div>
+      <div class="workflow-row">
+        <div class="wr-name">Invoicing (Zoho)</div>
+        <div class="wr-bar"><div class="wr-fill" style="width:0%"></div></div>
+        <div class="wr-pct">0%</div>
+      </div>
+      <div class="workflow-row">
+        <div class="wr-name">P&L Tracking Dashboard</div>
+        <div class="wr-bar"><div class="wr-fill" style="width:5%"></div></div>
+        <div class="wr-pct">5%</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Financial Projection -->
+  <div class="card">
+    <div class="card-title">◈ FINANCIAL TRAJECTORY — 30-DAY PLAN</div>
+    <div class="dash-grid c3">
+      <div>
+        <div class="pt" style="margin-bottom:4px">Week 1 (Days 1–7)</div>
+        <div class="blocker"><div class="blocker-dot y"></div><div class="blocker-text">Build Supabase + Make.com infrastructure</div></div>
+        <div class="blocker"><div class="blocker-dot y"></div><div class="blocker-text">Josh: Register entity + open Stripe</div></div>
+        <div class="blocker"><div class="blocker-dot y"></div><div class="blocker-text">Identify 50 SMB targets</div></div>
+        <div class="blocker"><div class="blocker-dot y"></div><div class="blocker-text">Build proposal template</div></div>
+        <div style="font-size:7px;color:var(--tdim);margin-top:6px">Revenue target: $0 (build phase)</div>
+      </div>
+      <div>
+        <div class="pt" style="margin-bottom:4px">Week 2 (Days 8–14)</div>
+        <div class="blocker"><div class="blocker-dot y"></div><div class="blocker-text">Launch outreach campaign #1</div></div>
+        <div class="blocker"><div class="blocker-dot y"></div><div class="blocker-text">Book 3+ discovery calls</div></div>
+        <div class="blocker"><div class="blocker-dot y"></div><div class="blocker-text">Send first proposals</div></div>
+        <div class="blocker"><div class="blocker-dot y"></div><div class="blocker-text">Land first retainer client</div></div>
+        <div style="font-size:7px;color:var(--yellow);margin-top:6px">Revenue target: $1,500+</div>
+      </div>
+      <div>
+        <div class="pt" style="margin-bottom:4px">Weeks 3–4 (Days 15–30)</div>
+        <div class="blocker"><div class="blocker-dot y"></div><div class="blocker-text">Scale to 3–4 retainer clients</div></div>
+        <div class="blocker"><div class="blocker-dot y"></div><div class="blocker-text">Launch Content Ops service (#2)</div></div>
+        <div class="blocker"><div class="blocker-dot y"></div><div class="blocker-text">Build white-label chatbot offering</div></div>
+        <div class="blocker"><div class="blocker-dot y"></div><div class="blocker-text">Upsell existing clients</div></div>
+        <div style="font-size:7px;color:var(--green);margin-top:6px">Revenue target: $5,000+ MRR</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end tab-pipeline -->
+
+<!-- ══ TAB: AGENTS ══ -->
+<div class="tab-pane" id="tab-agents">
+
+  <!-- Pipeline Flow -->
+  <div class="card">
+    <div class="card-title">◈ AGENT PIPELINE — EVERY MESSAGE FLOWS THROUGH ALL 4 STAGES</div>
+    <div class="pipeline-flow">
+      <div class="pf-node">
+        <div class="pf-box">JOSH INPUT</div>
+        <div class="pf-sub">voice / text</div>
+      </div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-node">
+        <div class="pf-box hi">MANAGEMENT</div>
+        <div class="pf-sub">classify + route</div>
+      </div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-node">
+        <div class="pf-box hi">DOMAIN AGENT</div>
+        <div class="pf-sub">specialized response</div>
+      </div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-node">
+        <div class="pf-box hi">SECURITY</div>
+        <div class="pf-sub">scan + sanitize</div>
+      </div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-node">
+        <div class="pf-box hi">QA</div>
+        <div class="pf-sub">validate + polish</div>
+      </div>
+      <div class="pf-arrow">→</div>
+      <div class="pf-node">
+        <div class="pf-box">VOICE OUTPUT</div>
+        <div class="pf-sub">JARVIS response</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent Grid -->
+  <div class="agent-grid">
+
+    <div class="agent-card ac">
+      <div class="agent-header">
+        <div class="agent-name">Management</div>
+        <div class="agent-status ac">PIPELINE STAGE 1</div>
+      </div>
+      <div class="agent-role">CHIEF OF STAFF</div>
+      <div class="agent-mandate">Routes every request to the correct department. Classifies intent and priority. Never bypassed.</div>
+    </div>
+
+    <div class="agent-card ac">
+      <div class="agent-header">
+        <div class="agent-name">Security</div>
+        <div class="agent-status ac">PIPELINE STAGE 3</div>
+      </div>
+      <div class="agent-role">SECURITY INTELLIGENCE</div>
+      <div class="agent-mandate">Scans all responses for secret exposure, injection, PII. Blocks before output. OWASP + Israel PPL.</div>
+    </div>
+
+    <div class="agent-card wt">
+      <div class="agent-header">
+        <div class="agent-name">QA</div>
+        <div class="agent-status wt">PIPELINE STAGE 4</div>
+      </div>
+      <div class="agent-role">QUALITY ASSURANCE</div>
+      <div class="agent-mandate">Validates brevity, tone, format, accuracy. Max 3 sentences. No markdown. JARVIS voice standard.</div>
+    </div>
+
+    <div class="agent-card wt">
+      <div class="agent-header">
+        <div class="agent-name">Monitor</div>
+        <div class="agent-status wt">WATCHING</div>
+      </div>
+      <div class="agent-role">PLATFORM HEALTH</div>
+      <div class="agent-mandate">Continuous health checks across all systems. Detects anomalies. Optimizes pipeline performance.</div>
+    </div>
+
+    <div class="agent-card rd">
+      <div class="agent-header">
+        <div class="agent-name">Operations</div>
+        <div class="agent-status rd">READY</div>
+      </div>
+      <div class="agent-role">MAKE.COM · SUPABASE · NETLIFY · GITHUB</div>
+      <div class="agent-mandate">Build and maintain automations, database schema, deployments. Next: Supabase schema migration.</div>
+    </div>
+
+    <div class="agent-card rd">
+      <div class="agent-header">
+        <div class="agent-name">Growth</div>
+        <div class="agent-status rd">READY</div>
+      </div>
+      <div class="agent-role">CLIENT ACQUISITION</div>
+      <div class="agent-mandate">Lead generation, outreach campaigns, pipeline management. Ready to identify 50 SMB targets now.</div>
+    </div>
+
+    <div class="agent-card rd">
+      <div class="agent-header">
+        <div class="agent-name">Sales</div>
+        <div class="agent-status rd">READY</div>
+      </div>
+      <div class="agent-role">DEAL FLOW · PROPOSALS · CLOSING</div>
+      <div class="agent-mandate">Discovery → audit → retainer pipeline. Pricing: $500 audit, $1.5K–$5K/mo retainer.</div>
+    </div>
+
+    <div class="agent-card rd">
+      <div class="agent-header">
+        <div class="agent-name">Content</div>
+        <div class="agent-status rd">READY</div>
+      </div>
+      <div class="agent-role">COPY · EMAILS · LANDING PAGES</div>
+      <div class="agent-mandate">All marketing content for US/EU SMB decision-makers. Blocked on agency name for cold outreach.</div>
+    </div>
+
+    <div class="agent-card rd">
+      <div class="agent-header">
+        <div class="agent-name">Finance</div>
+        <div class="agent-status rd">READY</div>
+      </div>
+      <div class="agent-role">REVENUE · P&L · ISRAELI TAX</div>
+      <div class="agent-mandate">Revenue tracking, margin analysis, Israeli tax compliance. Pre-revenue monitoring mode. Activates on first Stripe payment.</div>
+    </div>
+
+    <div class="agent-card rd">
+      <div class="agent-header">
+        <div class="agent-name">Legal</div>
+        <div class="agent-status rd">READY</div>
+      </div>
+      <div class="agent-role">COMPLIANCE · CONTRACTS · GDPR</div>
+      <div class="agent-mandate">Israeli law, GDPR, CAN-SPAM, contract templates. Flags issues — never gives binding legal advice.</div>
+    </div>
+
+    <div class="agent-card rd">
+      <div class="agent-header">
+        <div class="agent-name">Strategic</div>
+        <div class="agent-status rd">READY</div>
+      </div>
+      <div class="agent-role">BUSINESS DIRECTION · 30/60/90 PLANNING</div>
+      <div class="agent-mandate">Business direction, competitive positioning, planning. Current recommendation: land first retainer before diversifying.</div>
+    </div>
+
+    <div class="agent-card rd">
+      <div class="agent-header">
+        <div class="agent-name">Client Success</div>
+        <div class="agent-status rd">READY</div>
+      </div>
+      <div class="agent-role">ONBOARDING · RETENTION · UPSELL</div>
+      <div class="agent-mandate">30-day client onboarding sequence designed. Activates immediately on first signed contract.</div>
+    </div>
+
+    <div class="agent-card dn">
+      <div class="agent-header">
+        <div class="agent-name">R&D</div>
+        <div class="agent-status dn">COMPLETE</div>
+      </div>
+      <div class="agent-role">MARKET RESEARCH · INCOME MODELS</div>
+      <div class="agent-mandate">Ranked 10 income streams. Top 3 validated. Output: income_streams.md. Dormant until pivot assessment needed.</div>
+    </div>
+
+    <div class="agent-card it">
+      <div class="agent-header">
+        <div class="agent-name">IT</div>
+        <div class="agent-status it">ONLINE — NEW</div>
+      </div>
+      <div class="agent-role">INTERNAL INFRASTRUCTURE · DIAGNOSTICS</div>
+      <div class="agent-mandate">Cross-checks all systems every session. Diagnoses and fixes deployment issues, branch mismatches, API errors, schema drift. Escalates only what needs Josh.</div>
+    </div>
+
+  </div>
+
+  <!-- IT Cross-Check Status -->
+  <div class="card">
+    <div class="card-title">◈ IT AGENT — CROSS-CHECK STATUS</div>
+    <div class="dash-grid">
+      <div>
+        <div class="campaign-row"><div class="cr-name">Production branch (claude/new-repository-bap65s)</div><div class="cr-status g">VERIFIED</div></div>
+        <div class="campaign-row"><div class="cr-name">ANTHROPIC_API_KEY in Netlify env</div><div class="cr-status g">SET</div></div>
+        <div class="campaign-row"><div class="cr-name">4-stage pipeline operational</div><div class="cr-status g">LIVE</div></div>
+        <div class="campaign-row"><div class="cr-name">13 agent files present</div><div class="cr-status g">CONFIRMED</div></div>
+        <div class="campaign-row"><div class="cr-name">Supabase connection</div><div class="cr-status y">SCHEMA PENDING</div></div>
+        <div class="campaign-row"><div class="cr-name">Make.com scenarios</div><div class="cr-status y">BUILD PENDING</div></div>
+      </div>
+      <div>
+        <div class="campaign-row"><div class="cr-name">Netlify build status</div><div class="cr-status g">DEPLOYED</div></div>
+        <div class="campaign-row"><div class="cr-name">GitHub sync</div><div class="cr-status g">IN SYNC</div></div>
+        <div class="campaign-row"><div class="cr-name">SSL / HTTPS</div><div class="cr-status g">ACTIVE</div></div>
+        <div class="campaign-row"><div class="cr-name">Stripe</div><div class="cr-status b">NOT CONNECTED</div></div>
+        <div class="campaign-row"><div class="cr-name">Domain</div><div class="cr-status b">NOT PURCHASED</div></div>
+        <div class="campaign-row"><div class="cr-name">Zoho Invoice</div><div class="cr-status b">NOT SET UP</div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end tab-agents -->
+
+</main><!-- end main -->
 
 <!-- FOOTER -->
 <footer id="foot">
-  <div id="ft"><span class="dlive">●</span> LIVE — PRIMARY OBJECTIVE — ROAD TO $5K MRR</div>
+  <div id="ft"><span class="dlive">●</span> LIVE — PRIMARY OBJECTIVE — ROAD TO $5K MRR — <span id="dayFt">—</span>/30 DAYS</div>
   <div id="fm">
     <div class="om"><div class="oml">TARGET</div><div class="omv">$5,000<span class="omu">/mo</span></div></div>
     <div class="sep"></div>
@@ -313,6 +1113,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     </div>
     <div class="sep"></div>
     <div class="om"><div class="oml">DAY</div><div class="omv y"><span id="dayF">—</span>/30</div></div>
+    <div class="sep"></div>
+    <div class="om"><div class="oml">AGENTS</div><div class="omv a">13</div></div>
   </div>
 </footer>
 
@@ -324,6 +1126,18 @@ let recognition=null,history=[],autoRestart=false;
 let speechUnlocked=false,iosKA=null,pendingSpeech=null;
 let vstate='idle',animId=null,rotAngle=0,particles=[];
 let cSize=220;
+
+// ── TAB SWITCHING ──
+function switchTab(name){
+  document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tnb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.querySelectorAll('.tnb').forEach(b=>{
+    if(b.getAttribute('onclick')===`switchTab('${name}')`)b.classList.add('active');
+  });
+  if(name==='voice'){if(!animId)drawFrame();}
+  else{if(animId){cancelAnimationFrame(animId);animId=null;}}
+}
 
 // ── SESSION TIMER ──
 const sesStart=Date.now();
@@ -337,8 +1151,8 @@ setInterval(()=>{
 // ── DAY COUNTER ──
 (function(){
   const d=Math.max(1,Math.ceil((Date.now()-new Date('2026-06-25').getTime())/864e5));
-  const el=document.getElementById('dayV');if(el)el.textContent=d+' / 30';
-  const ef=document.getElementById('dayF');if(ef)ef.textContent=d;
+  ['dayV','dayT','dayF','dayFt'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=d;});
+  const dv=document.getElementById('dayV');if(dv)dv.textContent=d+' / 30';
 })();
 
 // ── CANVAS NEURAL ──
@@ -346,13 +1160,12 @@ const canvas=document.getElementById('nc');
 const ctx=canvas.getContext('2d');
 
 function initCanvas(){
-  const ctr=document.getElementById('ctr');
-  const avail=Math.min(ctr.clientWidth-32,ctr.clientHeight-170,280);
+  const ctrEl=document.getElementById('ctr');
+  const avail=Math.min(ctrEl.clientWidth-32,ctrEl.clientHeight-170,280);
   cSize=Math.max(160,avail);
   canvas.width=cSize;canvas.height=cSize;
   const nw=document.getElementById('nwrap');
   nw.style.width=cSize+'px';nw.style.height=cSize+'px';
-  // rings
   [['nr1',24],['nr2',48],['nr3',72]].forEach(([id,ex])=>{
     const el=document.getElementById(id);
     const s=cSize+ex*2;
@@ -369,26 +1182,16 @@ function initCanvas(){
   }
 }
 
-const SP={
-  idle:    {spd:.003,col:[0,200,255],con:cSize*.28},
-  listening:{spd:.014,col:[255,70,110],con:cSize*.32},
-  thinking: {spd:.007,col:[255,180,0],con:cSize*.25},
-  speaking: {spd:.016,col:[0,255,136],con:cSize*.34},
-};
-
 function drawFrame(){
-  const p=SP[vstate]||SP.idle;
-  const [cr,cg,cb]=p.col;
-  const con=cSize*{idle:.28,listening:.32,thinking:.25,speaking:.34}[vstate]||cSize*.28;
-  const cx=cSize/2,cy=cSize/2;
+  const spd={idle:.003,listening:.014,thinking:.007,speaking:.016}[vstate]||.003;
+  const col={idle:[0,200,255],listening:[255,70,110],thinking:[255,180,0],speaking:[0,255,136]}[vstate]||[0,200,255];
+  const con=cSize*({idle:.28,listening:.32,thinking:.25,speaking:.34}[vstate]||.28);
+  const [cr,cg,cb]=col;const cx=cSize/2,cy=cSize/2;
   ctx.clearRect(0,0,cSize,cSize);
-  // center glow
   const g=ctx.createRadialGradient(cx,cy,0,cx,cy,cSize*.22);
-  g.addColorStop(0,'rgba(255,255,255,0.1)');
-  g.addColorStop(.4,`rgba(${cr},${cg},${cb},0.06)`);
-  g.addColorStop(1,'transparent');
+  g.addColorStop(0,'rgba(255,255,255,0.1)');g.addColorStop(.4,`rgba(${cr},${cg},${cb},0.06)`);g.addColorStop(1,'transparent');
   ctx.fillStyle=g;ctx.fillRect(0,0,cSize,cSize);
-  rotAngle+=p.spd;
+  rotAngle+=spd;
   const ca=Math.cos(rotAngle),sa=Math.sin(rotAngle);
   const proj=particles.map(par=>{
     const rx=par.ox*ca+par.oz*sa,ry=par.oy,rz=-par.ox*sa+par.oz*ca;
@@ -398,7 +1201,6 @@ function drawFrame(){
     const fv=cSize*1.3;const dz=fv/(fv+rz+cSize*.5);
     return{px:rx*dz+cx,py:ry*dz+cy,z:rz,al:Math.max(0,(rz+cSize*.42)/(cSize*.84))};
   });
-  // connections
   for(let i=0;i<proj.length;i++){
     for(let j=i+1;j<proj.length;j++){
       const dx=proj[i].px-proj[j].px,dy=proj[i].py-proj[j].py;
@@ -410,13 +1212,11 @@ function drawFrame(){
       }
     }
   }
-  // dots
   proj.forEach(p2=>{
     const a=Math.min(1,p2.al*.9);
     ctx.beginPath();ctx.arc(p2.px,p2.py,1.1,0,Math.PI*2);
     ctx.fillStyle=`rgba(${cr},${cg},${cb},${a.toFixed(3)})`;ctx.fill();
   });
-  // center dot
   ctx.beginPath();ctx.arc(cx,cy,2.5,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.85)';ctx.fill();
   const g2=ctx.createRadialGradient(cx,cy,0,cx,cy,cSize*.15);
   g2.addColorStop(0,'rgba(255,255,255,0.12)');g2.addColorStop(1,'transparent');
@@ -429,8 +1229,7 @@ function setVS(state){
   vstate=state;
   const el=document.getElementById('stxt'),wv=document.getElementById('wv');
   const lbl={idle:'TAP TO ACTIVATE',listening:'LISTENING',thinking:'PROCESSING',speaking:'SPEAKING',pending:'TAP TO HEAR'};
-  el.textContent=lbl[state]||'IDLE';
-  el.className='';
+  el.textContent=lbl[state]||'IDLE';el.className='';
   if(state==='listening')el.className='li';
   else if(state==='thinking')el.className='th';
   else if(state==='speaking')el.className='sp';
@@ -453,8 +1252,7 @@ function speak(text){
   if(!window.speechSynthesis){thinking=false;setVS('idle');if(autoRestart)sched(500);return;}
   if(!speechUnlocked){
     thinking=false;pendingSpeech=text;setVS('pending');
-    const lv=document.getElementById('ltxt');lv.textContent='Tap screen to hear SASHA';lv.className='';
-    return;
+    const lv=document.getElementById('ltxt');lv.textContent='Tap screen to hear SASHA';lv.className='';return;
   }
   speakNow(text);
 }
@@ -603,7 +1401,7 @@ window.addEventListener('load',async()=>{
   window.speechSynthesis?.getVoices();
   if(window.speechSynthesis)window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
   initCanvas();drawFrame();
-  window.addEventListener('resize',()=>{if(animId)cancelAnimationFrame(animId);initCanvas();drawFrame();});
+  window.addEventListener('resize',()=>{if(animId)cancelAnimationFrame(animId);animId=null;initCanvas();drawFrame();});
   await checkApi();
   if(!('ontouchstart' in window)){setTimeout(()=>{autoRestart=true;startListen();},900);}
 });

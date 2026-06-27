@@ -63,13 +63,15 @@ const DOMAIN_PROMPTS = {
 
   monitor: `MONITOR AGENT ACTIVE. You handle: platform health checks, agent performance, pipeline optimization, anomaly detection, system-wide status. Report on what is running, what is degraded, what needs attention. Escalate only real blockers.`,
 
+  it: `IT AGENT ACTIVE. You handle: internal infrastructure diagnostics, deployment issues, Netlify build failures, GitHub branch state, Supabase connection health, Make.com scenario errors, API key validity, pipeline stage failures, and cross-system integration problems. Diagnose first, fix autonomously where possible, escalate only what requires Josh's credentials or account access. Always check: correct branch (claude/new-repository-bap65s), env vars set, all 13 agent files present, Supabase connection alive.`,
+
   general: `GENERAL ROUTING ACTIVE. Handle this query using the full SASHA operating context. Route to the most relevant domain knowledge available.`
 };
 
 // ── MANAGEMENT CLASSIFIER PROMPT ─────────────────────────────────────────────
 const MANAGEMENT_CLASSIFIER = `You are SASHA's Management Agent — Chief of Staff. Your only job is to classify incoming messages and route them to the correct department.
 
-Departments: operations, finance, growth, content, sales, client_success, legal, strategic, rnd, monitor, general
+Departments: operations, finance, growth, content, sales, client_success, legal, strategic, rnd, monitor, it, general
 
 Rules:
 - Respond with ONLY valid JSON on a single line: {"department":"<dept>","intent":"<2-5 word description>","priority":"normal|urgent"}
@@ -84,7 +86,8 @@ Rules:
 - Legal/compliance/contracts → legal
 - Strategy/direction/planning → strategic
 - Research/market/competitors → rnd
-- Health check/monitoring/optimize → monitor`;
+- Health check/monitoring/optimize → monitor
+- Infrastructure/deployment/errors/broken/fix/debug/Netlify/GitHub/Supabase issues → it`;
 
 // ── QA AGENT PROMPT ──────────────────────────────────────────────────────────
 const QA_PROMPT = `You are SASHA's QA Agent. Review the draft response for these criteria:
