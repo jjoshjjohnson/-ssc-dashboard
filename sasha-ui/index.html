@@ -1459,7 +1459,14 @@ function initRec(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){document.getElementById('ltxt').textContent='Voice needs Chrome or Safari.';return null;}
   const r=new SR();r.continuous=true;r.interimResults=true;r.lang='en-US';
-  r.onstart=()=>{listening=true;netRetries=0;setVS('listening');const lv=document.getElementById('ltxt');lv.textContent='Listening...';lv.className='';};
+  // per-instance flag: onerror claims restart responsibility so onend doesn't double-schedule
+  let errorHandled=false;
+
+  r.onstart=()=>{
+    listening=true;setVS('listening');
+    const lv=document.getElementById('ltxt');lv.textContent='Listening...';lv.className='';
+  };
+
   r.onresult=(e)=>{
     let interim='',fin='';
     for(let i=e.resultIndex;i<e.results.length;i++){
@@ -1468,24 +1475,31 @@ function initRec(){
     const lv=document.getElementById('ltxt');
     if(interim){lv.textContent=interim;lv.className='u';}
     if(fin){
+      netRetries=0; // successful speech — clear retry counter
       lv.textContent=fin;lv.className='u';
       listening=false;
-      // pause mic while processing — onend will not restart because thinking=true
-      try{recognition.stop();}catch(e){}
+      try{recognition.stop();}catch(ex){} // pause mic while processing; onend won't restart (thinking=true)
       handleMsg(fin.trim());
     }
   };
+
   r.onerror=(e)=>{
     if(e.error==='aborted'||e.error==='no-speech')return;
-    listening=false;setVS('idle');
+    errorHandled=true; // tell onend not to double-schedule
+    listening=false;
     const lv=document.getElementById('ltxt');
     if(e.error==='network'){
-      if(netRetries<2){netRetries++;lv.textContent='Connecting to voice service…';sched(1200);return;}
-      netRetries=0;autoRestart=false;
+      netRetries++;
+      if(netRetries<=3){
+        lv.textContent='Reconnecting…'; // keep orb in listening state — no setVS('idle')
+        if(autoRestart)sched(1500);
+        return;
+      }
+      netRetries=0;autoRestart=false;setVS('idle');
       lv.textContent='Voice network error — check connection and tap the orb to retry.';
       return;
     }
-    autoRestart=false;netRetries=0;
+    setVS('idle');autoRestart=false;netRetries=0;
     if(e.error==='not-allowed'||e.error==='service-not-allowed'){
       lv.textContent='Mic access denied — allow microphone in browser settings, then tap the orb.';
     } else if(e.error==='audio-capture'){
@@ -1494,7 +1508,13 @@ function initRec(){
       lv.textContent='Mic error: '+e.error+'. Tap the orb to retry.';
     }
   };
-  r.onend=()=>{listening=false;if(autoRestart&&!speaking&&!thinking)sched();};
+
+  r.onend=()=>{
+    listening=false;
+    if(errorHandled){errorHandled=false;return;} // onerror already owns the restart
+    if(autoRestart&&!speaking&&!thinking)sched();
+  };
+
   return r;
 }
 
@@ -1502,7 +1522,7 @@ function sched(ms=400){setTimeout(()=>{if(autoRestart&&!speaking&&!thinking&&!li
 function startListen(){
   if(listening||speaking||thinking)return;
   unlock();
-  recognition=initRec();  // always fresh object — prevents Chrome state machine bugs
+  recognition=initRec(); // always fresh object — prevents Chrome state machine bugs
   if(!recognition)return;
   try{recognition.start();}catch(e){}
 }
@@ -1519,7 +1539,7 @@ function handleClick(){
     listening=false;setVS('idle');
     document.getElementById('ltxt').textContent='Paused. Tap to resume.';
   }else{
-    autoRestart=true;startListen();
+    autoRestart=true;netRetries=0;startListen();
   }
 }
 
