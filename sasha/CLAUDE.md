@@ -138,6 +138,26 @@ No input bypasses this pipeline. Voice input from Josh is not exempt.
 - **File:** /sasha/agents/legal/legal-agent.md
 - **Trigger:** New client contract, email campaign before launch, EU client, data handling questions
 
+### IT Agent
+- **Mandate:** Internal infrastructure diagnostics — Netlify builds, GitHub branch state, Supabase health, Make.com errors, API key validity, cross-system integration failures. Diagnose and fix autonomously where possible, escalate only what requires Josh's credentials.
+- **File:** /sasha/agents/it/it-agent.md
+- **Trigger:** IT tab health check (auto, every 60s), any deployment failure, error in pipeline
+
+### Marketing Agent
+- **Mandate:** Brand strategy, market positioning, ICP definition, paid advertising strategy (Google/LinkedIn/Meta), social media content strategy, SEO, email marketing, PR. Target market: US/EU SMB decision-makers. NO social posting MCP — content drafted here, posted manually.
+- **File:** /sasha/agents/marketing/marketing-agent.md
+- **Trigger:** Brand questions, positioning, ad strategy, LinkedIn content, ICP research
+
+### Campaign Manager Agent
+- **Mandate:** Full lifecycle of every outreach/marketing campaign — design, launch, track, optimize. Campaign #1: cold email 50 targets, 5-touch 21-day. Campaign #2: LinkedIn manual. All tracked in Supabase.
+- **File:** /sasha/agents/campaign/campaign-agent.md
+- **Trigger:** New campaign, tracking questions, open/reply/demo rate analysis, A/B test results
+
+### Media Agent
+- **Mandate:** All visual and media production via Canva MCP. Brand assets, proposal PDFs, social graphics, LinkedIn banners, email headers. Video: Canva only (no Descript/Premiere/HeyGen MCP available).
+- **File:** /sasha/agents/media/media-agent.md
+- **Trigger:** Design requests, proposal PDF generation, brand kit creation, social media graphics
+
 ---
 
 ## DECISION FRAMEWORK
