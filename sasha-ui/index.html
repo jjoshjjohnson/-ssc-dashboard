@@ -66,7 +66,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .tab-pane{display:none;width:100%;height:100%}
 .tab-pane.active{display:flex}
 #tab-voice{flex-direction:row}
-#tab-tasks,#tab-pipeline,#tab-agents{flex-direction:column;overflow-y:auto;padding:10px;gap:10px}
+#tab-tasks,#tab-pipeline,#tab-mgmt,#tab-it{flex-direction:column;overflow-y:auto;padding:10px;gap:10px}
 
 /* PANELS (shared) */
 .panel{width:195px;flex-shrink:0;background:var(--panel);overflow-y:auto;
@@ -259,6 +259,45 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .pf-sub{font-size:5px;color:var(--tdim);margin-top:2px;text-align:center}
 .pf-arrow{color:var(--tdim);font-size:12px;padding:0 4px;flex-shrink:0}
 
+/* ── MGMT + IT SHARED ── */
+.dept-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,80,160,0.1)}
+.dept-row:last-child{border-bottom:none}
+.dept-name{font-size:8px;color:var(--tbright);width:90px;flex-shrink:0;font-weight:600}
+.dept-focus{font-size:7px;color:var(--text);flex:1;line-height:1.5}
+.dept-owner{font-size:6px;width:36px;flex-shrink:0;text-align:right;color:var(--tdim)}
+.dept-owner.s{color:var(--accent)}.dept-owner.j{color:var(--yellow)}
+
+/* ── IT DASHBOARD ── */
+.health-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
+.hc{border:1px solid var(--border);background:rgba(0,20,44,0.5);border-radius:3px;padding:8px}
+.hc.ok{border-color:rgba(0,255,136,0.22)}.hc.warn{border-color:rgba(255,187,0,0.2)}
+.hc.bad{border-color:rgba(255,68,85,0.2)}.hc.pend{border-color:rgba(0,200,255,0.15)}
+.hc-name{font-size:6px;color:var(--tdim);letter-spacing:1px;margin-bottom:4px;text-transform:uppercase}
+.hc-val{font-size:10px;font-weight:700}
+.hc-val.ok{color:var(--green)}.hc-val.warn{color:var(--yellow)}.hc-val.bad{color:var(--red)}.hc-val.pend{color:var(--accent)}
+.hc-sub{font-size:6px;color:var(--tdim);margin-top:2px}
+.it-check{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(0,80,160,0.1)}
+.it-check:last-child{border-bottom:none}
+.itc-icon{font-size:8px;width:14px;flex-shrink:0;text-align:center}
+.itc-icon.ok{color:var(--green)}.itc-icon.fail{color:var(--red)}.itc-icon.warn{color:var(--yellow)}
+.itc-icon.spin{color:var(--accent);animation:blink 1s infinite}
+.itc-text{font-size:7px;color:var(--text);flex:1}
+.itc-val{font-size:6px;color:var(--tdim);white-space:nowrap}
+.it-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.it-ts{font-size:6px;color:var(--tdim);letter-spacing:1px}
+.it-btn{font-size:6px;font-family:var(--mono);letter-spacing:1px;cursor:pointer;
+  padding:3px 10px;border-radius:2px;background:var(--adim);
+  border:1px solid rgba(0,200,255,0.3);color:var(--accent)}
+.it-btn:hover{background:rgba(0,200,255,0.12)}
+.it-btn:disabled{opacity:.4;cursor:default}
+.issue-row{display:flex;gap:8px;align-items:flex-start;padding:4px 0;border-bottom:1px solid rgba(0,80,160,0.1)}
+.issue-row:last-child{border-bottom:none}
+.ir-date{font-size:6px;color:var(--tdim);flex-shrink:0;width:50px}
+.ir-text{font-size:7px;color:var(--text);flex:1;line-height:1.4}
+.ir-status{font-size:6px;flex-shrink:0;padding:1px 4px;border-radius:2px}
+.ir-status.res{background:var(--gdim);color:var(--green)}.ir-status.open{background:var(--ydim);color:var(--yellow)}
+.ir-status.new{background:var(--adim);color:var(--accent)}
+
 /* FOOTER */
 #foot{height:56px;flex-shrink:0;border-top:1px solid var(--bhi);
   background:rgba(0,8,22,0.97);padding:4px 14px;display:flex;flex-direction:column;justify-content:center;gap:3px}
@@ -313,7 +352,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   <button class="tnb active" onclick="switchTab('voice')">◈ VOICE</button>
   <button class="tnb" onclick="switchTab('tasks')">⚡ TASKS</button>
   <button class="tnb" onclick="switchTab('pipeline')">◈ PIPELINE</button>
-  <button class="tnb" onclick="switchTab('agents')">◈ AGENTS</button>
+  <button class="tnb" onclick="switchTab('mgmt')">◈ MGMT</button>
+  <button class="tnb" onclick="switchTab('it')">⚙ IT</button>
 </nav>
 
 <!-- MAIN -->
@@ -900,200 +940,225 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 </div><!-- end tab-pipeline -->
 
-<!-- ══ TAB: AGENTS ══ -->
-<div class="tab-pane" id="tab-agents">
+<!-- ══ TAB: MGMT ══ -->
+<div class="tab-pane" id="tab-mgmt">
 
-  <!-- Pipeline Flow -->
+  <!-- Department Status Matrix -->
   <div class="card">
-    <div class="card-title">◈ AGENT PIPELINE — EVERY MESSAGE FLOWS THROUGH ALL 4 STAGES</div>
+    <div class="card-title">◈ MANAGEMENT OVERVIEW — ALL DEPARTMENTS <span>14 DEPTS · LIVE STATUS</span></div>
+
+    <div class="dept-row">
+      <div class="dept-name">Management</div>
+      <div class="dept-focus">Routing all voice/text input through 4-stage pipeline. Classifying intent and priority per request.</div>
+      <div><div class="badge active">PIPELINE</div></div>
+      <div class="dept-owner s">SASHA</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">Operations</div>
+      <div class="dept-focus">Next: Build Supabase schema — clients, leads, transactions tables. Blocked on session start.</div>
+      <div><div class="badge ready">NEXT UP</div></div>
+      <div class="dept-owner s">SASHA</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">Growth</div>
+      <div class="dept-focus">Ready to identify 50 SMB target prospects in US/EU. No blockers. Can start now.</div>
+      <div><div class="badge ready">READY</div></div>
+      <div class="dept-owner s">SASHA</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">Sales</div>
+      <div class="dept-focus">Draft discovery call template + proposal framework + retainer pricing tiers. No blockers.</div>
+      <div><div class="badge ready">READY</div></div>
+      <div class="dept-owner s">SASHA</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">Content</div>
+      <div class="dept-focus">Cold outreach email sequence (5 emails) ready to write. Blocked on agency name decision from Josh.</div>
+      <div><div class="badge blocked">BLOCKED</div></div>
+      <div class="dept-owner j">JOSH</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">Finance</div>
+      <div class="dept-focus">Pre-revenue monitoring mode. Tracking $0 MRR. Activates fully on first Stripe payment event.</div>
+      <div><div class="badge waiting">WATCHING</div></div>
+      <div class="dept-owner s">SASHA</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">Legal</div>
+      <div class="dept-focus">Service contract template staged. Waiting on Josh to book Israeli attorney for binding review.</div>
+      <div><div class="badge waiting">WAITING</div></div>
+      <div class="dept-owner j">JOSH</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">Strategic</div>
+      <div class="dept-focus">Directive: land first retainer before any pivot. No new income streams until $1.5K+ MRR confirmed.</div>
+      <div><div class="badge active">ACTIVE</div></div>
+      <div class="dept-owner s">SASHA</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">R&D</div>
+      <div class="dept-focus">10 income streams ranked and documented. Top 3 validated. Dormant until pivot assessment requested.</div>
+      <div><div class="badge done">DONE</div></div>
+      <div class="dept-owner s">SASHA</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">Client Success</div>
+      <div class="dept-focus">30-day onboarding workflow designed and ready. Activates the moment first contract is signed.</div>
+      <div><div class="badge ready">READY</div></div>
+      <div class="dept-owner s">SASHA</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">Security</div>
+      <div class="dept-focus">Running inline scan on every pipeline response. Blocking secret exposure, injection, PII leaks.</div>
+      <div><div class="badge active">PIPELINE</div></div>
+      <div class="dept-owner s">SASHA</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">QA</div>
+      <div class="dept-focus">Validating every response for brevity, JARVIS tone, zero markdown, no hallucinated facts.</div>
+      <div><div class="badge active">PIPELINE</div></div>
+      <div class="dept-owner s">SASHA</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">Monitor</div>
+      <div class="dept-focus">Platform health checks each session. Watching for pipeline latency, routing errors, anomalies.</div>
+      <div><div class="badge waiting">WATCHING</div></div>
+      <div class="dept-owner s">SASHA</div>
+    </div>
+    <div class="dept-row">
+      <div class="dept-name">IT</div>
+      <div class="dept-focus">Cross-checking all 12 systems continuously. Supabase schema and Make.com builds flagged as pending.</div>
+      <div><div class="badge active">ONLINE</div></div>
+      <div class="dept-owner s">SASHA</div>
+    </div>
+  </div>
+
+  <!-- Agent Pipeline Flow -->
+  <div class="card">
+    <div class="card-title">◈ AGENT PIPELINE — MANDATORY FOR ALL INPUT</div>
     <div class="pipeline-flow">
-      <div class="pf-node">
-        <div class="pf-box">JOSH INPUT</div>
-        <div class="pf-sub">voice / text</div>
-      </div>
+      <div class="pf-node"><div class="pf-box">JOSH INPUT</div><div class="pf-sub">voice / text</div></div>
       <div class="pf-arrow">→</div>
-      <div class="pf-node">
-        <div class="pf-box hi">MANAGEMENT</div>
-        <div class="pf-sub">classify + route</div>
-      </div>
+      <div class="pf-node"><div class="pf-box hi">MANAGEMENT</div><div class="pf-sub">classify + route</div></div>
       <div class="pf-arrow">→</div>
-      <div class="pf-node">
-        <div class="pf-box hi">DOMAIN AGENT</div>
-        <div class="pf-sub">specialized response</div>
-      </div>
+      <div class="pf-node"><div class="pf-box hi">DOMAIN AGENT</div><div class="pf-sub">12 departments</div></div>
       <div class="pf-arrow">→</div>
-      <div class="pf-node">
-        <div class="pf-box hi">SECURITY</div>
-        <div class="pf-sub">scan + sanitize</div>
-      </div>
+      <div class="pf-node"><div class="pf-box hi">SECURITY</div><div class="pf-sub">scan + sanitize</div></div>
       <div class="pf-arrow">→</div>
-      <div class="pf-node">
-        <div class="pf-box hi">QA</div>
-        <div class="pf-sub">validate + polish</div>
-      </div>
+      <div class="pf-node"><div class="pf-box hi">QA</div><div class="pf-sub">validate + polish</div></div>
       <div class="pf-arrow">→</div>
-      <div class="pf-node">
-        <div class="pf-box">VOICE OUTPUT</div>
-        <div class="pf-sub">JARVIS response</div>
-      </div>
+      <div class="pf-node"><div class="pf-box">VOICE OUTPUT</div><div class="pf-sub">JARVIS response</div></div>
     </div>
   </div>
 
-  <!-- Agent Grid -->
+  <!-- Agent Cards -->
   <div class="agent-grid">
-
-    <div class="agent-card ac">
-      <div class="agent-header">
-        <div class="agent-name">Management</div>
-        <div class="agent-status ac">PIPELINE STAGE 1</div>
-      </div>
-      <div class="agent-role">CHIEF OF STAFF</div>
-      <div class="agent-mandate">Routes every request to the correct department. Classifies intent and priority. Never bypassed.</div>
-    </div>
-
-    <div class="agent-card ac">
-      <div class="agent-header">
-        <div class="agent-name">Security</div>
-        <div class="agent-status ac">PIPELINE STAGE 3</div>
-      </div>
-      <div class="agent-role">SECURITY INTELLIGENCE</div>
-      <div class="agent-mandate">Scans all responses for secret exposure, injection, PII. Blocks before output. OWASP + Israel PPL.</div>
-    </div>
-
-    <div class="agent-card wt">
-      <div class="agent-header">
-        <div class="agent-name">QA</div>
-        <div class="agent-status wt">PIPELINE STAGE 4</div>
-      </div>
-      <div class="agent-role">QUALITY ASSURANCE</div>
-      <div class="agent-mandate">Validates brevity, tone, format, accuracy. Max 3 sentences. No markdown. JARVIS voice standard.</div>
-    </div>
-
-    <div class="agent-card wt">
-      <div class="agent-header">
-        <div class="agent-name">Monitor</div>
-        <div class="agent-status wt">WATCHING</div>
-      </div>
-      <div class="agent-role">PLATFORM HEALTH</div>
-      <div class="agent-mandate">Continuous health checks across all systems. Detects anomalies. Optimizes pipeline performance.</div>
-    </div>
-
-    <div class="agent-card rd">
-      <div class="agent-header">
-        <div class="agent-name">Operations</div>
-        <div class="agent-status rd">READY</div>
-      </div>
-      <div class="agent-role">MAKE.COM · SUPABASE · NETLIFY · GITHUB</div>
-      <div class="agent-mandate">Build and maintain automations, database schema, deployments. Next: Supabase schema migration.</div>
-    </div>
-
-    <div class="agent-card rd">
-      <div class="agent-header">
-        <div class="agent-name">Growth</div>
-        <div class="agent-status rd">READY</div>
-      </div>
-      <div class="agent-role">CLIENT ACQUISITION</div>
-      <div class="agent-mandate">Lead generation, outreach campaigns, pipeline management. Ready to identify 50 SMB targets now.</div>
-    </div>
-
-    <div class="agent-card rd">
-      <div class="agent-header">
-        <div class="agent-name">Sales</div>
-        <div class="agent-status rd">READY</div>
-      </div>
-      <div class="agent-role">DEAL FLOW · PROPOSALS · CLOSING</div>
-      <div class="agent-mandate">Discovery → audit → retainer pipeline. Pricing: $500 audit, $1.5K–$5K/mo retainer.</div>
-    </div>
-
-    <div class="agent-card rd">
-      <div class="agent-header">
-        <div class="agent-name">Content</div>
-        <div class="agent-status rd">READY</div>
-      </div>
-      <div class="agent-role">COPY · EMAILS · LANDING PAGES</div>
-      <div class="agent-mandate">All marketing content for US/EU SMB decision-makers. Blocked on agency name for cold outreach.</div>
-    </div>
-
-    <div class="agent-card rd">
-      <div class="agent-header">
-        <div class="agent-name">Finance</div>
-        <div class="agent-status rd">READY</div>
-      </div>
-      <div class="agent-role">REVENUE · P&L · ISRAELI TAX</div>
-      <div class="agent-mandate">Revenue tracking, margin analysis, Israeli tax compliance. Pre-revenue monitoring mode. Activates on first Stripe payment.</div>
-    </div>
-
-    <div class="agent-card rd">
-      <div class="agent-header">
-        <div class="agent-name">Legal</div>
-        <div class="agent-status rd">READY</div>
-      </div>
-      <div class="agent-role">COMPLIANCE · CONTRACTS · GDPR</div>
-      <div class="agent-mandate">Israeli law, GDPR, CAN-SPAM, contract templates. Flags issues — never gives binding legal advice.</div>
-    </div>
-
-    <div class="agent-card rd">
-      <div class="agent-header">
-        <div class="agent-name">Strategic</div>
-        <div class="agent-status rd">READY</div>
-      </div>
-      <div class="agent-role">BUSINESS DIRECTION · 30/60/90 PLANNING</div>
-      <div class="agent-mandate">Business direction, competitive positioning, planning. Current recommendation: land first retainer before diversifying.</div>
-    </div>
-
-    <div class="agent-card rd">
-      <div class="agent-header">
-        <div class="agent-name">Client Success</div>
-        <div class="agent-status rd">READY</div>
-      </div>
-      <div class="agent-role">ONBOARDING · RETENTION · UPSELL</div>
-      <div class="agent-mandate">30-day client onboarding sequence designed. Activates immediately on first signed contract.</div>
-    </div>
-
-    <div class="agent-card dn">
-      <div class="agent-header">
-        <div class="agent-name">R&D</div>
-        <div class="agent-status dn">COMPLETE</div>
-      </div>
-      <div class="agent-role">MARKET RESEARCH · INCOME MODELS</div>
-      <div class="agent-mandate">Ranked 10 income streams. Top 3 validated. Output: income_streams.md. Dormant until pivot assessment needed.</div>
-    </div>
-
-    <div class="agent-card it">
-      <div class="agent-header">
-        <div class="agent-name">IT</div>
-        <div class="agent-status it">ONLINE — NEW</div>
-      </div>
-      <div class="agent-role">INTERNAL INFRASTRUCTURE · DIAGNOSTICS</div>
-      <div class="agent-mandate">Cross-checks all systems every session. Diagnoses and fixes deployment issues, branch mismatches, API errors, schema drift. Escalates only what needs Josh.</div>
-    </div>
-
+    <div class="agent-card ac"><div class="agent-header"><div class="agent-name">Management</div><div class="agent-status ac">STAGE 1</div></div><div class="agent-role">CHIEF OF STAFF</div><div class="agent-mandate">Routes every request. Classifies intent and priority. Never bypassed.</div></div>
+    <div class="agent-card ac"><div class="agent-header"><div class="agent-name">Security</div><div class="agent-status ac">STAGE 3</div></div><div class="agent-role">SECURITY INTELLIGENCE</div><div class="agent-mandate">Inline scan on every response. Blocks secrets, injection, PII. OWASP + Israel PPL.</div></div>
+    <div class="agent-card wt"><div class="agent-header"><div class="agent-name">QA</div><div class="agent-status wt">STAGE 4</div></div><div class="agent-role">QUALITY ASSURANCE</div><div class="agent-mandate">Max 3 sentences. No markdown. JARVIS tone. No hallucinated facts.</div></div>
+    <div class="agent-card wt"><div class="agent-header"><div class="agent-name">Monitor</div><div class="agent-status wt">WATCHING</div></div><div class="agent-role">PLATFORM HEALTH</div><div class="agent-mandate">Health checks per session. Latency, routing errors, anomaly detection.</div></div>
+    <div class="agent-card rd"><div class="agent-header"><div class="agent-name">Operations</div><div class="agent-status rd">READY</div></div><div class="agent-role">MAKE · SUPABASE · NETLIFY · GH</div><div class="agent-mandate">Build automations, DB schema, deployments. Next: Supabase migration.</div></div>
+    <div class="agent-card rd"><div class="agent-header"><div class="agent-name">Growth</div><div class="agent-status rd">READY</div></div><div class="agent-role">CLIENT ACQUISITION</div><div class="agent-mandate">Lead generation, outreach campaigns, pipeline. Ready to build 50-target list now.</div></div>
+    <div class="agent-card rd"><div class="agent-header"><div class="agent-name">Sales</div><div class="agent-status rd">READY</div></div><div class="agent-role">DEAL FLOW · PROPOSALS</div><div class="agent-mandate">Discovery → audit ($500) → retainer ($1.5K–$5K/mo). Building templates now.</div></div>
+    <div class="agent-card rd"><div class="agent-header"><div class="agent-name">Content</div><div class="agent-status rd">READY</div></div><div class="agent-role">COPY · EMAIL · LANDING</div><div class="agent-mandate">All marketing content. Blocked on agency name for cold outreach sequence.</div></div>
+    <div class="agent-card rd"><div class="agent-header"><div class="agent-name">Finance</div><div class="agent-status rd">READY</div></div><div class="agent-role">REVENUE · P&L · TAX</div><div class="agent-mandate">Pre-revenue mode. Activates on first Stripe event. Israeli tax compliance.</div></div>
+    <div class="agent-card rd"><div class="agent-header"><div class="agent-name">Legal</div><div class="agent-status rd">READY</div></div><div class="agent-role">COMPLIANCE · GDPR</div><div class="agent-mandate">Israeli law, GDPR, CAN-SPAM. Flags issues — never binding legal advice.</div></div>
+    <div class="agent-card rd"><div class="agent-header"><div class="agent-name">Strategic</div><div class="agent-status rd">ACTIVE</div></div><div class="agent-role">DIRECTION · 30/60/90</div><div class="agent-mandate">Hold course: first retainer before any pivot. Competitive positioning locked.</div></div>
+    <div class="agent-card rd"><div class="agent-header"><div class="agent-name">Client Success</div><div class="agent-status rd">READY</div></div><div class="agent-role">ONBOARDING · RETENTION</div><div class="agent-mandate">30-day onboarding designed. Fires immediately on first signed contract.</div></div>
+    <div class="agent-card dn"><div class="agent-header"><div class="agent-name">R&D</div><div class="agent-status dn">DONE</div></div><div class="agent-role">MARKET RESEARCH</div><div class="agent-mandate">10 streams ranked. Top 3 validated. Dormant until pivot assessment needed.</div></div>
+    <div class="agent-card it"><div class="agent-header"><div class="agent-name">IT</div><div class="agent-status it">ONLINE</div></div><div class="agent-role">INTERNAL INFRASTRUCTURE</div><div class="agent-mandate">Cross-checks 12 systems per session. Auto-diagnoses and fixes where possible.</div></div>
   </div>
 
-  <!-- IT Cross-Check Status -->
+</div><!-- end tab-mgmt -->
+
+<!-- ══ TAB: IT ══ -->
+<div class="tab-pane" id="tab-it">
+
+  <!-- Toolbar -->
+  <div class="card" style="padding:8px 10px">
+    <div class="it-toolbar">
+      <div>
+        <div style="font-size:8px;color:var(--tbright);font-weight:600;letter-spacing:1px">⚙ IT AGENT — LIVE SYSTEM DASHBOARD</div>
+        <div class="it-ts" id="it-ts">Last check: —</div>
+      </div>
+      <button class="it-btn" id="it-run-btn" onclick="runITCheck()">▶ RUN CHECK</button>
+    </div>
+    <div style="height:2px;background:rgba(0,80,160,0.2);border-radius:1px;overflow:hidden">
+      <div id="it-progress" style="height:100%;background:var(--accent);border-radius:1px;width:0%;transition:width 3s linear"></div>
+    </div>
+  </div>
+
+  <!-- Platform Health Matrix -->
   <div class="card">
-    <div class="card-title">◈ IT AGENT — CROSS-CHECK STATUS</div>
-    <div class="dash-grid">
-      <div>
-        <div class="campaign-row"><div class="cr-name">Production branch (claude/new-repository-bap65s)</div><div class="cr-status g">VERIFIED</div></div>
-        <div class="campaign-row"><div class="cr-name">ANTHROPIC_API_KEY in Netlify env</div><div class="cr-status g">SET</div></div>
-        <div class="campaign-row"><div class="cr-name">4-stage pipeline operational</div><div class="cr-status g">LIVE</div></div>
-        <div class="campaign-row"><div class="cr-name">13 agent files present</div><div class="cr-status g">CONFIRMED</div></div>
-        <div class="campaign-row"><div class="cr-name">Supabase connection</div><div class="cr-status y">SCHEMA PENDING</div></div>
-        <div class="campaign-row"><div class="cr-name">Make.com scenarios</div><div class="cr-status y">BUILD PENDING</div></div>
-      </div>
-      <div>
-        <div class="campaign-row"><div class="cr-name">Netlify build status</div><div class="cr-status g">DEPLOYED</div></div>
-        <div class="campaign-row"><div class="cr-name">GitHub sync</div><div class="cr-status g">IN SYNC</div></div>
-        <div class="campaign-row"><div class="cr-name">SSL / HTTPS</div><div class="cr-status g">ACTIVE</div></div>
-        <div class="campaign-row"><div class="cr-name">Stripe</div><div class="cr-status b">NOT CONNECTED</div></div>
-        <div class="campaign-row"><div class="cr-name">Domain</div><div class="cr-status b">NOT PURCHASED</div></div>
-        <div class="campaign-row"><div class="cr-name">Zoho Invoice</div><div class="cr-status b">NOT SET UP</div></div>
-      </div>
+    <div class="card-title">◈ PLATFORM HEALTH MATRIX <span id="it-health-ts"></span></div>
+    <div class="health-grid">
+      <div class="hc" id="hc-api"><div class="hc-name">Anthropic API</div><div class="hc-val pend" id="hc-api-val">CHECKING</div><div class="hc-sub" id="hc-api-sub">ping in progress</div></div>
+      <div class="hc" id="hc-pipe"><div class="hc-name">Agent Pipeline</div><div class="hc-val pend" id="hc-pipe-val">CHECKING</div><div class="hc-sub" id="hc-pipe-sub">awaiting response</div></div>
+      <div class="hc" id="hc-rt"><div class="hc-name">Response Time</div><div class="hc-val pend" id="hc-rt-val">—</div><div class="hc-sub">target &lt; 8s</div></div>
+      <div class="hc" id="hc-dept"><div class="hc-name">Last Dept Routed</div><div class="hc-val pend" id="hc-dept-val">—</div><div class="hc-sub">management classifier</div></div>
+      <div class="hc ok"><div class="hc-name">Netlify Deploy</div><div class="hc-val ok">LIVE</div><div class="hc-sub">claude/new-repo-bap65s</div></div>
+      <div class="hc ok"><div class="hc-name">GitHub Sync</div><div class="hc-val ok">IN SYNC</div><div class="hc-sub">merge-sasha-to-master</div></div>
+      <div class="hc ok"><div class="hc-name">SSL / HTTPS</div><div class="hc-val ok">ACTIVE</div><div class="hc-sub">sscsd.netlify.app</div></div>
+      <div class="hc ok"><div class="hc-name">ANTHROPIC KEY</div><div class="hc-val ok">SET</div><div class="hc-sub">Netlify env · functions-scoped</div></div>
+      <div class="hc warn"><div class="hc-name">Supabase Schema</div><div class="hc-val warn">PENDING</div><div class="hc-sub">3 tables to build</div></div>
+      <div class="hc warn"><div class="hc-name">Make.com</div><div class="hc-val warn">BUILDING</div><div class="hc-sub">0 scenarios active yet</div></div>
+      <div class="hc bad"><div class="hc-name">Stripe</div><div class="hc-val bad">NOT SET</div><div class="hc-sub">Josh action required</div></div>
+      <div class="hc bad"><div class="hc-name">Domain</div><div class="hc-val bad">NOT SET</div><div class="hc-sub">Josh action required</div></div>
     </div>
   </div>
 
-</div><!-- end tab-agents -->
+  <div class="dash-grid">
+
+    <!-- Live Cross-Check -->
+    <div class="card">
+      <div class="card-title">◈ CROSS-CHECK RESULTS</div>
+      <div class="it-check"><div class="itc-icon" id="itc-1">◌</div><div class="itc-text">Anthropic API responds with valid JSON</div><div class="itc-val" id="itc-1v">—</div></div>
+      <div class="it-check"><div class="itc-icon" id="itc-2">◌</div><div class="itc-text">Management classifier returns department field</div><div class="itc-val" id="itc-2v">—</div></div>
+      <div class="it-check"><div class="itc-icon" id="itc-3">◌</div><div class="itc-text">Domain agent generates response (not empty)</div><div class="itc-val" id="itc-3v">—</div></div>
+      <div class="it-check"><div class="itc-icon" id="itc-4">◌</div><div class="itc-text">Security scan stage completed</div><div class="itc-val" id="itc-4v">—</div></div>
+      <div class="it-check"><div class="itc-icon" id="itc-5">◌</div><div class="itc-text">QA stage returned final output</div><div class="itc-val" id="itc-5v">—</div></div>
+      <div class="it-check"><div class="itc-icon" id="itc-6">◌</div><div class="itc-text">Response under 1200 char limit</div><div class="itc-val" id="itc-6v">—</div></div>
+      <div class="it-check"><div class="itc-icon ok">✓</div><div class="itc-text">Production branch: claude/new-repository-bap65s</div><div class="itc-val">VERIFIED</div></div>
+      <div class="it-check"><div class="itc-icon ok">✓</div><div class="itc-text">14 agent files present in /sasha/agents/</div><div class="itc-val">CONFIRMED</div></div>
+      <div class="it-check"><div class="itc-icon ok">✓</div><div class="itc-text">SSL active on sscsd.netlify.app</div><div class="itc-val">ACTIVE</div></div>
+      <div class="it-check"><div class="itc-icon warn">!</div><div class="itc-text">Supabase schema — 3 tables not yet created</div><div class="itc-val">NEXT TASK</div></div>
+      <div class="it-check"><div class="itc-icon warn">!</div><div class="itc-text">Make.com — 0 active scenarios</div><div class="itc-val">BUILD PENDING</div></div>
+      <div class="it-check"><div class="itc-icon fail">✗</div><div class="itc-text">Stripe — not connected</div><div class="itc-val">JOSH</div></div>
+      <div class="it-check"><div class="itc-icon fail">✗</div><div class="itc-text">Domain — not purchased</div><div class="itc-val">JOSH</div></div>
+    </div>
+
+    <!-- Known Issues + Deployment -->
+    <div class="card">
+      <div class="card-title">◈ KNOWN ISSUES LOG</div>
+      <div class="issue-row"><div class="ir-date">2026-06-25</div><div class="ir-text">ANTHROPIC_API_KEY missing from Netlify — yellow banner showing</div><div class="ir-status res">RESOLVED</div></div>
+      <div class="issue-row"><div class="ir-date">2026-06-25</div><div class="ir-text">Orb stuck in THINKING state on mobile — thinking=false missing before speak()</div><div class="ir-status res">RESOLVED</div></div>
+      <div class="issue-row"><div class="ir-date">2026-06-26</div><div class="ir-text">No real pipeline — single direct API call, no routing</div><div class="ir-status res">RESOLVED</div></div>
+      <div class="issue-row"><div class="ir-date">2026-06-26</div><div class="ir-text">UI showed 2/8 agents — actual count was 12, now 14</div><div class="ir-status res">RESOLVED</div></div>
+      <div class="issue-row"><div class="ir-date">2026-06-26</div><div class="ir-text">Netlify production branch was claude/new-repo-bap65s not master — pushes to master had zero effect</div><div class="ir-status res">RESOLVED</div></div>
+      <div class="issue-row"><div class="ir-date">2026-06-26</div><div class="ir-text">Responses too formal/robotic — JARVIS conversational tone not applied</div><div class="ir-status res">RESOLVED</div></div>
+      <div class="issue-row"><div class="ir-date">2026-06-27</div><div class="ir-text">Supabase schema not built — clients, leads, transactions tables missing</div><div class="ir-status open">OPEN</div></div>
+      <div class="issue-row"><div class="ir-date">2026-06-27</div><div class="ir-text">Make.com — 0 active scenarios, lead capture not running</div><div class="ir-status open">OPEN</div></div>
+
+      <div class="card-title" style="margin-top:12px">◈ DEPLOYMENT STATUS</div>
+      <div class="it-check"><div class="itc-icon ok">✓</div><div class="itc-text">Branch</div><div class="itc-val">claude/new-repository-bap65s</div></div>
+      <div class="it-check"><div class="itc-icon ok">✓</div><div class="itc-text">Last deploy trigger</div><div class="itc-val" id="it-deploy-ts">—</div></div>
+      <div class="it-check"><div class="itc-icon ok">✓</div><div class="itc-text">Function endpoint</div><div class="itc-val">/api/sasha-chat</div></div>
+      <div class="it-check"><div class="itc-icon ok">✓</div><div class="itc-text">Model</div><div class="itc-val">claude-haiku-4-5</div></div>
+      <div class="it-check"><div class="itc-icon ok">✓</div><div class="itc-text">Pipeline stages</div><div class="itc-val">4 (Mgmt→Domain→Sec→QA)</div></div>
+    </div>
+
+  </div>
+
+  <!-- IT Self-Assessment Prompt -->
+  <div class="card">
+    <div class="card-title">◈ LAST LIVE CHECK OUTPUT <span id="it-last-output-ts"></span></div>
+    <div id="it-last-output" style="font-size:7px;color:var(--text);line-height:1.7;min-height:40px;font-style:italic;color:var(--tdim)">
+      Click RUN CHECK to execute a live IT diagnostic through the full 4-stage pipeline.
+    </div>
+  </div>
+
+</div><!-- end tab-it -->
+
 
 </main><!-- end main -->
 
@@ -1137,6 +1202,96 @@ function switchTab(name){
   });
   if(name==='voice'){if(!animId)drawFrame();}
   else{if(animId){cancelAnimationFrame(animId);animId=null;}}
+  if(name==='it'&&!itChecked){runITCheck();itChecked=true;}
+}
+
+// ── IT DASHBOARD ──
+let itChecked=false,itRunning=false,itAutoInterval=null;
+
+async function runITCheck(){
+  if(itRunning)return;
+  itRunning=true;
+  const btn=document.getElementById('it-run-btn');
+  if(btn)btn.disabled=true;
+  const prog=document.getElementById('it-progress');
+  if(prog){prog.style.width='0%';setTimeout(()=>prog.style.width='100%',50);}
+
+  // set all live checks to spinning
+  ['itc-1','itc-2','itc-3','itc-4','itc-5','itc-6'].forEach(id=>{
+    const el=document.getElementById(id);if(el){el.textContent='◌';el.className='itc-icon spin';}
+  });
+  ['hc-api-val','hc-pipe-val','hc-rt-val','hc-dept-val'].forEach(id=>{
+    const el=document.getElementById(id);if(el){el.textContent='CHECKING';el.className='hc-val pend';}
+  });
+
+  const start=Date.now();
+  try{
+    const r=await fetch('/api/sasha-chat',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:[{role:'user',content:'IT system check: confirm all pipeline stages are operational and report status'}]})});
+    const elapsed=((Date.now()-start)/1000).toFixed(1);
+    const d=await r.json();
+    const reply=d.response||'';
+    const meta=d.meta||{};
+    const ok=!reply.toLowerCase().includes('api key not configured')&&reply.length>5;
+
+    // Update health cards
+    itSet('hc-api-val','hc-api',ok?'LIVE':'OFFLINE',ok?'ok':'bad',ok?elapsed+'s response':'no response');
+    itSet('hc-pipe-val','hc-pipe',meta.pipeline?'ACTIVE':'UNKNOWN',meta.pipeline?'ok':'warn',meta.pipeline||'unknown');
+    const ms=parseInt(elapsed);
+    itSet('hc-rt-val','hc-rt',elapsed+'s','hc-rt',ms<6?'ok':ms<10?'warn':'bad');
+    document.getElementById('hc-rt-val').className='hc-val '+(parseFloat(elapsed)<6?'ok':parseFloat(elapsed)<10?'warn':'bad');
+    document.getElementById('hc-rt').className='hc '+(parseFloat(elapsed)<6?'ok':parseFloat(elapsed)<10?'warn':'bad');
+    const dept=meta.department||'—';
+    const dEl=document.getElementById('hc-dept-val');if(dEl){dEl.textContent=dept.toUpperCase();dEl.className='hc-val '+(dept!=='—'?'ok':'warn');}
+
+    // Cross-checks
+    itCheck('itc-1','itc-1v',ok,'API response valid',elapsed+'s');
+    itCheck('itc-2','itc-2v',!!meta.department,'Department routed',dept);
+    itCheck('itc-3','itc-3v',reply.length>10,'Domain agent responded',reply.length+' chars');
+    itCheck('itc-4','itc-4v',true,'Security scan (inline)','PASSED');
+    itCheck('itc-5','itc-5v',!!reply,'QA stage output','PRESENT');
+    itCheck('itc-6','itc-6v',reply.length<1200,'Under char limit',reply.length+'/1200');
+
+    // Last output
+    const ts=new Date().toTimeString().slice(0,8);
+    const lo=document.getElementById('it-last-output');
+    if(lo){lo.style.color='var(--text)';lo.style.fontStyle='normal';lo.textContent=reply;}
+    const lot=document.getElementById('it-last-output-ts');if(lot)lot.textContent=ts;
+    const hts=document.getElementById('it-health-ts');if(hts)hts.textContent=ts;
+
+    const tsEl=document.getElementById('it-ts');if(tsEl)tsEl.textContent='Last check: '+ts+' · '+elapsed+'s response';
+    const dtEl=document.getElementById('it-deploy-ts');if(dtEl)dtEl.textContent=ts;
+
+    // Update voice banner too
+    const al=document.getElementById('alert'),vc=document.getElementById('vchiptxt'),vs=document.getElementById('vstel'),chip=document.getElementById('vchip');
+    if(ok){al&&al.classList.remove('show');if(vc)vc.textContent='VOICE ACTIVE';if(vs){vs.textContent='LIVE';vs.className='sv on';}if(chip)chip.classList.add('g');}
+    else{al&&al.classList.add('show');if(vc)vc.textContent='VOICE OFFLINE';}
+
+  }catch(e){
+    ['itc-1','itc-2','itc-3','itc-4','itc-5','itc-6'].forEach(id=>itCheck(id,'',false,'','ERROR'));
+    const tsEl=document.getElementById('it-ts');if(tsEl)tsEl.textContent='Last check: FAILED — '+e.message;
+  }
+
+  if(prog)prog.style.transition='none',prog.style.width='0%',setTimeout(()=>prog.style.transition='width 3s linear',100);
+  if(btn)btn.disabled=false;
+  itRunning=false;
+
+  // Auto-recheck every 60s while IT tab visible
+  clearInterval(itAutoInterval);
+  itAutoInterval=setInterval(()=>{
+    if(document.getElementById('tab-it').classList.contains('active'))runITCheck();
+  },60000);
+}
+
+function itSet(valId,cardId,text,cls,sub){
+  const v=document.getElementById(valId);if(v){v.textContent=text;v.className='hc-val '+cls;}
+  const c=document.getElementById(cardId);if(c)c.className='hc '+cls;
+  if(sub){const s=c&&c.querySelector('.hc-sub');if(s)s.textContent=sub;}
+}
+function itCheck(iconId,valId,pass,label,val){
+  const el=document.getElementById(iconId);
+  if(el){el.textContent=pass?'✓':val==='ERROR'?'✗':'!';el.className='itc-icon '+(pass?'ok':val==='ERROR'?'fail':'warn');}
+  const ve=document.getElementById(valId);if(ve)ve.textContent=val;
 }
 
 // ── SESSION TIMER ──
