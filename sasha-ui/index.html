@@ -1458,7 +1458,7 @@ function stopQ(){clearInterval(iosKA);window.speechSynthesis?.cancel();speaking=
 function initRec(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){document.getElementById('ltxt').textContent='Voice needs Chrome or Safari.';return null;}
-  const r=new SR();r.continuous=false;r.interimResults=true;r.lang='en-US';
+  const r=new SR();r.continuous=true;r.interimResults=true;r.lang='en-US';
   r.onstart=()=>{listening=true;netRetries=0;setVS('listening');const lv=document.getElementById('ltxt');lv.textContent='Listening...';lv.className='';};
   r.onresult=(e)=>{
     let interim='',fin='';
@@ -1467,11 +1467,16 @@ function initRec(){
     }
     const lv=document.getElementById('ltxt');
     if(interim){lv.textContent=interim;lv.className='u';}
-    if(fin){lv.textContent=fin;lv.className='u';listening=false;handleMsg(fin.trim());}
+    if(fin){
+      lv.textContent=fin;lv.className='u';
+      listening=false;
+      // pause mic while processing — onend will not restart because thinking=true
+      try{recognition.stop();}catch(e){}
+      handleMsg(fin.trim());
+    }
   };
   r.onerror=(e)=>{
-    if(e.error==='no-speech'){if(autoRestart&&!speaking&&!thinking)sched();return;}
-    if(e.error==='aborted')return;
+    if(e.error==='aborted'||e.error==='no-speech')return;
     listening=false;setVS('idle');
     const lv=document.getElementById('ltxt');
     if(e.error==='network'){
@@ -1497,7 +1502,7 @@ function sched(ms=400){setTimeout(()=>{if(autoRestart&&!speaking&&!thinking&&!li
 function startListen(){
   if(listening||speaking||thinking)return;
   unlock();
-  if(!recognition)recognition=initRec();
+  recognition=initRec();  // always fresh object — prevents Chrome state machine bugs
   if(!recognition)return;
   try{recognition.start();}catch(e){}
 }
