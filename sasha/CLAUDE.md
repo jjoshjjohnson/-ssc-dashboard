@@ -133,6 +133,11 @@ No input bypasses this pipeline. Voice input from Josh is not exempt.
 - **File:** /sasha/agents/client-success/client-success-agent.md
 - **Trigger:** Contract signed (immediate activation), monthly check-ins, renewal dates
 
+### Strategic Advisor Agent
+- **Mandate:** Business direction, income stream ranking, market positioning, 30/60/90 day planning. Evaluates pivots, prioritizes focus, models opportunity cost. Primary lens: fastest path to first revenue.
+- **File:** /sasha/agents/strategic/strategic-agent.md
+- **Trigger:** "Should we do X?", business direction questions, planning sessions, proposed pivots, missed milestones
+
 ### Legal Agent
 - **Mandate:** Israeli compliance, GDPR, CAN-SPAM, contract templates, privacy policy — flags issues, never gives binding legal advice
 - **File:** /sasha/agents/legal/legal-agent.md
