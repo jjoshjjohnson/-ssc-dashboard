@@ -1205,7 +1205,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 <script>
 // ── STATE ──
 let listening=false,speaking=false,thinking=false;
-let recognition=null,history=[],autoRestart=false;
+let recognition=null,history=[],autoRestart=false,netRetries=0;
 let speechUnlocked=false,iosKA=null,pendingSpeech=null;
 let vstate='idle',animId=null,rotAngle=0,particles=[];
 let cSize=220;
@@ -1459,7 +1459,7 @@ function initRec(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){document.getElementById('ltxt').textContent='Voice needs Chrome or Safari.';return null;}
   const r=new SR();r.continuous=false;r.interimResults=true;r.lang='en-US';
-  r.onstart=()=>{listening=true;setVS('listening');const lv=document.getElementById('ltxt');lv.textContent='Listening...';lv.className='';};
+  r.onstart=()=>{listening=true;netRetries=0;setVS('listening');const lv=document.getElementById('ltxt');lv.textContent='Listening...';lv.className='';};
   r.onresult=(e)=>{
     let interim='',fin='';
     for(let i=e.resultIndex;i<e.results.length;i++){
@@ -1472,9 +1472,15 @@ function initRec(){
   r.onerror=(e)=>{
     if(e.error==='no-speech'){if(autoRestart&&!speaking&&!thinking)sched();return;}
     if(e.error==='aborted')return;
-    autoRestart=false;
     listening=false;setVS('idle');
     const lv=document.getElementById('ltxt');
+    if(e.error==='network'){
+      if(netRetries<2){netRetries++;lv.textContent='Connecting to voice service…';sched(1200);return;}
+      netRetries=0;autoRestart=false;
+      lv.textContent='Voice network error — check connection and tap the orb to retry.';
+      return;
+    }
+    autoRestart=false;netRetries=0;
     if(e.error==='not-allowed'||e.error==='service-not-allowed'){
       lv.textContent='Mic access denied — allow microphone in browser settings, then tap the orb.';
     } else if(e.error==='audio-capture'){
