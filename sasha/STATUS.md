@@ -1,6 +1,6 @@
 # SASHA STATUS
-Version: 0.2.0
-Last Updated: 2026-06-26
+Version: 0.2.2
+Last Updated: 2026-06-27
 Phase: BOOTSTRAP
 Location: Israel | Timezone: IDT (UTC+3)
 Session Model: $20/month — focused sessions, one task at a time
@@ -15,11 +15,13 @@ R&D AGENT: COMPLETE ✓ — 10 income streams ranked
 REPORT 001: COMPLETE ✓ — awaiting Josh review
 ISRAEL ADAPTATION: COMPLETE ✓ — entity, VAT, Stripe, invoicing documented
 SESSION PROTOCOL: ACTIVE ✓ — one task per session, push before ending
-AGENT PIPELINE: COMPLETE ✓ — 4-stage pipeline live (v0.2.0)
-FULL AGENT ROSTER: COMPLETE ✓ — 12 agents active
-SASHA CHAT UI: LIVE ✓ — sscsd.netlify.app (JARVIS sci-fi UI)
+AGENT PIPELINE: COMPLETE ✓ — 4-stage pipeline live (v0.2.2)
+FULL AGENT ROSTER: COMPLETE ✓ — 17 agents active
+SASHA CHAT UI: LIVE ✓ — sscsd.netlify.app (JARVIS sci-fi UI + 5-tab dashboard)
 ANTHROPIC_API_KEY: SET ✓ — Netlify env var configured
-FIRST REVENUE: 1 day elapsed / 30 day target
+IT DASHBOARD: LIVE ✓ — auto health check every 60s, live API ping
+MGMT OVERVIEW: LIVE ✓ — all 17 departments, status, focus, owner
+FIRST REVENUE: 2 days elapsed / 30 day target
 ```
 
 ---
@@ -28,11 +30,12 @@ FIRST REVENUE: 1 day elapsed / 30 day target
 
 **Read this file first. Then execute the single next action below.**
 
-**NEXT SESSION TASK:** Build Supabase schema (clients + leads + transactions tables)
+**NEXT SESSION TASK:** Build Supabase schema (clients + leads + campaigns + transactions tables)
 - Use skill: /sasha/skills/supabase-data-layer.md
-- Schema defined in: /sasha/agents/operations/operations-agent.md
-- Execute with: mcp__Supabase__list_projects → mcp__Supabase__apply_migration
-- Output: 3 tables created + confirmed + logged to decisions.md
+- Schema defined in: /sasha/agents/operations/operations-agent.md + /sasha/agents/campaign/campaign-agent.md
+- Execute with: mcp__e632a3d1__list_tables → mcp__e632a3d1__apply_migration
+- Tables needed: clients, leads, campaigns, campaign_contacts, transactions
+- Output: all tables created + confirmed + logged to decisions.md
 - Push to git when done. Stop. That's the session.
 
 **Prerequisite check:** Confirm Josh has reviewed Report 001 before starting. If not, ask first.
@@ -56,7 +59,20 @@ FIRST REVENUE: 1 day elapsed / 30 day target
 
 ---
 
-## COMPLETED (v0.2.0 — this session 2026-06-26)
+## COMPLETED (v0.2.2 — 2026-06-27)
+
+- [x] IT Agent created: P0-P3 priority tiers, 8-point cross-check checklist
+- [x] IT Dashboard tab (live): API health ping, response time, 60s auto-refresh
+- [x] Management tab: all 17 departments with status, focus, and owner
+- [x] Marketing Agent: brand strategy, ICP, LinkedIn, paid ads, SEO
+- [x] Campaign Manager Agent: campaign #1 (email) + #2 (LinkedIn), Supabase tracking schema, Make.com blueprint
+- [x] Media Agent: full Canva MCP capability map, video gap documented (Canva only), proposal PDF structure
+- [x] Proposal System: 4 tiers ($500 audit → $5k/mo full stack), workflow, email template, tracking metrics
+- [x] Pipeline routing expanded: 15 named departments + general
+- [x] Self-audit completed: MCP gap analysis, honest video limitation documented
+- [x] 5-tab JARVIS UI: VOICE | TASKS | PIPELINE | MGMT | IT
+
+## COMPLETED (v0.2.0 — 2026-06-26)
 
 - [x] Full directory scaffold (/sasha/)
 - [x] Capability audit (9 MCP platforms confirmed)
@@ -137,7 +153,7 @@ Target: $5,000 MRR by day 30
 |---|---|
 | SASHA Chat UI | LIVE — sscsd.netlify.app |
 | Anthropic API | CONNECTED — key set in Netlify |
-| Agent Pipeline | ACTIVE — 4 stages, 12 departments |
+| Agent Pipeline | ACTIVE — 4 stages, 17 departments |
 | Make.com | Connected (scenarios pending build) |
 | Supabase | Connected (schema pending) |
 | Netlify | Connected — deployment active |

@@ -1,7 +1,7 @@
 # SASHA — Operating Instructions
 Self-Actuating System for Human Autonomy
-Version: 0.2.0 | Bootstrap Phase
-Last Updated: 2026-06-26
+Version: 0.1.1 | Bootstrap Phase
+Last Updated: 2026-06-25
 
 ---
 
@@ -133,10 +133,35 @@ No input bypasses this pipeline. Voice input from Josh is not exempt.
 - **File:** /sasha/agents/client-success/client-success-agent.md
 - **Trigger:** Contract signed (immediate activation), monthly check-ins, renewal dates
 
+### Strategic Advisor Agent
+- **Mandate:** Business direction, income stream ranking, market positioning, 30/60/90 day planning. Evaluates pivots, prioritizes focus, models opportunity cost. Primary lens: fastest path to first revenue.
+- **File:** /sasha/agents/strategic/strategic-agent.md
+- **Trigger:** "Should we do X?", business direction questions, planning sessions, proposed pivots, missed milestones
+
 ### Legal Agent
 - **Mandate:** Israeli compliance, GDPR, CAN-SPAM, contract templates, privacy policy — flags issues, never gives binding legal advice
 - **File:** /sasha/agents/legal/legal-agent.md
 - **Trigger:** New client contract, email campaign before launch, EU client, data handling questions
+
+### IT Agent
+- **Mandate:** Internal infrastructure diagnostics — Netlify builds, GitHub branch state, Supabase health, Make.com errors, API key validity, cross-system integration failures. Diagnose and fix autonomously where possible, escalate only what requires Josh's credentials.
+- **File:** /sasha/agents/it/it-agent.md
+- **Trigger:** IT tab health check (auto, every 60s), any deployment failure, error in pipeline
+
+### Marketing Agent
+- **Mandate:** Brand strategy, market positioning, ICP definition, paid advertising strategy (Google/LinkedIn/Meta), social media content strategy, SEO, email marketing, PR. Target market: US/EU SMB decision-makers. NO social posting MCP — content drafted here, posted manually.
+- **File:** /sasha/agents/marketing/marketing-agent.md
+- **Trigger:** Brand questions, positioning, ad strategy, LinkedIn content, ICP research
+
+### Campaign Manager Agent
+- **Mandate:** Full lifecycle of every outreach/marketing campaign — design, launch, track, optimize. Campaign #1: cold email 50 targets, 5-touch 21-day. Campaign #2: LinkedIn manual. All tracked in Supabase.
+- **File:** /sasha/agents/campaign/campaign-agent.md
+- **Trigger:** New campaign, tracking questions, open/reply/demo rate analysis, A/B test results
+
+### Media Agent
+- **Mandate:** All visual and media production via Canva MCP. Brand assets, proposal PDFs, social graphics, LinkedIn banners, email headers. Video: Canva only (no Descript/Premiere/HeyGen MCP available).
+- **File:** /sasha/agents/media/media-agent.md
+- **Trigger:** Design requests, proposal PDF generation, brand kit creation, social media graphics
 
 ---
 
@@ -231,9 +256,8 @@ Monthly:
 
 ## BOOT STATE
 
-Current phase: BOOTSTRAP (v0.2.0)
+Current phase: BOOTSTRAP (v0.1.1)
 Boot sequence: COMPLETE
-First revenue target: 30 days from boot (2026-06-25)
+First revenue target: 30 days from boot
 Location: Israel
 Session model: $20/month plan — focused sessions, aggressive file-based memory
-Agent pipeline: LIVE — 4 stages, 12 departments

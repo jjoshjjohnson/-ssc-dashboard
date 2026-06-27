@@ -38,7 +38,7 @@ Run at session start and log to /sasha/logs/ops_[DATE].md:
 5. SUPABASE: Can execute SELECT 1? (connection test)
 6. MAKE.COM: Any scenarios in error state?
 7. GIT: Are there uncommitted changes? Unresolved conflicts?
-8. AGENTS: Do all 12 agent .md files exist?
+8. AGENTS: Do all 9 agent .md files exist?
 ```
 
 ---
