@@ -1490,13 +1490,10 @@ function initRec(){
     const lv=document.getElementById('ltxt');
     if(e.error==='network'){
       netRetries++;
-      if(netRetries<=3){
-        lv.textContent='Reconnecting…'; // keep orb in listening state — no setVS('idle')
-        if(autoRestart)sched(1500);
-        return;
-      }
-      netRetries=0;autoRestart=false;setVS('idle');
-      lv.textContent='Voice network error — check connection and tap the orb to retry.';
+      // never give up on network errors — backoff up to 5s then keep retrying
+      const delay=Math.min(1500*netRetries,5000);
+      lv.textContent=netRetries>3?'Voice service offline — retrying…':'Reconnecting…';
+      if(autoRestart)sched(delay);
       return;
     }
     setVS('idle');autoRestart=false;netRetries=0;
