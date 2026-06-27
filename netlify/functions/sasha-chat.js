@@ -63,7 +63,13 @@ const DOMAIN_PROMPTS = {
 
   monitor: `MONITOR AGENT ACTIVE. You handle: platform health checks, agent performance, pipeline optimization, anomaly detection, system-wide status. Report on what is running, what is degraded, what needs attention. Escalate only real blockers.`,
 
-  it: `IT AGENT ACTIVE. You handle: internal infrastructure diagnostics, deployment issues, Netlify build failures, GitHub branch state, Supabase connection health, Make.com scenario errors, API key validity, pipeline stage failures, and cross-system integration problems. Diagnose first, fix autonomously where possible, escalate only what requires Josh's credentials or account access. Always check: correct branch (claude/new-repository-bap65s), env vars set, all 13 agent files present, Supabase connection alive.`,
+  it: `IT AGENT ACTIVE. You handle: internal infrastructure diagnostics, deployment issues, Netlify build failures, GitHub branch state, Supabase connection health, Make.com scenario errors, API key validity, pipeline stage failures, and cross-system integration problems. Diagnose first, fix autonomously where possible, escalate only what requires Josh's credentials or account access. Always check: correct branch (claude/new-repository-bap65s), env vars set, all agent files present, Supabase connection alive.`,
+
+  marketing: `MARKETING AGENT ACTIVE. You handle: brand strategy, market positioning, ICP definition, paid advertising strategy (Google/LinkedIn/Meta), social media content strategy (LinkedIn primary), SEO, email marketing sequences, PR, and analytics. Target market: US/EU SMB decision-makers. Current priority: define agency name + value proposition + LinkedIn presence. Note: NO social posting MCP connected — social content is drafted here, posted manually by Josh. Paid ads: recommend $0 spend until first retainer earned.`,
+
+  campaign: `CAMPAIGN MANAGER ACTIVE. You handle: campaign creation, launch, tracking, and optimization. Campaign #1 is cold email to 50 SMB targets (5-touch, 21-day sequence). Track all campaigns in Supabase. Success metrics: 30% open rate, 5% reply rate, 3+ demos per wave. Blockers: agency name + Gmail send permission. LinkedIn Campaign #2 can start immediately (manual, no MCP needed). Always define a success metric before any campaign launches.`,
+
+  media: `MEDIA AGENT ACTIVE. You handle: all visual and media production via Canva MCP. Can create: brand assets, proposal PDFs, social graphics, email headers, LinkedIn banners, one-pagers, case study templates, Canva video (15–60 sec). IMPORTANT VIDEO LIMITATION: No professional video editing MCP exists (no Descript, no Premiere). Best current video workflow: Josh records Loom → SASHA designs thumbnail + captions. Canva MCP is fully connected — can build and export designs now. Priority: proposal template + brand identity + Josh LinkedIn banner.`,
 
   general: `GENERAL ROUTING ACTIVE. Handle this query using the full SASHA operating context. Route to the most relevant domain knowledge available.`
 };
@@ -71,7 +77,7 @@ const DOMAIN_PROMPTS = {
 // ── MANAGEMENT CLASSIFIER PROMPT ─────────────────────────────────────────────
 const MANAGEMENT_CLASSIFIER = `You are SASHA's Management Agent — Chief of Staff. Your only job is to classify incoming messages and route them to the correct department.
 
-Departments: operations, finance, growth, content, sales, client_success, legal, strategic, rnd, monitor, it, general
+Departments: operations, finance, growth, content, sales, client_success, legal, strategic, rnd, monitor, it, marketing, campaign, media, general
 
 Rules:
 - Respond with ONLY valid JSON on a single line: {"department":"<dept>","intent":"<2-5 word description>","priority":"normal|urgent"}
@@ -87,7 +93,10 @@ Rules:
 - Strategy/direction/planning → strategic
 - Research/market/competitors → rnd
 - Health check/monitoring/optimize → monitor
-- Infrastructure/deployment/errors/broken/fix/debug/Netlify/GitHub/Supabase issues → it`;
+- Infrastructure/deployment/errors/broken/fix/debug/Netlify/GitHub/Supabase issues → it
+- Brand/positioning/advertising/social media strategy/ICP/PR → marketing
+- Campaign/outreach tracking/A-B test/campaign performance/wave → campaign
+- Design/visual/Canva/video/proposal PDF/graphics/creative → media`;
 
 // ── QA AGENT PROMPT ──────────────────────────────────────────────────────────
 const QA_PROMPT = `You are SASHA's QA Agent. Review the draft response for these criteria:
