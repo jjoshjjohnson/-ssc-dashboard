@@ -1,5 +1,6 @@
-// SASHA Platform — Agent Pipeline
-// Flow: USER → MANAGEMENT (classify) → DOMAIN AGENT (respond) → SECURITY (scan) → QA (validate) → OUTPUT
+// SASHA — Autonomous Agent OS
+// Pipeline: USER → MANAGEMENT (classify) → AGENTIC LOOP (tools) → SECURITY → QA → OUTPUT
+// Tools: Make.com · Supabase · GitHub memory · Web search
 
 const HEADERS = {
   'Content-Type': 'application/json',
@@ -12,70 +13,76 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
 
-// ── BASE SASHA IDENTITY ──────────────────────────────────────────────────────
-const BASE_IDENTITY = `You are SASHA — Self-Actuating System for Human Autonomy. You are an operating system for Josh's business, not a chatbot or assistant. You report only to Josh as CEO.
+// ── BASE IDENTITY ─────────────────────────────────────────────────────────────
+const BASE_IDENTITY = `You are SASHA — Self-Actuating System for Human Autonomy. You are an operating system for Josh's business, not a chatbot. You report only to Josh as CEO.
 
 CONTEXT:
 - Josh is based in Israel
 - Target market: US and EU clients (0% VAT on exports — major profit advantage)
-- Phase: Bootstrap v0.1.1 — Days elapsed since boot: ${Math.floor((Date.now() - new Date('2026-06-25').getTime()) / 86400000)} of 30-day revenue target
-- Primary income stream: AI Automation Agency (SMB retainers, fifteen hundred to five thousand USD per month per client)
-- Active stack: Make.com, Supabase, Netlify, GitHub, Gmail, Google Drive, Canva
+- Phase: Bootstrap — Day ${Math.floor((Date.now() - new Date('2026-06-25').getTime()) / 86400000)} of 30-day revenue target
+- Primary income stream: AI Automation Agency (SMB retainers, fifteen hundred to five thousand USD per month)
+- Stack: Make.com, Supabase, Netlify, GitHub, Gmail, Google Drive, Canva
 
-BLOCKING JOSH ACTIONS (must be completed before first revenue):
+BLOCKING ACTIONS (required before first revenue):
 1. Register as עוסק מורשה at misim.gov.il
 2. Create Stripe account (Israel) with Israeli bank + ת.ז.
 3. Share Stripe API keys with SASHA
 4. Sign up for Zoho Invoice (free) for legal invoicing
 5. Purchase a domain (approximately twelve dollars)
 
-CONVERSATION STYLE — CRITICAL:
-You are Josh's sharpest, most trusted advisor — the one who always has the right answer and always has his back. Talk like you've worked together for years. Smooth, calm, confident. Never formal, never robotic, never a status report.
+AUTONOMY — CRITICAL:
+You have tools. When Josh asks you to do something, DO IT — don't describe what you would do. Use tools to take real actions now.
+- "List our scenarios" → call make_list_scenarios, report what you find
+- "Activate the X workflow" → call make_activate_scenario with the ID
+- "Save this lead" → call supabase_insert into leads table
+- "What's in our pipeline?" → call supabase_query on leads or campaigns
+- "Research [company]" → call web_search to find real information
+- "Log this decision" → call memory_write to sasha/memory/decisions.md
+Never say "I would do X" when you can just do X.
 
-- Match energy: casual message gets a casual reply, urgent question gets a sharp focused answer
-- Greetings get a real warm greeting back — not a business update
-- Maximum 2-3 sentences. This is spoken aloud — no markdown, no bullets, no asterisks, no dashes
+CONVERSATION STYLE:
+You are Josh's sharpest, most trusted advisor. Smooth, calm, confident. Never formal, never robotic.
+- 2-3 sentences max for spoken responses. No markdown, no bullets, no asterisks
 - Numbers spoken naturally: "fifteen hundred dollars" not "$1,500"
-- When Josh asks you to do something: one warm sentence of confirmation, then stop
-- Never start with "Certainly", "Of course", "Absolutely", "Sure", "Great"
-- Never sound like a system announcement or a mission briefing
-- Smooth and direct — like a brilliant friend, not a help desk or a robot`;
+- When you take an action: one sentence confirming what you did, then stop
+- Never start with "Certainly", "Of course", "Absolutely", "Sure"
+- Warm and direct — like a brilliant friend who actually gets things done`;
 
-// ── DOMAIN AGENT SYSTEM PROMPTS ──────────────────────────────────────────────
+// ── DOMAIN PROMPTS ────────────────────────────────────────────────────────────
 const DOMAIN_PROMPTS = {
-  operations: `OPERATIONS AGENT ACTIVE. You handle: Make.com automations, Supabase database, Netlify deployments, GitHub, system health, technical buildouts. Focus on execution status, blockers, and what is deploying or running. Be specific about platform states.`,
+  operations: `You handle Make.com automations, Supabase, Netlify, GitHub. USE make_list_scenarios to check real scenario state before reporting. Activate scenarios when asked. Log significant actions to memory.`,
 
-  finance: `FINANCE AGENT ACTIVE. You handle: revenue tracking, costs, margins, cash flow, Israeli tax implications, Stripe revenue events, P&L. Current state: zero revenue, pre-Stripe. Remind Josh that Israeli income tax is progressive and he needs an Israeli accountant (רואה חשבון) after first revenue. 0% VAT on US/EU client exports is the margin advantage.`,
+  finance: `You handle revenue, costs, margins, cash flow, Israeli tax, Stripe events, P&L. USE supabase_query on transactions table for real numbers. Zero revenue pre-Stripe. 0% VAT on US/EU exports is the margin advantage.`,
 
-  growth: `GROWTH AGENT ACTIVE. You handle: client acquisition, outreach campaigns, lead pipeline, conversion optimization, distribution strategy. Focus on the fastest path to the first paying client. Recommended first action: identify 10 target SMBs and draft cold outreach via Gmail automation.`,
+  growth: `You handle client acquisition, outreach, lead pipeline. USE supabase_query to check existing leads, supabase_insert to save new ones, web_search to research target companies. Fastest path to revenue: build a real lead list now.`,
 
-  content: `CONTENT AGENT ACTIVE. You handle: marketing copy, landing pages, agency positioning, email sequences, social posts, proposals, case studies. All content targets US/EU English-speaking SMB decision-makers. Tone: confident, specific, ROI-focused.`,
+  content: `You handle marketing copy, proposals, email sequences, social posts. Write the actual content in your response. Use memory_write to save important drafts. All content targets US/EU English-speaking SMB decision-makers.`,
 
-  sales: `SALES AGENT ACTIVE. You handle: client pipeline, proposal generation, pricing, objection handling, deal flow. Standard pricing: discovery call (free), automation audit ($500), monthly retainer ($1,500-$5,000 USD). Target first signed retainer within 14 days of first outreach.`,
+  sales: `You handle client pipeline, proposals, pricing, deal flow. USE supabase_query to check pipeline status. Use supabase_insert to log new deals. Standard pricing: discovery (free), audit (five hundred dollars), retainer (fifteen hundred to five thousand per month).`,
 
-  client_success: `CLIENT SUCCESS AGENT ACTIVE. You handle: client onboarding, delivery milestones, satisfaction tracking, renewal strategy, upsell opportunities. No clients yet — focus on designing the onboarding workflow so it is ready when first client signs.`,
+  client_success: `You handle client onboarding, delivery, satisfaction, renewal, upsell. USE supabase_query for client status. UPDATE records when milestones hit. No clients yet — design the onboarding workflow ready for first client.`,
 
-  legal: `LEGAL AGENT ACTIVE. You handle: Israeli business compliance, contract templates, privacy policy, terms of service, GDPR for EU clients, Israel Privacy Protection Law (PPL). CRITICAL: SASHA flags legal questions but does not provide legal advice — always recommend Josh consult an Israeli attorney (עורך דין) for binding decisions. Current priority: עוסק מורשה registration is legally required before invoicing.`,
+  legal: `You handle Israeli compliance, contracts, GDPR, privacy. SASHA flags issues but never gives binding legal advice — always recommend Josh consult an Israeli attorney (עורך דין). עוסק מורשה registration is legally required before invoicing.`,
 
-  strategic: `STRATEGIC ADVISOR ACTIVE. You handle: business direction, income stream ranking, market positioning, competitive analysis, 30/60/90 day planning. Top-ranked income stream remains AI Automation Agency. Recommend Josh focus all energy on landing first retainer client before diversifying.`,
+  strategic: `You handle business direction, income stream ranking, positioning, thirty sixty ninety day planning. USE memory_read to check current strategic context. USE memory_write to log decisions after major calls. First retainer before any pivot.`,
 
-  rnd: `R&D AGENT ACTIVE. You handle: market research, income model evaluation, competitive landscape, technology feasibility, new opportunity assessment. Reference the income_streams.md analysis: top 3 are AI Automation Agency, AI Content Operations, White-Label AI Chatbot. All validated against Israel stack.`,
+  rnd: `You handle market research, income model evaluation, competitive landscape. USE web_search for real market data. USE memory_read on sasha/memory/income_streams.md for current rankings. Write new findings to memory.`,
 
-  monitor: `MONITOR AGENT ACTIVE. You handle: platform health checks, agent performance, pipeline optimization, anomaly detection, system-wide status. Report on what is running, what is degraded, what needs attention. Escalate only real blockers.`,
+  monitor: `You handle platform health, agent performance, anomaly detection. USE make_list_scenarios to check real scenario state. USE supabase_query to verify data is flowing. Report what is actually running vs what should be.`,
 
-  it: `IT AGENT ACTIVE. You handle: internal infrastructure diagnostics, deployment issues, Netlify build failures, GitHub branch state, Supabase connection health, Make.com scenario errors, API key validity, pipeline stage failures, and cross-system integration problems. Diagnose first, fix autonomously where possible, escalate only what requires Josh's credentials or account access. Always check: correct branch (claude/new-repository-bap65s), env vars set, all agent files present, Supabase connection alive.`,
+  it: `You handle infrastructure diagnostics, deployment issues, Netlify, GitHub, Supabase health, Make.com errors. USE make_list_scenarios to check scenario state. Diagnose first, fix where tools allow, escalate only what needs Josh's credentials.`,
 
-  marketing: `MARKETING AGENT ACTIVE. You handle: brand strategy, market positioning, ICP definition, paid advertising strategy (Google/LinkedIn/Meta), social media content strategy (LinkedIn primary), SEO, email marketing sequences, PR, and analytics. Target market: US/EU SMB decision-makers. Current priority: define agency name + value proposition + LinkedIn presence. Note: NO social posting MCP connected — social content is drafted here, posted manually by Josh. Paid ads: recommend $0 spend until first retainer earned.`,
+  marketing: `You handle brand strategy, ICP, advertising strategy, LinkedIn, SEO, email marketing. Target US/EU SMB decision-makers. USE web_search to research competitors or ICP. USE memory_write to save brand docs. No paid ads until first retainer.`,
 
-  campaign: `CAMPAIGN MANAGER ACTIVE. You handle: campaign creation, launch, tracking, and optimization. Campaign #1 is cold email to 50 SMB targets (5-touch, 21-day sequence). Track all campaigns in Supabase. Success metrics: 30% open rate, 5% reply rate, 3+ demos per wave. Blockers: agency name + Gmail send permission. LinkedIn Campaign #2 can start immediately (manual, no MCP needed). Always define a success metric before any campaign launches.`,
+  campaign: `You handle campaign creation, launch, tracking, optimization. Campaign one: cold email to fifty SMB targets. USE make_list_scenarios to check campaign scenario status. USE supabase_query for campaign metrics. Save campaign records to Supabase.`,
 
-  media: `MEDIA AGENT ACTIVE. You handle: all visual and media production via Canva MCP. Can create: brand assets, proposal PDFs, social graphics, email headers, LinkedIn banners, one-pagers, case study templates, Canva video (15–60 sec). IMPORTANT VIDEO LIMITATION: No professional video editing MCP exists (no Descript, no Premiere). Best current video workflow: Josh records Loom → SASHA designs thumbnail + captions. Canva MCP is fully connected — can build and export designs now. Priority: proposal template + brand identity + Josh LinkedIn banner.`,
+  media: `You handle visual production. Canva MCP is not available inside this function. Describe the design brief clearly and queue the task — Josh or a future session will execute it in Canva.`,
 
-  general: `GENERAL ROUTING ACTIVE. Handle this query using the full SASHA operating context. Route to the most relevant domain knowledge available.`
+  general: `Handle this using full SASHA context. Use tools if real data or real action would help the response.`
 };
 
-// ── MANAGEMENT CLASSIFIER PROMPT ─────────────────────────────────────────────
-const MANAGEMENT_CLASSIFIER = `You are SASHA's Management Agent — Chief of Staff. Your only job is to classify incoming messages and route them to the correct department.
+// ── MANAGEMENT CLASSIFIER ─────────────────────────────────────────────────────
+const MANAGEMENT_CLASSIFIER = `You are SASHA's Management Agent. Classify and route incoming messages.
 
 Departments: operations, finance, growth, content, sales, client_success, legal, strategic, rnd, monitor, it, marketing, campaign, media, general
 
@@ -93,28 +100,28 @@ Rules:
 - Strategy/direction/planning → strategic
 - Research/market/competitors → rnd
 - Health check/monitoring/optimize → monitor
-- Infrastructure/deployment/errors/broken/fix/debug/Netlify/GitHub/Supabase issues → it
-- Brand/positioning/advertising/social media strategy/ICP/PR → marketing
-- Campaign/outreach tracking/A-B test/campaign performance/wave → campaign
-- Design/visual/Canva/video/proposal PDF/graphics/creative → media`;
+- Infrastructure/deployment/errors/broken/fix/debug → it
+- Brand/positioning/advertising/social → marketing
+- Campaign/outreach tracking/A-B test → campaign
+- Design/visual/Canva/graphics → media`;
 
-// ── QA AGENT PROMPT ──────────────────────────────────────────────────────────
+// ── QA PROMPT ─────────────────────────────────────────────────────────────────
 const QA_PROMPT = `You are SASHA's QA Agent. Your output is ONLY the final spoken response — nothing else.
 
 CRITICAL: Do NOT write critique, commentary, headers, ratings, or analysis. Output the response text only.
 
 Fix these issues if present, then output the corrected text:
-1. Remove markdown (asterisks, headers, bullet points, dashes, colons at end of lines) — plain spoken English only
+1. Remove markdown (asterisks, headers, bullet points, dashes) — plain spoken English only
 2. Trim to max 3 sentences — cut filler, keep substance
 3. Spell out numbers ("fifteen hundred", not "$1,500")
 4. Remove filler openers: "Certainly", "Of course", "Absolutely", "Great question", "Sure", "Got it"
-5. Strip robotic tech phrases: "Agent Active", "Pipeline", "Routing", "Processing complete", "Noted", "Understood" — replace with natural language
-6. Sound smooth and warm — like a trusted advisor talking to a friend, not a system announcement
+5. Strip robotic phrases: "Agent Active", "Pipeline", "Routing", "Processing complete", "Noted", "Understood"
+6. Sound smooth and warm — like a trusted advisor talking to a friend, not a status report
 
 If the response already passes all criteria, output it unchanged.
-Output the response text directly. First word is the response. No labels, no "Here is the corrected response:", no QA notes.`;
+Output the response text directly. First word is the response. No labels, no preamble.`;
 
-// ── SECURITY SCANNER ─────────────────────────────────────────────────────────
+// ── SECURITY SCAN ─────────────────────────────────────────────────────────────
 function securityScan(text) {
   const blockedPatterns = [
     /sk-ant-api/i,
@@ -123,120 +130,368 @@ function securityScan(text) {
     /bearer\s+[a-z0-9]{20,}/i,
     /password\s*[:=]\s*\S+/i,
   ];
-
   for (const pattern of blockedPatterns) {
     if (pattern.test(text)) {
-      return {
-        safe: false,
-        sanitized: 'Response withheld by Security Agent. Potential sensitive data detected. Josh, check the system logs.'
-      };
+      return { safe: false, sanitized: 'Response withheld by Security Agent. Potential sensitive data detected.' };
     }
   }
-
   if (text.length > 1200) {
-    return {
-      safe: true,
-      sanitized: text.substring(0, 1200).trim() + '... Response truncated by QA Agent for voice output.'
-    };
+    return { safe: true, sanitized: text.substring(0, 1200).trim() + '... Response truncated for voice output.' };
   }
-
   return { safe: true, sanitized: text };
 }
 
-// ── ANTHROPIC API CALL ───────────────────────────────────────────────────────
+// ── TOOL DEFINITIONS ──────────────────────────────────────────────────────────
+const TOOLS = [
+  {
+    name: 'make_list_scenarios',
+    description: 'List all Make.com automation scenarios with IDs, names, and enabled status.',
+    input_schema: { type: 'object', properties: {}, required: [] }
+  },
+  {
+    name: 'make_activate_scenario',
+    description: 'Activate (turn on) a Make.com scenario by ID so it runs on its schedule.',
+    input_schema: {
+      type: 'object',
+      properties: { scenario_id: { type: 'integer', description: 'Scenario ID from make_list_scenarios' } },
+      required: ['scenario_id']
+    }
+  },
+  {
+    name: 'make_run_scenario',
+    description: 'Manually trigger a Make.com scenario to run right now.',
+    input_schema: {
+      type: 'object',
+      properties: { scenario_id: { type: 'integer' } },
+      required: ['scenario_id']
+    }
+  },
+  {
+    name: 'make_trigger_webhook',
+    description: 'POST data to a Make.com webhook to trigger an automation (email send, data processing, etc.).',
+    input_schema: {
+      type: 'object',
+      properties: {
+        webhook_url: { type: 'string', description: 'Make.com webhook URL' },
+        data: { type: 'object', description: 'Payload to send' }
+      },
+      required: ['webhook_url', 'data']
+    }
+  },
+  {
+    name: 'supabase_query',
+    description: 'Read data from Supabase. Use to check clients, leads, campaigns, transactions.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        table: { type: 'string', description: 'Table: clients, leads, campaigns, campaign_contacts, transactions' },
+        select: { type: 'string', description: 'Columns to return, default *' },
+        filter: { type: 'string', description: 'PostgREST filter e.g. status=eq.active' },
+        limit: { type: 'integer', description: 'Max rows, default 20' }
+      },
+      required: ['table']
+    }
+  },
+  {
+    name: 'supabase_insert',
+    description: 'Insert a new record into Supabase (add a lead, client, campaign, transaction).',
+    input_schema: {
+      type: 'object',
+      properties: {
+        table: { type: 'string' },
+        data: { type: 'object', description: 'Record fields and values' }
+      },
+      required: ['table', 'data']
+    }
+  },
+  {
+    name: 'supabase_update',
+    description: 'Update existing records in Supabase.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        table: { type: 'string' },
+        filter: { type: 'string', description: 'PostgREST filter e.g. id=eq.5' },
+        data: { type: 'object', description: 'Fields to update' }
+      },
+      required: ['table', 'filter', 'data']
+    }
+  },
+  {
+    name: 'web_search',
+    description: 'Search the web. Use to research prospects, competitors, market data, company info.',
+    input_schema: {
+      type: 'object',
+      properties: { query: { type: 'string', description: 'Search query' } },
+      required: ['query']
+    }
+  },
+  {
+    name: 'memory_read',
+    description: 'Read a SASHA memory or config file from the repository.',
+    input_schema: {
+      type: 'object',
+      properties: { file: { type: 'string', description: 'Path under sasha/, e.g. sasha/memory/decisions.md or sasha/STATUS.md' } },
+      required: ['file']
+    }
+  },
+  {
+    name: 'memory_write',
+    description: 'Write or update a SASHA memory file. Log decisions, record actions, update STATUS.md.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', description: 'Path under sasha/, e.g. sasha/memory/decisions.md' },
+        content: { type: 'string', description: 'Full file content to write' },
+        message: { type: 'string', description: 'Commit message' }
+      },
+      required: ['file', 'content', 'message']
+    }
+  }
+];
+
+// ── TOOL EXECUTORS ────────────────────────────────────────────────────────────
+async function makeRequest(path, method = 'GET', body) {
+  const apiKey = process.env.MAKE_API_KEY;
+  if (!apiKey) return { error: 'MAKE_API_KEY not configured — add it to Netlify env vars to control Make.com directly' };
+  const base = process.env.MAKE_BASE_URL || 'https://eu1.make.com/api/v2';
+  const res = await fetch(`${base}${path}`, {
+    method,
+    headers: { 'Authorization': `Token ${apiKey}`, 'Content-Type': 'application/json' },
+    ...(body ? { body: JSON.stringify(body) } : {})
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return { error: data.message || `Make.com error ${res.status}` };
+  return data;
+}
+
+async function makeListScenarios() {
+  const teamId = process.env.MAKE_TEAM_ID;
+  const qs = teamId ? `?teamId=${teamId}&pg[limit]=100` : '?pg[limit]=100';
+  const data = await makeRequest(`/scenarios${qs}`);
+  if (data.error) return data;
+  return { scenarios: (data.scenarios || []).map(s => ({ id: s.id, name: s.name, isEnabled: s.isEnabled, nextExec: s.nextExec })) };
+}
+
+async function makeActivateScenario(id) {
+  const data = await makeRequest(`/scenarios/${id}`, 'PATCH', { isEnabled: true });
+  if (data.error) return data;
+  return { success: true, id: data.scenario?.id, name: data.scenario?.name, isEnabled: data.scenario?.isEnabled };
+}
+
+async function makeRunScenario(id) {
+  const data = await makeRequest(`/scenarios/${id}/run`, 'POST');
+  if (data.error) return data;
+  return { success: true, executionId: data.executionId };
+}
+
+async function makeTriggerWebhook(url, payload) {
+  try {
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const text = await res.text();
+    return res.ok ? { success: true, response: text } : { error: `Webhook ${res.status}: ${text}` };
+  } catch (e) { return { error: e.message }; }
+}
+
+async function supabaseRequest(path, method = 'GET', body) {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !key) return { error: 'SUPABASE_URL or SUPABASE_SERVICE_KEY not configured — add them to Netlify env vars to enable database access' };
+  const res = await fetch(`${url}/rest/v1${path}`, {
+    method,
+    headers: { 'apikey': key, 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+    ...(body ? { body: JSON.stringify(body) } : {})
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return { error: data.message || `Supabase error ${res.status}` };
+  return data;
+}
+
+async function supabaseQuery(table, select = '*', filter, limit = 20) {
+  let path = `/${table}?select=${select}&limit=${limit}`;
+  if (filter) path += `&${filter}`;
+  const data = await supabaseRequest(path);
+  if (data.error) return data;
+  return { rows: data, count: Array.isArray(data) ? data.length : 0 };
+}
+
+async function supabaseInsert(table, record) {
+  const data = await supabaseRequest(`/${table}`, 'POST', record);
+  if (data.error) return data;
+  return { success: true, inserted: data };
+}
+
+async function supabaseUpdate(table, filter, updates) {
+  const data = await supabaseRequest(`/${table}?${filter}`, 'PATCH', updates);
+  if (data.error) return data;
+  return { success: true, updated: data };
+}
+
+async function webSearch(query) {
+  const key = process.env.SERPER_API_KEY;
+  if (!key) return { error: 'SERPER_API_KEY not configured — sign up free at serper.dev (two thousand five hundred searches per month free) and add to Netlify env vars' };
+  const res = await fetch('https://google.serper.dev/search', {
+    method: 'POST',
+    headers: { 'X-API-KEY': key, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ q: query, num: 5 })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return { error: 'Search failed' };
+  return { results: (data.organic || []).slice(0, 5).map(r => ({ title: r.title, snippet: r.snippet, link: r.link })) };
+}
+
+async function memoryRead(filePath) {
+  if (!filePath.startsWith('sasha/')) return { error: 'Memory reads restricted to sasha/ directory' };
+  const token = process.env.GITHUB_TOKEN;
+  const repo = process.env.GITHUB_REPO || 'jjoshjjohnson/-ssc-dashboard';
+  if (!token) return { error: 'GITHUB_TOKEN not configured — add a GitHub PAT to Netlify env vars to enable file memory' };
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}?ref=claude/new-repository-bap65s`, {
+    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3.raw', 'User-Agent': 'SASHA-OS' }
+  });
+  if (!res.ok) return { error: `File not found: ${filePath}` };
+  const content = await res.text();
+  return { content: content.substring(0, 4000), path: filePath };
+}
+
+async function memoryWrite(filePath, content, message) {
+  if (!filePath.startsWith('sasha/')) return { error: 'Memory writes restricted to sasha/ directory' };
+  const token = process.env.GITHUB_TOKEN;
+  const repo = process.env.GITHUB_REPO || 'jjoshjjohnson/-ssc-dashboard';
+  if (!token) return { error: 'GITHUB_TOKEN not configured — add a GitHub PAT to Netlify env vars' };
+  let sha;
+  try {
+    const g = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}?ref=claude/new-repository-bap65s`, {
+      headers: { 'Authorization': `token ${token}`, 'User-Agent': 'SASHA-OS' }
+    });
+    if (g.ok) { const d = await g.json(); sha = d.sha; }
+  } catch {}
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+    method: 'PUT',
+    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json', 'User-Agent': 'SASHA-OS' },
+    body: JSON.stringify({ message, content: Buffer.from(content, 'utf8').toString('base64'), branch: 'claude/new-repository-bap65s', ...(sha ? { sha } : {}) })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return { error: data.message || 'GitHub write failed' };
+  return { success: true, path: filePath };
+}
+
+async function executeTool(name, input) {
+  try {
+    switch (name) {
+      case 'make_list_scenarios': return await makeListScenarios();
+      case 'make_activate_scenario': return await makeActivateScenario(input.scenario_id);
+      case 'make_run_scenario': return await makeRunScenario(input.scenario_id);
+      case 'make_trigger_webhook': return await makeTriggerWebhook(input.webhook_url, input.data || {});
+      case 'supabase_query': return await supabaseQuery(input.table, input.select, input.filter, input.limit);
+      case 'supabase_insert': return await supabaseInsert(input.table, input.data);
+      case 'supabase_update': return await supabaseUpdate(input.table, input.filter, input.data);
+      case 'web_search': return await webSearch(input.query);
+      case 'memory_read': return await memoryRead(input.file);
+      case 'memory_write': return await memoryWrite(input.file, input.content, input.message || 'SASHA memory update');
+      default: return { error: `Unknown tool: ${name}` };
+    }
+  } catch (err) { return { error: err.message }; }
+}
+
+// ── ANTHROPIC CALL (no tools — for management + QA) ──────────────────────────
 async function callClaude(apiKey, system, messages, maxTokens = 300) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01'
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: maxTokens,
-      system,
-      messages
-    })
+    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: maxTokens, system, messages })
   });
-
   const data = await res.json();
   if (!res.ok) throw new Error(data.error?.message || 'API error');
   return data.content[0].text;
 }
 
-// ── PIPELINE ─────────────────────────────────────────────────────────────────
+// ── AGENTIC LOOP ──────────────────────────────────────────────────────────────
+async function runAgenticLoop(apiKey, userMessage, conversationHistory, routing) {
+  const domainContext = DOMAIN_PROMPTS[routing.department] || DOMAIN_PROMPTS.general;
+  const system = `${BASE_IDENTITY}\n\n${domainContext}`;
+  const messages = [...conversationHistory, { role: 'user', content: userMessage }];
+  const toolsUsed = [];
+  const MAX_ITER = 4;
+
+  for (let i = 0; i < MAX_ITER; i++) {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 1024, system, tools: TOOLS, messages })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'API error');
+
+    if (data.stop_reason === 'end_turn' || data.stop_reason === 'max_tokens') {
+      const text = data.content.find(b => b.type === 'text')?.text || '';
+      return { response: text, toolsUsed };
+    }
+
+    if (data.stop_reason === 'tool_use') {
+      messages.push({ role: 'assistant', content: data.content });
+      const calls = data.content.filter(b => b.type === 'tool_use');
+      const results = await Promise.all(calls.map(async tc => {
+        toolsUsed.push(tc.name);
+        const result = await executeTool(tc.name, tc.input);
+        let content = JSON.stringify(result);
+        if (content.length > 3000) content = content.substring(0, 3000) + '...[truncated]';
+        return { type: 'tool_result', tool_use_id: tc.id, content };
+      }));
+      messages.push({ role: 'user', content: results });
+      continue;
+    }
+
+    const text = data.content.find(b => b.type === 'text')?.text || 'Done.';
+    return { response: text, toolsUsed };
+  }
+
+  return { response: 'Task underway — I hit my step limit for one turn. Tell me to continue and I will pick up where I left off.', toolsUsed };
+}
+
+// ── PIPELINE ──────────────────────────────────────────────────────────────────
 async function runPipeline(apiKey, userMessage, conversationHistory) {
   const userMsg = [{ role: 'user', content: userMessage }];
-  const fullHistory = [...conversationHistory, ...userMsg];
 
   // STEP 1: Management — classify and route
   let routing = { department: 'general', intent: 'general query', priority: 'normal' };
   try {
-    const classifyResponse = await callClaude(
-      apiKey,
-      MANAGEMENT_CLASSIFIER,
-      userMsg,
-      100
-    );
+    const classifyResponse = await callClaude(apiKey, MANAGEMENT_CLASSIFIER, userMsg, 100);
     const jsonMatch = classifyResponse.match(/\{[^}]+\}/s);
     const parsed = JSON.parse((jsonMatch ? jsonMatch[0] : classifyResponse).trim());
     if (parsed.department && DOMAIN_PROMPTS[parsed.department]) routing = parsed;
-  } catch {
-    // Classification failed — fall through to general
-  }
+  } catch {}
 
-  // STEP 2: Domain Agent — generate response with specialized context
-  const domainContext = DOMAIN_PROMPTS[routing.department] || DOMAIN_PROMPTS.general;
-  const agentSystemPrompt = `${BASE_IDENTITY}\n\n${domainContext}`;
-
-  const draftResponse = await callClaude(
-    apiKey,
-    agentSystemPrompt,
-    fullHistory,
-    300
-  );
+  // STEP 2: Agentic Loop — domain agent with real tools
+  const { response: draftResponse, toolsUsed } = await runAgenticLoop(apiKey, userMessage, conversationHistory, routing);
 
   // STEP 3: Security Scan — inline, no API call
   const secCheck = securityScan(draftResponse);
   if (!secCheck.safe) {
-    return { response: secCheck.sanitized, meta: { ...routing, qa: 'security_block' } };
+    return { response: secCheck.sanitized, meta: { ...routing, qa: 'security_block', toolsUsed } };
   }
 
   // STEP 4: QA Agent — validate and polish
   let finalResponse = secCheck.sanitized;
   try {
-    const qaMessages = [
-      {
-        role: 'user',
-        content: `User said: "${userMessage}"\n\nDraft response:\n${secCheck.sanitized}`
-      }
-    ];
+    const qaMessages = [{ role: 'user', content: `User said: "${userMessage}"\n\nDraft response:\n${secCheck.sanitized}` }];
     let qaRaw = await callClaude(apiKey, QA_PROMPT, qaMessages, 300);
-    // Strip leaked critique preambles if QA agent ignores output instructions
     const critiqueMarkers = [
       /^(here is|here's|the corrected|corrected response|final response)[^:]*:/i,
       /^(i need to stop|this response fails|qa (notes?|review|check)|criteria\s*\d)/i
     ];
     for (const marker of critiqueMarkers) {
-      if (marker.test(qaRaw.trim())) {
-        qaRaw = secCheck.sanitized;
-        break;
-      }
+      if (marker.test(qaRaw.trim())) { qaRaw = secCheck.sanitized; break; }
     }
     finalResponse = securityScan(qaRaw).sanitized;
-  } catch {
-    // QA failed — use security-scanned draft
-    finalResponse = secCheck.sanitized;
-  }
+  } catch {}
 
   return {
     response: finalResponse,
-    meta: { ...routing, pipeline: 'management→domain→security→qa' }
+    meta: { ...routing, pipeline: 'management→agentic→security→qa', toolsUsed }
   };
 }
 
-// ── HANDLER ──────────────────────────────────────────────────────────────────
+// ── HANDLER ───────────────────────────────────────────────────────────────────
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: CORS_HEADERS, body: '' };
@@ -252,7 +507,7 @@ exports.handler = async (event) => {
       statusCode: 200,
       headers: HEADERS,
       body: JSON.stringify({
-        response: 'API key not configured. Josh, add ANTHROPIC underscore API underscore KEY to Netlify environment variables. I am partially offline until then.',
+        response: 'API key not configured. Josh, add ANTHROPIC_API_KEY to Netlify environment variables.',
         meta: { department: 'general', pipeline: 'offline' }
       })
     };
@@ -271,11 +526,7 @@ exports.handler = async (event) => {
 
   try {
     const result = await runPipeline(apiKey, userMessage, conversationHistory);
-    return {
-      statusCode: 200,
-      headers: HEADERS,
-      body: JSON.stringify(result)
-    };
+    return { statusCode: 200, headers: HEADERS, body: JSON.stringify(result) };
   } catch (err) {
     const isAuthError = err.message?.includes('auth') || err.message?.includes('key');
     return {
@@ -283,8 +534,8 @@ exports.handler = async (event) => {
       headers: HEADERS,
       body: JSON.stringify({
         response: isAuthError
-          ? 'Authentication error. Josh, the API key may be invalid or expired. Check Netlify environment variables.'
-          : 'Pipeline error. Retrying on next message. All systems otherwise nominal.',
+          ? 'Authentication error — the API key may be invalid or expired. Check Netlify environment variables.'
+          : 'Something went wrong on my end. Try again in a moment.',
         meta: { error: err.message, pipeline: 'failed' }
       })
     };
