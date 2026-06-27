@@ -1472,8 +1472,16 @@ function initRec(){
   r.onerror=(e)=>{
     if(e.error==='no-speech'){if(autoRestart&&!speaking&&!thinking)sched();return;}
     if(e.error==='aborted')return;
-    document.getElementById('ltxt').textContent='Mic error: '+e.error+'. Tap to retry.';
+    autoRestart=false;
     listening=false;setVS('idle');
+    const lv=document.getElementById('ltxt');
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){
+      lv.textContent='Mic access denied — allow microphone in browser settings, then tap the orb.';
+    } else if(e.error==='audio-capture'){
+      lv.textContent='No microphone found. Plug one in and tap the orb.';
+    } else {
+      lv.textContent='Mic error: '+e.error+'. Tap the orb to retry.';
+    }
   };
   r.onend=()=>{listening=false;if(autoRestart&&!speaking&&!thinking)sched();};
   return r;
