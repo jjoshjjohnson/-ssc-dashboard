@@ -38,6 +38,7 @@ You have tools. When Josh asks you to do something, DO IT — don't describe wha
 - "What's in our pipeline?" → call supabase_query on leads or campaigns
 - "Research [company]" → call web_search to find real information
 - "Log this decision" → call memory_write to sasha/memory/decisions.md
+- "How are you doing?" / "What's working?" → call self_audit to analyze your own performance
 Never say "I would do X" when you can just do X.
 
 CONVERSATION STYLE:
@@ -247,6 +248,17 @@ const TOOLS = [
       },
       required: ['file', 'content', 'message']
     }
+  },
+  {
+    name: 'self_audit',
+    description: 'Analyze your own recent performance across conversations. Call when Josh asks how you are performing, what is working, or when you want to self-improve before tackling a complex task.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        focus: { type: 'string', description: 'What to analyze: "tools", "accuracy", "response_quality", or "overall"' }
+      },
+      required: []
+    }
   }
 ];
 
@@ -375,7 +387,57 @@ async function memoryWrite(filePath, content, message) {
   return { success: true, path: filePath };
 }
 
-async function executeTool(name, input) {
+async function selfAudit(apiKey, focus = 'overall') {
+  const reflectionsResult = await memoryRead('sasha/memory/reflections.jsonl');
+  if (reflectionsResult.error || !reflectionsResult.content?.trim()) {
+    return { status: 'no_data', message: 'No reflection history yet. Check back after a few more conversations.' };
+  }
+  const lines = reflectionsResult.content.trim().split('\n').filter(Boolean);
+  const recent = lines.slice(-15);
+  const text = await callClaude(
+    apiKey,
+    'You are a performance analysis system. Output valid JSON only, no other text.',
+    [{
+      role: 'user',
+      content: `Analyze these SASHA performance reflections. Focus: ${focus}.
+${recent.join('\n')}
+Output JSON: {"score":N,"strengths":["..."],"gaps":["..."],"recommendation":"one clear next action"} where N is 1-10.`
+    }],
+    300
+  );
+  try {
+    const parsed = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] || text);
+    return { ...parsed, reflections_analyzed: recent.length };
+  } catch { return { insight: text, reflections_analyzed: recent.length }; }
+}
+
+async function writeReflection(apiKey, userMessage, response, toolsUsed, routing) {
+  if (!process.env.GITHUB_TOKEN) return;
+  try {
+    const scoreRaw = await callClaude(
+      apiKey,
+      'Output one JSON object only, no other text.',
+      [{
+        role: 'user',
+        content: `Score this SASHA interaction.
+Dept: ${routing.department} | Tools used: ${toolsUsed.join(',') || 'none'}
+User: "${userMessage.substring(0, 80)}"
+Response: "${response.substring(0, 150)}"
+Output exactly: {"ts":"${new Date().toISOString()}","dept":"${routing.department}","tools":${JSON.stringify(toolsUsed)},"completion":N,"quality":N,"note":"one_word"}
+N = 1-10. completion = did response address request. quality = smoothness/accuracy.`
+      }],
+      100
+    );
+    const jsonMatch = scoreRaw.match(/\{[^}]+\}/);
+    if (!jsonMatch) return;
+    const existing = await memoryRead('sasha/memory/reflections.jsonl');
+    const lines = existing.error ? [] : existing.content.trim().split('\n').filter(Boolean);
+    lines.push(jsonMatch[0]);
+    await memoryWrite('sasha/memory/reflections.jsonl', lines.slice(-50).join('\n') + '\n', 'SASHA self-reflection');
+  } catch {}
+}
+
+async function executeTool(name, input, apiKey) {
   try {
     switch (name) {
       case 'make_list_scenarios': return await makeListScenarios();
@@ -388,6 +450,7 @@ async function executeTool(name, input) {
       case 'web_search': return await webSearch(input.query);
       case 'memory_read': return await memoryRead(input.file);
       case 'memory_write': return await memoryWrite(input.file, input.content, input.message || 'SASHA memory update');
+      case 'self_audit': return await selfAudit(apiKey, input.focus || 'overall');
       default: return { error: `Unknown tool: ${name}` };
     }
   } catch (err) { return { error: err.message }; }
@@ -432,7 +495,7 @@ async function runAgenticLoop(apiKey, userMessage, conversationHistory, routing)
       const calls = data.content.filter(b => b.type === 'tool_use');
       const results = await Promise.all(calls.map(async tc => {
         toolsUsed.push(tc.name);
-        const result = await executeTool(tc.name, tc.input);
+        const result = await executeTool(tc.name, tc.input, apiKey);
         let content = JSON.stringify(result);
         if (content.length > 3000) content = content.substring(0, 3000) + '...[truncated]';
         return { type: 'tool_result', tool_use_id: tc.id, content };
@@ -485,9 +548,16 @@ async function runPipeline(apiKey, userMessage, conversationHistory) {
     finalResponse = securityScan(qaRaw).sanitized;
   } catch {}
 
+  // STEP 5: Self-reflection — score this interaction and write to memory
+  // Capped at 2s so it never delays the response. Skipped silently if GITHUB_TOKEN absent.
+  await Promise.race([
+    writeReflection(apiKey, userMessage, finalResponse, toolsUsed, routing),
+    new Promise(resolve => setTimeout(resolve, 2000))
+  ]);
+
   return {
     response: finalResponse,
-    meta: { ...routing, pipeline: 'management→agentic→security→qa', toolsUsed }
+    meta: { ...routing, pipeline: 'management→agentic→security→qa→reflect', toolsUsed }
   };
 }
 
