@@ -39,6 +39,7 @@ You have tools. When Josh asks you to do something, DO IT — don't describe wha
 - "Research [company]" → call web_search to find real information
 - "Log this decision" → call memory_write to sasha/memory/decisions.md
 - "How are you doing?" / "What's working?" → call self_audit to analyze your own performance
+- "Send [person] an email about X" → call send_email — sends from os.sasha.ai@gmail.com
 Never say "I would do X" when you can just do X.
 
 CONVERSATION STYLE:
@@ -259,6 +260,19 @@ const TOOLS = [
       },
       required: []
     }
+  },
+  {
+    name: 'send_email',
+    description: 'Send an email from SASHA (os.sasha.ai@gmail.com). Use for client outreach, proposals, follow-ups, or any email Josh asks SASHA to send.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        to: { type: 'string', description: 'Recipient email address' },
+        subject: { type: 'string', description: 'Email subject line' },
+        body: { type: 'string', description: 'Email body — plain text or HTML' }
+      },
+      required: ['to', 'subject', 'body']
+    }
   }
 ];
 
@@ -437,6 +451,20 @@ N = 1-10. completion = did response address request. quality = smoothness/accura
   } catch {}
 }
 
+async function sendEmail(to, subject, body) {
+  const webhookUrl = process.env.SASHA_EMAIL_WEBHOOK;
+  if (!webhookUrl) return { error: 'SASHA_EMAIL_WEBHOOK not configured in Netlify env vars' };
+  try {
+    const res = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to, subject, body })
+    });
+    const text = await res.text();
+    return res.ok ? { success: true, to, subject } : { error: `Email send failed ${res.status}: ${text}` };
+  } catch (e) { return { error: e.message }; }
+}
+
 async function executeTool(name, input, apiKey) {
   try {
     switch (name) {
@@ -450,6 +478,7 @@ async function executeTool(name, input, apiKey) {
       case 'web_search': return await webSearch(input.query);
       case 'memory_read': return await memoryRead(input.file);
       case 'memory_write': return await memoryWrite(input.file, input.content, input.message || 'SASHA memory update');
+      case 'send_email': return await sendEmail(input.to, input.subject, input.body);
       case 'self_audit': return await selfAudit(apiKey, input.focus || 'overall');
       default: return { error: `Unknown tool: ${name}` };
     }
