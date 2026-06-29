@@ -67,9 +67,16 @@ My mission is to build and operate a sustainable, scalable, income-generating bu
 ## AGENT ROSTER
 
 **Pipeline (mandatory for all voice/text input):**
-`Josh → MANAGEMENT → DOMAIN AGENT → SECURITY → QA → OUTPUT`
+`Josh → [GROQ WHISPER] → MANAGEMENT → AGENTIC LOOP (11 tools) → SECURITY → QA → SELF-REFLECT → OUTPUT`
 
 No input bypasses this pipeline. Voice input from Josh is not exempt.
+
+**Tools available in Agentic Loop (up to 4 iterations per request):**
+- Make.com: `make_list_scenarios`, `make_activate_scenario`, `make_run_scenario`, `make_trigger_webhook`
+- Supabase: `supabase_query`, `supabase_insert`, `supabase_update`
+- Web: `web_search` (Serper.dev)
+- Memory: `memory_read`, `memory_write` (GitHub, sasha/ directory only)
+- Self: `self_audit` (reads reflections.jsonl, produces performance analysis)
 
 ### Management Agent
 - **Mandate:** Route all requests. Maintain task queue. Enforce pipeline. Update STATUS.md.
@@ -133,6 +140,10 @@ No input bypasses this pipeline. Voice input from Josh is not exempt.
 - **File:** /sasha/agents/client-success/client-success-agent.md
 - **Trigger:** Contract signed (immediate activation), monthly check-ins, renewal dates
 
+### Self-Improvement System
+- **Mandate:** Score every interaction (completion 1-10, quality 1-10) and write to `sasha/memory/reflections.jsonl`. When `self_audit` tool is called, read last 15 reflections and produce score/strengths/gaps/recommendation. SASHA gets measurably better with every conversation.
+- **Trigger:** Automatic after every response (capped at 2s). Manual via `self_audit` tool when Josh asks "how are you doing?" or before complex tasks.
+
 ### Strategic Advisor Agent
 - **Mandate:** Business direction, income stream ranking, market positioning, 30/60/90 day planning. Evaluates pivots, prioritizes focus, models opportunity cost. Primary lens: fastest path to first revenue.
 - **File:** /sasha/agents/strategic/strategic-agent.md
@@ -192,8 +203,13 @@ No input bypasses this pipeline. Voice input from Josh is not exempt.
 
 | Layer | Tool | Status |
 |---|---|---|
-| Automation | Make.com | Active |
-| Database | Supabase | Active |
+| AI Core | Anthropic Claude (Haiku) | Active — ANTHROPIC_API_KEY set |
+| Voice STT | Groq Whisper (whisper-large-v3-turbo) | Active — GROQ_API_KEY set |
+| Voice TTS | Web Speech API (English neural) | Active — browser-side |
+| Automation | Make.com | Active — needs MAKE_API_KEY to control via tools |
+| Database | Supabase | Active — needs SUPABASE_URL + SERVICE_KEY for tools |
+| Web Search | Serper.dev | Needs SERPER_API_KEY (free tier: 2500/mo) |
+| Memory | GitHub (sasha/ directory) | Active — GITHUB_TOKEN set |
 | Deployment | Netlify | Active |
 | Version Control | GitHub | Active |
 | Design | Canva | Active |

@@ -1,5 +1,5 @@
 # SASHA DECISIONS LOG
-Last Updated: 2026-06-25
+Last Updated: 2026-06-29
 
 Format: [DATE] | DECISION | RATIONALE | OUTCOME
 
@@ -54,3 +54,41 @@ Date: 2026-06-25
 Decision: Implement session budget protocol — one task per session, no parallel agents unless critical
 Rationale: Josh is on the $20/month Claude plan. Context is a finite resource. Focused single-task sessions preserve budget and produce better output.
 Outcome: CLAUDE.md updated with SESSION BUDGET PROTOCOL. STATUS.md contains resume point.
+
+---
+
+## 2026-06-28
+
+**DECISION-009**
+Date: 2026-06-28
+Decision: Replace Web Speech API with Groq Whisper for voice transcription
+Rationale: Web Speech API is unreliable from Israel — inconsistent recognition, no offline support. Groq whisper-large-v3-turbo is fast (< 1s), server-side, and accurate in English regardless of location.
+Outcome: sasha-transcribe.js deployed. GROQ_API_KEY set in Netlify. Voice input working reliably.
+
+**DECISION-010**
+Date: 2026-06-28
+Decision: Replace JARVIS sci-fi UI tone with smooth trusted advisor persona
+Rationale: "AI tech sound" was robotic and off-putting. SASHA should sound like Josh's sharpest advisor, not a movie AI.
+Outcome: BASE_IDENTITY rewritten. TTS rate 0.88, pitch 0.95. QA strips robotic phrases. English neural voice anchor added to prevent Russian/foreign voice selection.
+
+**DECISION-011**
+Date: 2026-06-28
+Decision: Remove animated pulse rings (nr1/nr2/nr3) from orb UI
+Rationale: At 125% browser zoom the rings extended beyond the canvas and crowded the layout. Clean orb is better UX.
+Outcome: All ring HTML, CSS, and init code removed. Max canvas 200px. 125% zoom friendly.
+
+---
+
+## 2026-06-29
+
+**DECISION-012**
+Date: 2026-06-29
+Decision: Upgrade SASHA from chatbot to autonomous agentic OS with real tool execution
+Rationale: Static domain agent responses are not autonomous. Josh needs SASHA to take real actions — activate Make.com scenarios, query/write Supabase, search the web. Claude tool use in the Netlify function enables full server-side execution without exposing any credentials to the client.
+Outcome: sasha-chat.js completely rewritten. 11 tools defined. Agentic loop (max 4 iterations) replacing static domain agent call. All platform creds remain server-side Netlify env vars.
+
+**DECISION-013**
+Date: 2026-06-29
+Decision: Implement self-improvement loop with post-response reflection
+Rationale: SASHA should get measurably better with each conversation. Scoring completion and quality 1-10 after every response, writing to reflections.jsonl, and making that data readable via self_audit tool creates a genuine learning loop.
+Outcome: writeReflection() runs after every pipeline execution (2s cap). self_audit tool reads last 15 reflections and produces actionable analysis. GITHUB_TOKEN set in Netlify to enable memory writes.

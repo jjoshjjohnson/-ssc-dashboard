@@ -1,67 +1,65 @@
 # SASHA CAPABILITIES REGISTER
-Last Updated: 2026-06-25
-Version: 0.1.0
+Last Updated: 2026-06-29
+Version: 0.3.0
 
 ---
 
-## TIER 1 — FULLY AUTONOMOUS (No human required)
+## TIER 1 — FULLY AUTONOMOUS (No human required, credentials set)
+
+### AI Pipeline
+- Full 5-stage pipeline: Management → Agentic Loop → Security → QA → Self-Reflect
+- Voice transcription via Groq Whisper (whisper-large-v3-turbo) — fast, accurate from Israel
+- Voice output via Web Speech API (English neural voice, rate 0.88, pitch 0.95)
+- Self-improvement loop: scores every interaction, writes to sasha/memory/reflections.jsonl
+- Self-audit tool: reads last 15 reflections, produces score/strengths/gaps/recommendation
 
 ### Compute & Code
 - Read/write/edit any file in working directory
 - Execute bash commands (Linux, Node, Python available)
-- Run git operations (commit, push, branch, PR via GitHub MCP)
+- Run git operations (commit, push, branch, PR)
 - Deploy to Netlify (full pipeline)
 - Manage Supabase (database, migrations, edge functions, branches)
-- Schedule recurring tasks via CronCreate
 
-### Automation
-- Make.com full platform access:
-  - Create/activate/deactivate/run scenarios
-  - Manage webhooks, data stores, data structures
-  - Connect to 1000+ apps via Make connectors
-  - Execute custom logic via Make tools
-  - Manage connections and credentials (via credential request flows)
+### Memory (GitHub — GITHUB_TOKEN set)
+- Read any file in sasha/ directory via memory_read tool
+- Write/update any file in sasha/ directory via memory_write tool
+- Self-reflection log: sasha/memory/reflections.jsonl (auto-updated after every conversation)
 
 ### Content & Design
 - Generate designs via Canva (templates, brand kits, export)
-- Research via WebSearch and WebFetch
 - Write, structure, and publish documents
+- Email drafting via Gmail MCP
 
-### Communication & Data
-- Gmail: search threads, draft emails, manage labels
-- Google Drive: create/read/search/copy files
-- Zoom: access recordings and meeting data
-
-### Intelligence
-- Spawn sub-agents for parallel workstreams
-- Web research (real-time)
-- Code generation and deployment
-- Data analysis via SQL (Supabase)
+### Research
+- Web research via WebSearch and WebFetch (Claude Code tools, session-based)
+- Zoom recordings and meeting data access
 
 ---
 
-## TIER 2 — REQUIRES JOSH ONE-TIME SETUP
+## TIER 2 — DEPLOYED BUT NEEDS ENV VARS (Tools built, credentials pending)
+
+| Tool | Env Var Needed | Capability Unlocked |
+|---|---|---|
+| make_list_scenarios | MAKE_API_KEY + MAKE_TEAM_ID | See all Make.com scenarios |
+| make_activate_scenario | MAKE_API_KEY | Turn on any scenario |
+| make_run_scenario | MAKE_API_KEY | Manually trigger any scenario |
+| make_trigger_webhook | None (uses webhook URL) | POST to any Make.com webhook |
+| supabase_query | SUPABASE_URL + SUPABASE_SERVICE_KEY | Read any database table |
+| supabase_insert | SUPABASE_URL + SUPABASE_SERVICE_KEY | Add clients, leads, campaigns |
+| supabase_update | SUPABASE_URL + SUPABASE_SERVICE_KEY | Update any database record |
+| web_search | SERPER_API_KEY | Real-time Google search |
+
+---
+
+## TIER 3 — REQUIRES JOSH ONE-TIME SETUP
 
 | Capability Needed | Blocker | Action Required from Josh |
 |---|---|---|
-| Payment processing | Stripe/PayPal account | Create account, share API keys |
-| Domain + hosting brand | Custom domain | Purchase domain, point to Netlify |
+| Payment processing | No Stripe account | Create account, share API keys |
+| Email sending (outbound) | Gmail send permission unconfirmed | Grant send scope or provide SMTP |
+| Legal invoicing | No עוסק מורשה number | Register at misim.gov.il |
+| Domain + hosting brand | No custom domain purchased | Buy domain (~$12), point to Netlify |
 | GitHub repo expansion | OAuth scope | Add repositories via settings |
-| Email sending (outbound) | Gmail send permission | Grant send scope or provide SMTP |
-| Legal entity | Business registration | Josh decision: LLC or sole proprietor |
-| Ad spend | Payment method | Approve budget + card on file |
-| OpenAI / Anthropic API | API keys | Share keys for AI-powered products |
-
----
-
-## TIER 3 — CAPABILITY GAPS (SASHA must build)
-
-- No outbound payment capability yet (need Stripe webhook + Make scenario)
-- No customer-facing UI beyond what Netlify can deploy
-- No CRM — can be built on Supabase
-- No email marketing automation — buildable via Make + Gmail/SMTP
-- No analytics dashboard — buildable on Supabase + Netlify
-- No inbound webhook handler — buildable via Make scenarios
 
 ---
 
@@ -69,11 +67,27 @@ Version: 0.1.0
 
 | Service | Status | Notes |
 |---|---|---|
-| GitHub | Active | Scoped to -ssc-dashboard repo |
-| Supabase | Active | Full project access |
-| Make.com | Active | Full platform access |
+| Anthropic Claude | Active | claude-haiku-4-5-20251001 for pipeline |
+| Groq Whisper | Active | whisper-large-v3-turbo, GROQ_API_KEY set |
+| GitHub | Active | Scoped to -ssc-dashboard repo, GITHUB_TOKEN set |
+| Supabase | Connected | Full access — needs SUPABASE_URL + SERVICE_KEY for tools |
+| Make.com | Connected | Full platform — needs MAKE_API_KEY for tools |
 | Netlify | Active | Deploy + project management |
 | Gmail | Active | Read + draft (send TBD) |
 | Google Drive | Active | Read/write |
 | Canva | Active | Design generation |
 | Zoom | Active | Recordings + meetings |
+| Serper.dev | Pending | Needs SERPER_API_KEY (free tier) |
+| Stripe | Not connected | Josh action required |
+| Zoho Invoice | Not set up | Josh action required |
+
+---
+
+## CAPABILITY GAPS (known)
+
+- No outbound payment capability (Stripe not connected)
+- No customer-facing landing page beyond sscsd.netlify.app
+- No CRM tables yet (Supabase schema build is next session task)
+- Gmail send permission unconfirmed (Make.com Gmail module is fallback)
+- No social media posting MCP — content drafted, posted manually by Josh
+- Video production: Canva only (no Descript/Premiere/HeyGen MCP)
