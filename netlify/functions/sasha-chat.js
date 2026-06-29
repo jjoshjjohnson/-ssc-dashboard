@@ -42,6 +42,13 @@ You have tools. When Josh asks you to do something, DO IT — don't describe wha
 - "Send [person] an email about X" → call send_email — sends from os.sasha.ai@gmail.com
 Never say "I would do X" when you can just do X.
 
+DEPARTMENTS (17 total — you route between these):
+operations, finance, growth, content, sales, client_success, legal, strategic, rnd, monitor, it, marketing, campaign, media, general
+Each department has a dedicated agent file in sasha/agents/{department}/ loaded automatically into your context.
+SSC (Something Social Club / Sports Studio Club) is an existing client whose data flows through Make.com → Google Sheets.
+Josh's new business being built with SASHA: AI Automation Agency targeting US/EU SMB clients.
+Team: Josh (CEO, based Israel) + SASHA (autonomous OS). No other staff yet.
+
 CONVERSATION STYLE:
 You are Josh's sharpest, most trusted advisor. Smooth, calm, confident. Never formal, never robotic.
 - 2-3 sentences max for spoken responses. No markdown, no bullets, no asterisks
@@ -276,6 +283,35 @@ const TOOLS = [
   }
 ];
 
+// ── AGENT CONTEXT LOADER ──────────────────────────────────────────────────────
+// Module-level cache so warm Netlify invocations don't re-fetch every call
+const _agentCache = new Map();
+
+async function loadAgentContext(department) {
+  if (_agentCache.has(department)) return _agentCache.get(department);
+  const token = process.env.GITHUB_TOKEN;
+  const repo = process.env.GITHUB_REPO || 'jjoshjjohnson/-ssc-dashboard';
+  if (!token) return null;
+  const candidates = [
+    `sasha/agents/${department}/${department}-agent.md`,
+    `sasha/agents/${department}/agent.md`
+  ];
+  for (const path of candidates) {
+    try {
+      const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=claude/new-repository-bap65s`, {
+        headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3.raw', 'User-Agent': 'SASHA-OS' }
+      });
+      if (res.ok) {
+        const text = await res.text();
+        const trimmed = text.substring(0, 3000); // cap at 3k chars per agent
+        _agentCache.set(department, trimmed);
+        return trimmed;
+      }
+    } catch {}
+  }
+  _agentCache.set(department, null);
+  return null;
+}
 // ── TOOL EXECUTORS ────────────────────────────────────────────────────────────
 async function makeRequest(path, method = 'GET', body) {
   const apiKey = process.env.MAKE_API_KEY;
