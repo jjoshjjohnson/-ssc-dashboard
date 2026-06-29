@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1200,7 +1200,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 // ── STATE ──
 let listening=false,speaking=false,thinking=false;
 let mediaRecorder=null,audioChunks=[],mediaStream=null,audioCtx=null,analyserNode=null,vadInterval=null;
-let history=[],autoRestart=false;
+let history=[];
 let speechUnlocked=false,iosKA=null,pendingSpeech=null;
 let vstate='idle',animId=null,rotAngle=0,particles=[];
 let cSize=220;
@@ -1411,7 +1411,7 @@ document.addEventListener('click',unlock);
 
 // ── SPEAK ──
 function speak(text){
-  if(!window.speechSynthesis){thinking=false;setVS('idle');if(autoRestart)setTimeout(startRecording,500);return;}
+  if(!window.speechSynthesis){thinking=false;setVS('idle');return;}
   if(!speechUnlocked){
     thinking=false;pendingSpeech=text;setVS('pending');
     const lv=document.getElementById('ltxt');lv.textContent='Tap screen to hear SASHA';lv.className='';return;
@@ -1443,7 +1443,7 @@ function speakNow(text){
     };
     u.onend=u.onerror=()=>{
       speaking=false;clearInterval(iosKA);
-      if(autoRestart)setTimeout(startRecording,600);else{setVS('idle');document.getElementById('ltxt').textContent='Tap sphere to continue';}
+      setVS('idle');document.getElementById('ltxt').textContent='Tap the orb to speak';
     };
     window.speechSynthesis.speak(u);
   },80);
@@ -1459,7 +1459,7 @@ async function startRecording(){
   try{
     mediaStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
   }catch(e){
-    autoRestart=false;setVS('idle');
+    setVS('idle');
     lv.textContent=e.name==='NotAllowedError'?'Mic access denied — allow microphone in browser settings, then tap the orb.':'No microphone found. Plug one in and tap the orb.';
     return;
   }
@@ -1492,7 +1492,7 @@ function startVAD(){
     if(Date.now()-startTime>MAX_MS){stopRecording();return;} // 30s max safety
     analyserNode.getByteFrequencyData(data);
     const avg=data.reduce((a,b)=>a+b,0)/data.length;
-    if(avg>12){
+    if(avg>20){
       hasSpoken=true;silenceStart=null;
       document.getElementById('ltxt').className='u';
     }else if(hasSpoken){
@@ -1512,7 +1512,7 @@ function stopRecording(){
 async function transcribeAudio(mimeType){
   if(!audioChunks.length){
     setVS('idle');document.getElementById('ltxt').textContent='No audio captured. Tap to try again.';
-    if(autoRestart)setTimeout(startRecording,1000);return;
+    return;
   }
   thinking=true;setVS('thinking');
   const lv=document.getElementById('ltxt');lv.textContent='Transcribing...';lv.className='';
@@ -1526,34 +1526,28 @@ async function transcribeAudio(mimeType){
     if(d.error&&!d.text){
       thinking=false;setVS('idle');
       lv.textContent=d.error.includes('GROQ_API_KEY')?'Add GROQ_API_KEY to Netlify env vars to enable voice.':'Transcription error. Tap to retry.';
-      if(autoRestart&&!d.error.includes('GROQ_API_KEY'))setTimeout(startRecording,1500);
       return;
     }
     const text=(d.text||'').trim();
     if(!text){
       thinking=false;setVS('idle');lv.textContent='Could not understand. Tap to try again.';
-      if(autoRestart)setTimeout(startRecording,1000);return;
+      return;
     }
     lv.textContent=text;lv.className='u';
     handleMsg(text);
   }catch(err){
     thinking=false;setVS('idle');lv.textContent='Transcription error. Tap to retry.';
-    if(autoRestart)setTimeout(startRecording,1500);
   }
 }
 
 // ── ORB CLICK ──
 function handleClick(){
   unlock();
-  if(speaking){stopQ();setVS('idle');if(autoRestart)setTimeout(startRecording,300);return;}
+  if(speaking){stopQ();setVS('idle');return;}
   if(pendingSpeech){const t=pendingSpeech;pendingSpeech=null;speakNow(t);return;}
   if(thinking)return;
-  if(autoRestart){
-    autoRestart=false;stopRecording();listening=false;setVS('idle');
-    document.getElementById('ltxt').textContent='Paused. Tap to resume.';
-  }else{
-    autoRestart=true;startRecording();
-  }
+  if(listening){stopRecording();setVS('idle');document.getElementById('ltxt').textContent='Tap the orb to speak';return;}
+  startRecording();
 }
 
 // ── HANDLE MESSAGE ──
@@ -1574,7 +1568,6 @@ async function handleMsg(text){
     speak(reply);
   }catch(err){
     thinking=false;setVS('idle');lv.textContent='Connection error. Tap to retry.';
-    if(autoRestart)setTimeout(startRecording,1200);
   }
 }
 
@@ -1614,11 +1607,11 @@ async function checkApi(){
 // ── KEYBOARD ──
 document.addEventListener('keydown',e=>{
   if(e.code==='Space'&&!e.target.matches('input,textarea,button')){
-    e.preventDefault();if(!listening&&!thinking){autoRestart=true;startRecording();}
+    e.preventDefault();if(!listening&&!thinking){startRecording();}
   }
 });
 document.addEventListener('keyup',e=>{
-  if(e.code==='Space'&&listening){autoRestart=false;stopRecording();}
+  if(e.code==='Space'&&listening){stopRecording();}
 });
 
 // ── INIT ──
@@ -1628,7 +1621,7 @@ window.addEventListener('load',async()=>{
   initCanvas();drawFrame();
   window.addEventListener('resize',()=>{if(animId)cancelAnimationFrame(animId);animId=null;initCanvas();drawFrame();});
   await checkApi();
-  if(!('ontouchstart' in window)){setTimeout(()=>{autoRestart=true;startRecording();},900);}
+  document.getElementById('ltxt').textContent='Tap the orb to speak';
 });
 </script>
 </body>
