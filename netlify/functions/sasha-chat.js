@@ -1,4 +1,4 @@
-// SASHA — Autonomous Agent OS
+﻿// SASHA — Autonomous Agent OS
 // Pipeline: USER → MANAGEMENT (classify) → AGENTIC LOOP (tools) → SECURITY → QA → OUTPUT
 // Tools: Make.com · Supabase · GitHub memory · Web search
 
@@ -536,7 +536,10 @@ async function callClaude(apiKey, system, messages, maxTokens = 300) {
 // ── AGENTIC LOOP ──────────────────────────────────────────────────────────────
 async function runAgenticLoop(apiKey, userMessage, conversationHistory, routing) {
   const domainContext = DOMAIN_PROMPTS[routing.department] || DOMAIN_PROMPTS.general;
-  const system = `${BASE_IDENTITY}\n\n${domainContext}`;
+  const agentDoc = await loadAgentContext(routing.department);
+  const system = agentDoc
+    ? `${BASE_IDENTITY}\n\n## AGENT BRIEF\n${agentDoc}\n\n## TASK CONTEXT\n${domainContext}`
+    : `${BASE_IDENTITY}\n\n${domainContext}`;
   const messages = [...conversationHistory, { role: 'user', content: userMessage }];
   const toolsUsed = [];
   const MAX_ITER = 4;
