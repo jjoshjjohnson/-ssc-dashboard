@@ -1,6 +1,6 @@
 # SASHA CAPABILITIES REGISTER
 Last Updated: 2026-06-29
-Version: 0.3.0
+Version: 0.3.1
 
 ---
 
@@ -13,6 +13,12 @@ Version: 0.3.0
 - Self-improvement loop: scores every interaction, writes to sasha/memory/reflections.jsonl
 - Self-audit tool: reads last 15 reflections, produces score/strengths/gaps/recommendation
 
+### Email
+- send_email tool: sends from os.sasha.ai@gmail.com via Make.com scenario 6368781
+- Supports plain text and HTML body
+- Use for: client outreach, proposals, follow-ups, status updates, any outbound email Josh requests
+- Webhook URL stored in SASHA_EMAIL_WEBHOOK Netlify env var
+
 ### Compute & Code
 - Read/write/edit any file in working directory
 - Execute bash commands (Linux, Node, Python available)
@@ -20,7 +26,7 @@ Version: 0.3.0
 - Deploy to Netlify (full pipeline)
 - Manage Supabase (database, migrations, edge functions, branches)
 
-### Memory (GitHub — GITHUB_TOKEN set)
+### Memory (GitHub — GITHUB_TOKEN set, Read+Write)
 - Read any file in sasha/ directory via memory_read tool
 - Write/update any file in sasha/ directory via memory_write tool
 - Self-reflection log: sasha/memory/reflections.jsonl (auto-updated after every conversation)
@@ -28,7 +34,7 @@ Version: 0.3.0
 ### Content & Design
 - Generate designs via Canva (templates, brand kits, export)
 - Write, structure, and publish documents
-- Email drafting via Gmail MCP
+- Email drafting and sending via Gmail (os.sasha.ai@gmail.com)
 
 ### Research
 - Web research via WebSearch and WebFetch (Claude Code tools, session-based)
@@ -56,10 +62,8 @@ Version: 0.3.0
 | Capability Needed | Blocker | Action Required from Josh |
 |---|---|---|
 | Payment processing | No Stripe account | Create account, share API keys |
-| Email sending (outbound) | Gmail send permission unconfirmed | Grant send scope or provide SMTP |
 | Legal invoicing | No עוסק מורשה number | Register at misim.gov.il |
 | Domain + hosting brand | No custom domain purchased | Buy domain (~$12), point to Netlify |
-| GitHub repo expansion | OAuth scope | Add repositories via settings |
 
 ---
 
@@ -69,11 +73,12 @@ Version: 0.3.0
 |---|---|---|
 | Anthropic Claude | Active | claude-haiku-4-5-20251001 for pipeline |
 | Groq Whisper | Active | whisper-large-v3-turbo, GROQ_API_KEY set |
-| GitHub | Active | Scoped to -ssc-dashboard repo, GITHUB_TOKEN set |
+| GitHub | Active | Scoped to -ssc-dashboard repo, GITHUB_TOKEN set (Read+Write) |
+| Gmail (SASHA) | Active | os.sasha.ai@gmail.com — send_email tool live via Make.com |
 | Supabase | Connected | Full access — needs SUPABASE_URL + SERVICE_KEY for tools |
-| Make.com | Connected | Full platform — needs MAKE_API_KEY for tools |
+| Make.com | Connected | Full platform — needs MAKE_API_KEY for scenario control |
 | Netlify | Active | Deploy + project management |
-| Gmail | Active | Read + draft (send TBD) |
+| Gmail (Josh) | Active | Read + draft (jj.josh.jj@gmail.com) |
 | Google Drive | Active | Read/write |
 | Canva | Active | Design generation |
 | Zoom | Active | Recordings + meetings |
@@ -88,6 +93,5 @@ Version: 0.3.0
 - No outbound payment capability (Stripe not connected)
 - No customer-facing landing page beyond sscsd.netlify.app
 - No CRM tables yet (Supabase schema build is next session task)
-- Gmail send permission unconfirmed (Make.com Gmail module is fallback)
 - No social media posting MCP — content drafted, posted manually by Josh
 - Video production: Canva only (no Descript/Premiere/HeyGen MCP)
