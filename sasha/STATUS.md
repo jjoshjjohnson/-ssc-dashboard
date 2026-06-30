@@ -1,9 +1,8 @@
 # SASHA STATUS
-Version: 0.3.1
-Last Updated: 2026-06-29
-Phase: BOOTSTRAP
+Version: 0.4.0
+Last Updated: 2026-06-30
+Phase: BOOTSTRAP — Day 5 of 30
 Location: Israel | Timezone: IDT (UTC+3)
-Session Model: $20/month — focused sessions, one task at a time
 
 ---
 
@@ -11,194 +10,147 @@ Session Model: $20/month — focused sessions, one task at a time
 
 ```
 BOOT SEQUENCE: COMPLETE ✓
-R&D AGENT: COMPLETE ✓ — 10 income streams ranked
-REPORT 001: COMPLETE ✓ — awaiting Josh review
-ISRAEL ADAPTATION: COMPLETE ✓ — entity, VAT, Stripe, invoicing documented
-SESSION PROTOCOL: ACTIVE ✓ — one task per session, push before ending
-FULL AGENT ROSTER: COMPLETE ✓ — 17 agents active
-SASHA CHAT UI: LIVE ✓ — sscsd.netlify.app (voice orb + 5-tab dashboard)
-ANTHROPIC_API_KEY: SET ✓ — Netlify env var configured
-GROQ_API_KEY: SET ✓ — Netlify env var configured (Whisper transcription live)
-GITHUB_TOKEN: SET ✓ — Netlify env var configured (SASHA memory active)
-SASHA_EMAIL_WEBHOOK: SET ✓ — Make.com webhook for os.sasha.ai@gmail.com
-IT DASHBOARD: LIVE ✓ — auto health check every 60s, live API ping
-MGMT OVERVIEW: LIVE ✓ — all 17 departments, status, focus, owner
+SASHA CHAT UI: LIVE ✓ — sscsd.netlify.app
+VOICE: LIVE ✓ — tap-to-talk (Groq Whisper STT + Web Speech TTS, English neural)
+ORB: CLEAN ✓ — tap once to speak, tap to stop, no auto-trigger
 
-AUTONOMOUS AGENTIC OS: LIVE ✓ — 12 real tools, 4-iteration agentic loop
-SELF-REFLECTION LOOP: LIVE ✓ — scores every conversation, writes to sasha/memory/reflections.jsonl
-SASHA GMAIL: LIVE ✓ — os.sasha.ai@gmail.com connected via Make.com scenario 6368781
-VOICE: LIVE ✓ — Groq Whisper STT + Web Speech TTS (English neural voice, 0.88 rate)
-ORB DESIGN: CLEAN ✓ — pulse rings removed, max 200px, 125% zoom friendly
+AUTONOMOUS AGENTIC OS: LIVE ✓ — 12 tools, 4-iteration agentic loop
+AGENT CONTEXT INJECTION: LIVE ✓ — auto-reads agent file per department on every call
+SELF-REFLECTION LOOP: LIVE ✓ — scores every conversation → sasha/memory/reflections.jsonl
+SELF-AUDIT TOOL: LIVE ✓ — reads last 15 reflections, outputs score/strengths/gaps
 
-FIRST REVENUE: Day 4 / 30-day target
+SASHA GMAIL: LIVE ✓ — os.sasha.ai@gmail.com via Make.com scenario 6368781
+SUPABASE: LIVE ✓ — 5 agency tables built (clients, leads, campaigns, campaign_contacts, transactions)
+GITHUB MEMORY: LIVE ✓ — read+write to sasha/ directory
+WEB SEARCH: LIVE ✓ — Serper.dev connected
+
+FIRST REVENUE: Day 5 / 30-day target
 ```
 
 ---
 
-## ⚡ RESUME POINT — START NEXT SESSION HERE
-
-**Read this file first. Then execute the single next action below.**
-
-**NEXT SESSION TASK:** Build Supabase schema — 5 tables needed for full autonomy
-- Tables: `clients`, `leads`, `campaigns`, `campaign_contacts`, `transactions`
-- Use skill: /sasha/skills/supabase-data-layer.md
-- Schema defined in: /sasha/agents/operations/operations-agent.md + /sasha/agents/campaign/campaign-agent.md
-- Execute with: mcp__e632a3d1__list_tables → mcp__e632a3d1__apply_migration
-- Output: all tables created + confirmed + logged to decisions.md
-- Push to git when done. Stop. That's the session.
-
-**Prerequisite:** Confirm Josh has added remaining Netlify env vars (see below) before running DB-dependent tools.
-
----
-
-## ENV VARS STATUS (Netlify)
+## ENV VARS STATUS (Netlify) — ALL SET ✓
 
 | Variable | Status | Unlocks |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | ✓ SET | Core pipeline |
 | `GROQ_API_KEY` | ✓ SET | Voice transcription (Whisper) |
 | `GITHUB_TOKEN` | ✓ SET | SASHA memory (reflections, decisions log) |
-| `SASHA_EMAIL_WEBHOOK` | ✓ SET | send_email tool → os.sasha.ai@gmail.com |
-| `MAKE_API_KEY` | ⬜ NEEDED | List/activate/run Make.com scenarios |
-| `MAKE_TEAM_ID` | ⬜ NEEDED | Filter scenarios to Josh's team |
-| `SUPABASE_URL` | ⬜ NEEDED | All database reads/writes |
-| `SUPABASE_SERVICE_KEY` | ⬜ NEEDED | All database reads/writes |
-| `SERPER_API_KEY` | ⬜ NEEDED | Web search (google.serper.dev — 2500/mo free) |
+| `SASHA_EMAIL_WEBHOOK` | ✓ SET | send_email → os.sasha.ai@gmail.com |
+| `MAKE_API_KEY` | ✓ SET | List/activate/run Make.com scenarios |
+| `MAKE_TEAM_ID` | ✓ SET (1166442) | Filter scenarios to Josh's team |
+| `SUPABASE_URL` | ✓ SET | All database reads/writes |
+| `SUPABASE_SERVICE_KEY` | ✓ SET | All database reads/writes |
+| `SERPER_API_KEY` | ✓ SET | Web search (Serper.dev) |
 
 ---
 
-## PENDING JOSH ACTIONS (in priority order)
+## ⚡ RESUME POINT — START NEXT SESSION HERE
 
-| # | Action | Where | Est. Time | Blocks |
-|---|---|---|---|---|
-| 1 | Add MAKE_API_KEY + MAKE_TEAM_ID | Netlify env vars | 5 min | SASHA controlling Make.com |
-| 2 | Add SUPABASE_URL + SUPABASE_SERVICE_KEY | Netlify env vars | 5 min | All database access |
-| 3 | Add SERPER_API_KEY | Netlify env vars (serper.dev free) | 5 min | Web research tool |
-| 4 | Register as עוסק מורשה | misim.gov.il | 30–60 min | Invoicing, Stripe, legal operation |
-| 5 | Create Stripe account (Israel) | stripe.com | 20 min | All revenue |
-| 6 | Share Stripe keys (publishable + secret + webhook) | Tell SASHA | 5 min | Payment automation |
-| 7 | Sign up for Zoho Invoice (free) | zoho.com/invoice | 10 min | Legal invoicing |
-| 8 | Purchase custom domain | Namecheap (~$12) | 5 min | Customer-facing URL |
-| 9 | Answer 3 open questions in report_001.md | Read report | 5 min | Agency name + budget + client approval flow |
-| 10 | Consult Israeli attorney before first client contract | Attorney referral | 1-2 hrs | Legal protection |
+**NEXT SESSION TASK:** First outreach — build and launch Campaign 1
+- Build lead list: 50 US/EU SMB targets via web_search
+- Insert into Supabase campaigns + campaign_contacts tables
+- Draft cold email sequence (3 emails) via content agent
+- Save to sasha/memory/campaign_001.md
+- Activate Make.com email scenario when ready
 
-**Total Josh time for items 1–3: ~15 minutes. Items 1-3 unlock SASHA's full tool suite.**
+**Secondary:** Update agent files with Day 5 status (income_streams, strategic plan Week 1 review)
 
 ---
 
-## PIPELINE (v0.3.1 — LIVE)
+## PIPELINE (v0.4.0 — LIVE)
 
 ```
-USER VOICE/TEXT
+USER VOICE (tap orb once)
      ↓
-[GROQ WHISPER] — audio → text (sasha-transcribe.js)
+[GROQ WHISPER] — audio → text
      ↓
-[MANAGEMENT] — classify department + intent (100 tokens, no tools)
+[MANAGEMENT] — classify department (100 tokens)
      ↓
-[AGENTIC LOOP] — domain agent with 12 real tools, max 4 iterations
+[AGENT CONTEXT LOADER] — reads sasha/agents/{dept}/{dept}-agent.md from GitHub
+     ↓
+[AGENTIC LOOP] — 12 tools, max 4 iterations
      ├── make_list_scenarios / make_activate_scenario / make_run_scenario
      ├── make_trigger_webhook
      ├── supabase_query / supabase_insert / supabase_update
      ├── web_search (Serper)
      ├── memory_read / memory_write (GitHub)
-     ├── self_audit (analyzes reflections.jsonl)
-     └── send_email (os.sasha.ai@gmail.com via Make.com)
+     ├── self_audit
+     └── send_email (os.sasha.ai@gmail.com)
      ↓
-[SECURITY] — inline scan (secrets, injection, PII)
+[SECURITY] — inline scan
      ↓
-[QA] — brevity, tone, format, no markdown (300 tokens)
+[QA] — tone, brevity, format (300 tokens)
      ↓
-[SELF-REFLECT] — scores interaction, writes to sasha/memory/reflections.jsonl
+[SELF-REFLECT] — score + write to reflections.jsonl
      ↓
-VOICE OUTPUT (Web Speech TTS, English neural voice)
+VOICE OUTPUT (tap to interrupt)
 ```
 
 ---
 
-## COMPLETED (v0.3.1 — 2026-06-29)
+## SUPABASE SCHEMA (project: upnjyjxnzjuuoyrcgdat)
 
-- [x] send_email tool: SASHA can send email from os.sasha.ai@gmail.com via Make.com scenario 6368781
-- [x] SashaOS Make.com scenario: webhook trigger → Gmail Send Email (os.sasha.ai) — active
-- [x] SASHA_EMAIL_WEBHOOK env var: set in Netlify functions scope
-- [x] GITHUB_TOKEN: fixed (was stored as 'sashaos' key, now properly keyed as GITHUB_TOKEN)
-- [x] GitHub PAT permissions: Contents upgraded to Read and Write — memory fully operational
+| Table | Purpose | Key Fields |
+|---|---|---|
+| `clients` | Active agency clients | name, mrr, status, tier, next_renewal |
+| `leads` | Prospect pipeline | name, email, status, score, estimated_mrr, next_action |
+| `campaigns` | Outreach campaigns | type, status, sent, replies, demos, won |
+| `campaign_contacts` | Contacts per campaign | campaign_id, lead_id, status, sequence_step |
+| `transactions` | Revenue log | client_id, amount, type, status, paid_at |
 
-## COMPLETED (v0.3.0 — 2026-06-29)
+---
 
-- [x] Autonomous agentic OS: replaced static domain agent with Claude tool use agentic loop
-- [x] 11 tools: make (4), supabase (3), web_search, memory_read, memory_write, self_audit
-- [x] Self-reflection loop: post-response scoring + reflections.jsonl memory
-- [x] self_audit tool: reads last 15 reflections, outputs score/strengths/gaps/recommendation
-- [x] Groq Whisper STT: replaced Web Speech API (unreliable from Israel) with Groq whisper-large-v3-turbo
-- [x] Voice redesign: smooth advisor tone, English neural voice anchor, rate 0.88 pitch 0.95
-- [x] Orb cleanup: removed 3 pulse rings (nr1/nr2/nr3), max 200px, 125% zoom friendly
-- [x] GITHUB_TOKEN: added to Netlify env vars — SASHA memory fully active
+## COMPLETED (v0.4.0 — 2026-06-30)
 
-## COMPLETED (v0.2.2 — 2026-06-27)
+- [x] Supabase schema: 5 agency tables built and live
+- [x] All 9 Netlify env vars set — full tool suite active
+- [x] Agent context injection: auto-reads dept agent file into every call
+- [x] Tap-to-talk: removed autoRestart continuous mode, killed desktop auto-start
+- [x] VAD threshold raised 12→20 — less sensitive to background noise
+- [x] send_email tool: os.sasha.ai@gmail.com live via Make.com
+- [x] GITHUB_TOKEN: fixed key name (was 'sashaos'), now GITHUB_TOKEN
+- [x] Make.com API: MAKE_API_KEY + MAKE_TEAM_ID set — SASHA controls all scenarios
 
-- [x] IT Agent created: P0-P3 priority tiers, 8-point cross-check checklist
-- [x] IT Dashboard tab (live): API health ping, response time, 60s auto-refresh
-- [x] Management tab: all 17 departments with status, focus, and owner
-- [x] Marketing Agent: brand strategy, ICP, LinkedIn, paid ads, SEO
-- [x] Campaign Manager Agent: campaign #1 (email) + #2 (LinkedIn), Supabase tracking schema, Make.com blueprint
-- [x] Media Agent: full Canva MCP capability map, video gap documented, proposal PDF structure
-- [x] Proposal System: 4 tiers ($500 audit → $5k/mo full stack), workflow, email template, tracking metrics
-- [x] Pipeline routing expanded: 15 named departments + general
+## COMPLETED (v0.3.0–0.3.1 — 2026-06-29)
+
+- [x] Autonomous agentic OS: 12 tools, 4-iteration Claude tool use loop
+- [x] Self-reflection loop: post-response scoring + reflections.jsonl
+- [x] self_audit tool: analyzes last 15 reflections
+- [x] Groq Whisper STT replacing Web Speech API
+- [x] Smooth advisor voice: English neural, rate 0.88, pitch 0.95
+- [x] Orb cleanup: pulse rings removed, 200px max, 125% zoom clean
+- [x] SASHA Gmail: os.sasha.ai@gmail.com connected
+
+## COMPLETED (v0.2.x — 2026-06-26/27)
+
+- [x] Full 17-agent roster built
 - [x] 5-tab JARVIS UI: VOICE | TASKS | PIPELINE | MGMT | IT
+- [x] IT Dashboard: live health check, 60s auto-refresh
+- [x] R&D Agent: 10 income streams ranked
+- [x] Israel adaptation: entity type, VAT, Stripe, invoicing
+- [x] 4-stage pipeline: management → agentic → security → qa
 
-## COMPLETED (v0.2.0 — 2026-06-26)
+---
 
-- [x] Full directory scaffold (/sasha/)
-- [x] Capability audit (9 MCP platforms confirmed)
-- [x] CLAUDE.md written — operating instructions for all sessions
-- [x] R&D Agent: 10 income streams ranked (income_streams.md)
-- [x] capabilities_needed.md — gap analysis for top 3 streams
-- [x] report_001.md — executive report for Josh
-- [x] 6 core skills written
-- [x] Israel adaptation: entity type, VAT rules, Stripe setup, invoicing
-- [x] Session budget protocol established
-- [x] SASHA chat UI: voice orb + 5-tab dashboard (sscsd.netlify.app)
-- [x] ANTHROPIC_API_KEY: Set in Netlify environment variables
-- [x] 4-stage agent pipeline implemented in sasha-chat.js
+## PENDING JOSH ACTIONS
+
+| # | Action | Where | Blocks |
+|---|---|---|---|
+| 1 | Register as עוסק מורשה | misim.gov.il | Invoicing + Stripe |
+| 2 | Create Stripe account (Israel) | stripe.com | All revenue |
+| 3 | Sign up for Zoho Invoice (free) | zoho.com/invoice | Legal invoicing |
+| 4 | Purchase custom domain (~$12) | Namecheap | Client-facing URL |
 
 ---
 
 ## INCOME STREAMS (top 3)
 
-| Rank | Stream | Time to Revenue | Margin | Stack Fit |
-|---|---|---|---|---|
-| 1 | AI Automation Agency (SMB retainers) | 7–14 days | 80–90% | 10/10 |
-| 2 | AI Content Operations Service | 5–10 days | 80–92% | 9/10 |
-| 3 | White-Label AI Chatbot Service | 10–14 days | 75–88% | 9/10 |
-
-Full analysis: /sasha/memory/income_streams.md
-
----
-
-## PLATFORM ARCHITECTURE (v0.3.1)
-
-```
-Josh (voice/text)
-     ↓
-sscsd.netlify.app (voice orb UI)
-     ↓
-/api/sasha-transcribe → Groq Whisper → transcript
-     ↓
-/api/sasha-chat → sasha-chat.js → 5-stage pipeline
-     ↓
-Real actions via 12 tools (Make.com, Supabase, GitHub, Serper, Gmail)
-     ↓
-Voice output + visual orb state
-```
-
----
-
-## FINANCIALS
-
-Revenue: $0 | Costs: ~$20/mo (Claude plan) | Runway: Josh-funded
-Entity: NOT REGISTERED (עוסק מורשה — Josh action required)
-Stripe: NOT CONNECTED (Josh action required)
-Target: $5,000 MRR by day 30
+| Rank | Stream | Time to Revenue | Margin |
+|---|---|---|---|
+| 1 | AI Automation Agency (SMB retainers) | 7–14 days | 80–90% |
+| 2 | AI Content Operations Service | 5–10 days | 80–92% |
+| 3 | White-Label AI Chatbot Service | 10–14 days | 75–88% |
 
 ---
 
@@ -207,16 +159,24 @@ Target: $5,000 MRR by day 30
 | System | Status |
 |---|---|
 | SASHA Chat UI | LIVE — sscsd.netlify.app |
-| Anthropic API | CONNECTED — key set in Netlify |
-| Groq Whisper | CONNECTED — voice transcription active |
-| Agent Pipeline | ACTIVE — 5 stages, 17 departments, 12 tools |
-| Self-Reflection | ACTIVE — scores every conversation |
-| SASHA Gmail | ACTIVE — os.sasha.ai@gmail.com, send_email tool live |
-| Make.com | CONNECTED — needs MAKE_API_KEY to list/control scenarios |
-| Supabase | CONNECTED — needs SUPABASE_URL + SERVICE_KEY to query |
-| GitHub Memory | ACTIVE — GITHUB_TOKEN set, read+write, reflections writing |
-| Web Search | PENDING — needs SERPER_API_KEY |
-| Netlify | CONNECTED — deployment active |
-| GitHub | CONNECTED — jjoshjjohnson/-ssc-dashboard |
-| Stripe | NOT CONNECTED — needs Josh |
-| Invoicing (Zoho) | NOT SET UP — needs Josh |
+| Voice (STT) | LIVE — Groq Whisper, tap-to-talk |
+| Voice (TTS) | LIVE — English neural, tap to interrupt |
+| Agent Pipeline | LIVE — 5 stages, 17 departments, 12 tools |
+| Agent Context | LIVE — auto-injects dept agent file per call |
+| Self-Reflection | LIVE — scores every conversation |
+| SASHA Gmail | LIVE — os.sasha.ai@gmail.com |
+| Make.com | LIVE — MAKE_API_KEY set, full scenario control |
+| Supabase | LIVE — 5 agency tables, service key set |
+| GitHub Memory | LIVE — read+write, reflections writing |
+| Web Search | LIVE — Serper.dev connected |
+| Netlify | LIVE — sscsd.netlify.app |
+| Stripe | NOT CONNECTED — Josh action required |
+| Invoicing (Zoho) | NOT SET UP — Josh action required |
+
+---
+
+## FINANCIALS
+
+Revenue: $0 | Costs: ~$20/mo | Runway: Josh-funded
+Entity: NOT REGISTERED (עוסק מורשה — required before invoicing)
+Target: $5,000 MRR by Day 30 (2026-07-25)
