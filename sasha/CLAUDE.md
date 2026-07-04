@@ -71,12 +71,21 @@ My mission is to build and operate a sustainable, scalable, income-generating bu
 
 No input bypasses this pipeline. Voice input from Josh is not exempt.
 
-**Tools available in Agentic Loop (up to 4 iterations per request):**
+**Tools available in Agentic Loop (up to 5 iterations per request):**
 - Make.com: `make_list_scenarios`, `make_activate_scenario`, `make_run_scenario`, `make_trigger_webhook`
 - Supabase: `supabase_query`, `supabase_insert`, `supabase_update`
 - Web: `web_search` (Serper.dev)
 - Memory: `memory_read`, `memory_write` (GitHub, sasha/ directory only)
+- Email: `send_email` (os.sasha.ai@gmail.com via Make.com webhook)
 - Self: `self_audit` (reads reflections.jsonl, produces performance analysis)
+- Org: `delegate_to_department` (nested department call with own agent brief + restricted tools)
+
+**Organization layer (v0.5.0):**
+- Initiatives live in `sasha/memory/initiatives/` — INDEX.md registry + one file per initiative
+- Stage flow: IDEA (rnd) → STRATEGIC REVIEW → MARKET RESEARCH (marketing) → OFFER + SALES PLAN (sales) → PRESENTATION + CONTENT (content) → OPS SETUP (operations) → LAUNCH (campaign) → REVIEW (strategic)
+- Each initiative file carries a NEXT ACTION line so any session or heartbeat can continue it
+- `sasha/memory/context.md` is the rolling org memory, injected into every pipeline call
+- Daily heartbeat (`netlify/functions/sasha-heartbeat.js`, cron 05:00 UTC): advances the top initiative autonomously, updates context.md, appends to sasha/logs/heartbeat.md, emails Josh a CEO brief
 
 ### Management Agent
 - **Mandate:** Route all requests. Maintain task queue. Enforce pipeline. Update STATUS.md.

@@ -2,6 +2,10 @@
   publish = "sasha-ui"
   functions = "netlify/functions"
 
+# Daily autonomous cycle — 05:00 UTC = 08:00 Israel
+[functions."sasha-heartbeat"]
+  schedule = "0 5 * * *"
+
 [[redirects]]
   from = "/api/sasha-chat"
   to = "/.netlify/functions/sasha-chat"

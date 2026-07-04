@@ -1,7 +1,7 @@
 # SASHA STATUS
-Version: 0.4.0
-Last Updated: 2026-06-30
-Phase: BOOTSTRAP — Day 5 of 30
+Version: 0.5.0
+Last Updated: 2026-07-04
+Phase: BOOTSTRAP — Day 9 of 30
 Location: Israel | Timezone: IDT (UTC+3)
 
 ---
@@ -14,7 +14,10 @@ SASHA CHAT UI: LIVE ✓ — sscsd.netlify.app
 VOICE: LIVE ✓ — tap-to-talk (Groq Whisper STT + Web Speech TTS, English neural)
 ORB: CLEAN ✓ — tap once to speak, tap to stop, no auto-trigger
 
-AUTONOMOUS AGENTIC OS: LIVE ✓ — 12 tools, 4-iteration agentic loop
+AUTONOMOUS AGENTIC OS: LIVE ✓ — 13 tools, 5-iteration agentic loop
+ORGANIZATION LAYER: LIVE ✓ — initiatives pipeline + delegate_to_department cross-dept handoffs
+DAILY HEARTBEAT: SCHEDULED ✓ — 08:00 Israel, advances top initiative, emails CEO brief
+ORG MEMORY: LIVE ✓ — sasha/memory/context.md injected into every conversation
 AGENT CONTEXT INJECTION: LIVE ✓ — auto-reads agent file per department on every call
 SELF-REFLECTION LOOP: LIVE ✓ — scores every conversation → sasha/memory/reflections.jsonl
 SELF-AUDIT TOOL: LIVE ✓ — reads last 15 reflections, outputs score/strengths/gaps
@@ -100,6 +103,16 @@ VOICE OUTPUT (tap to interrupt)
 | `transactions` | Revenue log | client_id, amount, type, status, paid_at |
 
 ---
+
+## COMPLETED (v0.5.0 — 2026-07-04)
+
+- [x] Organization layer: initiatives pipeline (IDEA→STRATEGIC→MARKETING→SALES→CONTENT→OPS→LAUNCH→REVIEW)
+- [x] delegate_to_department tool: any agent hands work to another department, gets full deliverable back
+- [x] Daily heartbeat: scheduled Netlify function (08:00 Israel) — autonomous work cycle + CEO email brief
+- [x] Org memory: sasha/memory/context.md loaded into every conversation (5-min cache)
+- [x] First initiative seeded: ai-automation-agency at stage MARKET RESEARCH
+- [x] JARVIS HUD UI: fullscreen command interface, live telemetry, radar, waveform, objective card
+- [x] Full system review: git/GitHub/Netlify/Supabase verified; env var name mismatch found + fix documented
 
 ## COMPLETED (v0.4.0 — 2026-06-30)
 

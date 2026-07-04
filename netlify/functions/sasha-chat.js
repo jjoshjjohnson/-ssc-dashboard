@@ -40,7 +40,17 @@ You have tools. When Josh asks you to do something, DO IT — don't describe wha
 - "Log this decision" → call memory_write to sasha/memory/decisions.md
 - "How are you doing?" / "What's working?" → call self_audit to analyze your own performance
 - "Send [person] an email about X" → call send_email — sends from os.sasha.ai@gmail.com
+- Cross-department work → call delegate_to_department to hand a task to the right agent
 Never say "I would do X" when you can just do X.
+
+ORGANIZATION WORKFLOW — you operate like a real company:
+Ideas become INITIATIVES tracked in sasha/memory/initiatives/. Every initiative flows through stages:
+IDEA (rnd) → STRATEGIC REVIEW (strategic) → MARKET RESEARCH (marketing) → OFFER + SALES PLAN (sales) → PRESENTATION + CONTENT (content) → OPS SETUP (operations) → LAUNCH (campaign) → REVIEW (strategic)
+Rules:
+1. When R&D surfaces a promising idea, create sasha/memory/initiatives/<slug>.md via memory_write (stage, owner, next action) and add one line to sasha/memory/initiatives/INDEX.md
+2. Use delegate_to_department to get the next stage's deliverable from the owning department, then append it to the initiative file and advance the stage
+3. Keep sasha/memory/context.md current — it is the organization's working memory, loaded into every conversation
+4. The daily heartbeat advances the top initiative autonomously — leave a clear "NEXT ACTION" line in each initiative file so any future cycle knows exactly what to do
 
 DEPARTMENTS (17 total — you route between these):
 operations, finance, growth, content, sales, client_success, legal, strategic, rnd, monitor, it, marketing, campaign, media, general
@@ -73,9 +83,9 @@ const DOMAIN_PROMPTS = {
 
   legal: `You handle Israeli compliance, contracts, GDPR, privacy. SASHA flags issues but never gives binding legal advice — always recommend Josh consult an Israeli attorney (עורך דין). עוסק מורשה registration is legally required before invoicing.`,
 
-  strategic: `You handle business direction, income stream ranking, positioning, thirty sixty ninety day planning. USE memory_read to check current strategic context. USE memory_write to log decisions after major calls. First retainer before any pivot.`,
+  strategic: `You handle business direction, income stream ranking, positioning, thirty sixty ninety day planning. USE memory_read to check current strategic context. USE memory_write to log decisions after major calls. You are the gate for new initiatives: when reviewing one, score it go/no-go against fastest-path-to-revenue and write the verdict into its initiative file. First retainer before any pivot.`,
 
-  rnd: `You handle market research, income model evaluation, competitive landscape. USE web_search for real market data. USE memory_read on sasha/memory/income_streams.md for current rankings. Write new findings to memory.`,
+  rnd: `You handle market research, income model evaluation, competitive landscape. USE web_search for real market data. USE memory_read on sasha/memory/income_streams.md for current rankings. When you surface a promising idea: create sasha/memory/initiatives/<slug>.md via memory_write (stage IDEA, next action STRATEGIC REVIEW), register it in INDEX.md, then delegate_to_department strategic for the go/no-go. Ideas move through the org automatically — never leave one as just a suggestion in chat.`,
 
   monitor: `You handle platform health, agent performance, anomaly detection. USE make_list_scenarios to check real scenario state. USE supabase_query to verify data is flowing. Report what is actually running vs what should be.`,
 
@@ -280,8 +290,25 @@ const TOOLS = [
       },
       required: ['to', 'subject', 'body']
     }
+  },
+  {
+    name: 'delegate_to_department',
+    description: 'Hand a task to another department agent and get back its full deliverable (research doc, plan, presentation outline, copy). Use to move initiatives through the organization: rnd → strategic → marketing → sales → content → operations → campaign.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        department: { type: 'string', description: 'One of: operations, finance, growth, content, sales, client_success, legal, strategic, rnd, monitor, it, marketing, campaign, media' },
+        task: { type: 'string', description: 'The specific deliverable to produce, e.g. "full market research for X" or "go/no-go strategic review of Y"' },
+        context: { type: 'string', description: 'Everything the department needs to know: the initiative, prior stage outputs, constraints' }
+      },
+      required: ['department', 'task']
+    }
   }
 ];
+
+// Restricted toolset for delegated department calls (no recursion, no email)
+const DELEGATE_TOOLS = TOOLS.filter(t =>
+  ['web_search', 'supabase_query', 'supabase_insert', 'memory_read', 'memory_write'].includes(t.name));
 
 // ── AGENT CONTEXT LOADER ──────────────────────────────────────────────────────
 // Module-level cache so warm Netlify invocations don't re-fetch every call
@@ -501,6 +528,47 @@ async function sendEmail(to, subject, body) {
   } catch (e) { return { error: e.message }; }
 }
 
+// Runs a task inside another department: its own agent brief, restricted tools, up to 3 steps.
+// Returns the department's deliverable so the calling agent can integrate or file it.
+async function runDeptTask(apiKey, department, task, context) {
+  const domainContext = DOMAIN_PROMPTS[department];
+  if (!domainContext) return { error: `Unknown department: ${department}` };
+  const agentDoc = await loadAgentContext(department);
+  const system = `You are SASHA's ${department} department agent producing a written deliverable for an internal handoff.
+${agentDoc ? `\n## AGENT BRIEF\n${agentDoc}\n` : ''}
+## DEPARTMENT ROLE
+${domainContext}
+
+Produce the complete deliverable directly — a real document, not a summary of what you would do. Use tools for real data where they help. If the task involves an initiative file, read it first and write your output back to it with memory_write, appending a "## ${department.toUpperCase()} — <date>" section and updating the NEXT ACTION line.`;
+  const messages = [{ role: 'user', content: `TASK: ${task}${context ? `\n\nCONTEXT:\n${context}` : ''}` }];
+  const toolsUsed = [];
+  for (let i = 0; i < 3; i++) {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 1500, system, tools: DELEGATE_TOOLS, messages })
+    });
+    const data = await res.json();
+    if (!res.ok) return { error: data.error?.message || 'Delegate API error' };
+    if (data.stop_reason === 'tool_use') {
+      messages.push({ role: 'assistant', content: data.content });
+      const calls = data.content.filter(b => b.type === 'tool_use');
+      const results = await Promise.all(calls.map(async tc => {
+        toolsUsed.push(`${department}:${tc.name}`);
+        const result = await executeTool(tc.name, tc.input, apiKey);
+        let content = JSON.stringify(result);
+        if (content.length > 2500) content = content.substring(0, 2500) + '...[truncated]';
+        return { type: 'tool_result', tool_use_id: tc.id, content };
+      }));
+      messages.push({ role: 'user', content: results });
+      continue;
+    }
+    const text = data.content.find(b => b.type === 'text')?.text || '';
+    return { department, deliverable: text.substring(0, 4000), toolsUsed };
+  }
+  return { department, deliverable: 'Department hit its step limit — partial work saved to memory. Delegate again to continue.', toolsUsed };
+}
+
 async function executeTool(name, input, apiKey) {
   try {
     switch (name) {
@@ -516,6 +584,7 @@ async function executeTool(name, input, apiKey) {
       case 'memory_write': return await memoryWrite(input.file, input.content, input.message || 'SASHA memory update');
       case 'send_email': return await sendEmail(input.to, input.subject, input.body);
       case 'self_audit': return await selfAudit(apiKey, input.focus || 'overall');
+      case 'delegate_to_department': return await runDeptTask(apiKey, input.department, input.task, input.context || '');
       default: return { error: `Unknown tool: ${name}` };
     }
   } catch (err) { return { error: err.message }; }
@@ -534,15 +603,28 @@ async function callClaude(apiKey, system, messages, maxTokens = 300) {
 }
 
 // ── AGENTIC LOOP ──────────────────────────────────────────────────────────────
+// Rolling org memory — cached per warm container, refreshed every 5 minutes
+let _orgCtx = null, _orgCtxAt = 0;
+async function loadOrgContext() {
+  if (_orgCtx !== null && Date.now() - _orgCtxAt < 300000) return _orgCtx;
+  const r = await memoryRead('sasha/memory/context.md');
+  _orgCtx = r.error ? '' : r.content.substring(0, 1500);
+  _orgCtxAt = Date.now();
+  return _orgCtx;
+}
+
 async function runAgenticLoop(apiKey, userMessage, conversationHistory, routing) {
   const domainContext = DOMAIN_PROMPTS[routing.department] || DOMAIN_PROMPTS.general;
-  const agentDoc = await loadAgentContext(routing.department);
-  const system = agentDoc
-    ? `${BASE_IDENTITY}\n\n## AGENT BRIEF\n${agentDoc}\n\n## TASK CONTEXT\n${domainContext}`
-    : `${BASE_IDENTITY}\n\n${domainContext}`;
+  const [agentDoc, orgCtx] = await Promise.all([loadAgentContext(routing.department), loadOrgContext()]);
+  const system = [
+    BASE_IDENTITY,
+    orgCtx ? `## ORGANIZATION MEMORY (live)\n${orgCtx}` : '',
+    agentDoc ? `## AGENT BRIEF\n${agentDoc}` : '',
+    `## TASK CONTEXT\n${domainContext}`
+  ].filter(Boolean).join('\n\n');
   const messages = [...conversationHistory, { role: 'user', content: userMessage }];
   const toolsUsed = [];
-  const MAX_ITER = 4;
+  const MAX_ITER = 5;
 
   for (let i = 0; i < MAX_ITER; i++) {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -679,3 +761,6 @@ exports.handler = async (event) => {
     };
   }
 };
+
+// Shared internals for the scheduled heartbeat function
+exports._internals = { TOOLS, executeTool, callClaude, memoryRead, memoryWrite, sendEmail, writeReflection };
